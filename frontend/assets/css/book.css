@@ -1,0 +1,950 @@
+/* ═══════════════════════════════════════════════════════════════
+   book.css — Premium Booking Engine · Santa Fe Beach Club
+   ═══════════════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap');
+
+/* ── Tokens ───────────────────────────────────────────────────── */
+:root {
+    --sand:      #C8996F;
+    --sand-dark: #A67850;
+    --sand-light:#F5EDE3;
+    --ocean:     #0B6E8F;
+    --ocean-light:#E0F4FB;
+    --gold:      #D4A843;
+    --ivory:     #FFFDF9;
+    --ink:       #1A1A2E;
+    --muted:     #6B7280;
+    --border:    #EAE0D5;
+    --green:     #16A34A;
+    --red:       #DC2626;
+    --shadow-sm: 0 2px 12px rgba(0,0,0,0.06);
+    --shadow-md: 0 8px 32px rgba(0,0,0,0.10);
+    --shadow-lg: 0 20px 60px rgba(0,0,0,0.14);
+    --radius:    14px;
+    --radius-sm: 8px;
+}
+
+/* ── Reset / Base ─────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    background: linear-gradient(160deg, #F7F1EB 0%, #EEF6FA 100%);
+    min-height: 100vh;
+    font-family: 'Outfit', sans-serif;
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ── Header ───────────────────────────────────────────────────── */
+.main-header {
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 5%;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 1px 20px rgba(0,0,0,0.06);
+}
+
+.logo-link {
+    font-family: 'Playfair Display', serif;
+    color: var(--sand);
+    text-decoration: none;
+    font-size: 20px;
+    letter-spacing: 1px;
+}
+
+.main-header nav ul { list-style: none; display: flex; gap: 28px; }
+.main-header nav a {
+    color: var(--ink);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    opacity: 0.75;
+    transition: opacity 0.2s;
+}
+.main-header nav a:hover { opacity: 1; }
+
+/* ── Layout ───────────────────────────────────────────────────── */
+.bk-layout {
+    max-width: 1120px;
+    margin: 48px auto 96px;
+    padding: 0 24px;
+}
+
+/* ── Progress Bar ─────────────────────────────────────────────── */
+.bk-progress {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 48px;
+    max-width: 680px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 48px;
+}
+
+.bk-step {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #C0C4CC;
+    transition: color 0.3s;
+}
+
+.bk-step-num {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid #D1D5DB;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    transition: all 0.3s ease;
+    background: #fff;
+}
+
+.bk-step-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+/* Active step */
+.bk-step--active {
+    color: var(--ocean);
+}
+.bk-step--active .bk-step-num {
+    border-color: var(--ocean);
+    color: var(--ocean);
+    background: var(--ocean-light);
+    box-shadow: 0 0 0 4px rgba(11,110,143,0.12);
+}
+
+/* Done step */
+.bk-step--done {
+    color: var(--sand);
+}
+.bk-step--done .bk-step-num {
+    background: var(--sand);
+    border-color: var(--sand);
+    color: #fff;
+}
+
+.bk-line {
+    flex: 1;
+    height: 2px;
+    background: #E5E7EB;
+    margin: 0 16px;
+    border-radius: 2px;
+    transition: background 0.4s;
+    position: relative;
+    overflow: hidden;
+}
+
+.bk-step--done + .bk-line {
+    background: linear-gradient(90deg, var(--sand), var(--sand-dark));
+}
+
+/* ── Two-column grid ──────────────────────────────────────────── */
+.bk-columns {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 28px;
+    align-items: start;
+}
+
+/* ── Cards ────────────────────────────────────────────────────── */
+.bk-card {
+    background: #fff;
+    border-radius: var(--radius);
+    padding: 28px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border);
+    transition: box-shadow 0.2s;
+}
+.bk-card:hover { box-shadow: var(--shadow-md); }
+
+.bk-card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 22px;
+    color: var(--ink);
+    letter-spacing: 0.3px;
+}
+
+/* ── Step 1: Room Card ────────────────────────────────────────── */
+.bk-room-box {
+    background: linear-gradient(135deg, #FFFBF7 0%, #FDF5EC 100%);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 22px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    position: relative;
+    overflow: hidden;
+}
+
+.bk-room-box::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 4px;
+    background: linear-gradient(180deg, var(--sand), var(--sand-dark));
+    border-radius: 4px 0 0 4px;
+}
+
+.bk-room-name {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: var(--ink);
+    letter-spacing: 0.5px;
+}
+
+.bk-room-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 14px;
+}
+
+.bk-room-perks {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.bk-room-perks li {
+    font-size: 13px;
+    color: #444;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.info-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: var(--muted);
+    color: #fff;
+    font-size: 9px;
+    font-weight: 700;
+    cursor: help;
+    flex-shrink: 0;
+}
+
+.bk-room-right {
+    text-align: right;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.bk-edit-icon {
+    position: absolute;
+    top: -10px;
+    right: 0;
+    color: var(--muted);
+    background: #F3F4F6;
+    padding: 7px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+    line-height: 0;
+}
+.bk-edit-icon:hover { background: var(--sand-light); color: var(--sand-dark); }
+
+.bk-room-price {
+    font-size: 22px;
+    font-weight: 800;
+    margin-top: 18px;
+    margin-bottom: 5px;
+    color: var(--ink);
+    letter-spacing: -0.5px;
+}
+
+.bk-room-subtext {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.5;
+}
+
+/* ── Actions (Back / Next) ────────────────────────────────────── */
+.bk-actions {
+    display: flex;
+    gap: 14px;
+    margin-top: 20px;
+    align-items: stretch;
+}
+
+.btn-bk-back {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 22px;
+    background: #fff;
+    color: var(--ink);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: all 0.2s;
+    gap: 6px;
+    min-height: 50px;
+}
+.btn-bk-back:hover {
+    border-color: var(--sand);
+    color: var(--sand-dark);
+    background: var(--sand-light);
+}
+
+.btn-bk-next {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 28px;
+    background: linear-gradient(135deg, var(--sand) 0%, var(--sand-dark) 100%);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: 'Outfit', sans-serif;
+    letter-spacing: 0.3px;
+    transition: all 0.25s;
+    box-shadow: 0 4px 14px rgba(200,153,111,0.40);
+    position: relative;
+    overflow: hidden;
+}
+.btn-bk-next::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 60%);
+    pointer-events: none;
+}
+.btn-bk-next:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 24px rgba(200,153,111,0.50);
+}
+.btn-bk-next:active { transform: translateY(0); }
+.btn-bk-next:disabled {
+    background: #D1D5DB;
+    box-shadow: none;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* ── Step 2: Guest Details Form ───────────────────────────────── */
+.bk-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+}
+
+.bk-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.bk-form-group label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--ink);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+}
+
+.req { color: var(--sand-dark); }
+
+.bk-form-group input,
+.bk-form-group select,
+.bk-form-group textarea {
+    padding: 12px 15px;
+    border: 1.5px solid #E5E7EB;
+    border-radius: var(--radius-sm);
+    font-family: 'Outfit', sans-serif;
+    font-size: 14px;
+    color: var(--ink);
+    background: #FAFAFA;
+    outline: none;
+    width: 100%;
+    transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+}
+
+.bk-form-group input:focus,
+.bk-form-group select:focus,
+.bk-form-group textarea:focus {
+    border-color: var(--sand);
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(200,153,111,0.15);
+}
+
+.bk-form-group input::placeholder,
+.bk-form-group textarea::placeholder { color: #B0B5BF; }
+
+.bk-input-combo {
+    display: flex;
+    align-items: stretch;
+    border: 1.5px solid #E5E7EB;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    background: #fff;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    width: 100%;
+}
+
+.bk-input-combo:focus-within {
+    border-color: var(--sand);
+    box-shadow: 0 0 0 3px rgba(200,153,111,0.15);
+    background: #fff;
+}
+
+.bk-input-combo.is-invalid,
+.bk-input-combo:has(.is-invalid) {
+    border-color: #dc2626 !important;
+    box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.2) !important;
+}
+
+.bk-input-combo select {
+    flex: 0 0 auto !important;
+    border: none !important;
+    border-right: 1.5px solid #E5E7EB !important;
+    border-radius: 0 !important;
+    background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%234B5563' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") no-repeat calc(100% - 8px) center !important;
+    font-size: 13.5px !important;
+    font-family: 'Outfit', sans-serif !important;
+    font-weight: 500 !important;
+    color: var(--ink) !important;
+    cursor: pointer !important;
+    outline: none !important;
+    box-shadow: none !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+}
+
+.bk-form-group .bk-input-combo select.bk-select-honorific,
+.bk-input-combo select.bk-select-honorific {
+    flex: 0 0 66px !important;
+    width: 66px !important;
+    min-width: 66px !important;
+    max-width: 66px !important;
+    padding: 12px 18px 12px 10px !important;
+    background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23374151' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") no-repeat calc(100% - 7px) center !important;
+    font-size: 14px !important;
+    font-family: 'Outfit', sans-serif !important;
+    font-weight: 500 !important;
+    color: var(--ink) !important;
+}
+
+.bk-form-group .bk-input-combo select.bk-select-phone,
+.bk-input-combo select.bk-select-phone,
+.bk-input-combo select.bk-select-small {
+    flex: 0 0 102px !important;
+    width: 102px !important;
+    min-width: 102px !important;
+    max-width: 102px !important;
+    padding: 12px 24px 12px 14px !important;
+    font-size: 15px !important;
+    font-family: 'Outfit', sans-serif !important;
+    font-weight: 600 !important;
+    color: var(--ink) !important;
+    text-align: left !important;
+    background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%23374151' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") no-repeat calc(100% - 10px) center !important;
+}
+
+.bk-input-combo input {
+    flex: 1 1 auto !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    padding: 12px 16px !important;
+    font-size: 15px !important;
+    font-family: 'Outfit', sans-serif !important;
+    color: var(--ink) !important;
+    outline: none !important;
+}
+
+/* ── Step 3: Payment ──────────────────────────────────────────── */
+.bk-card-header-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 22px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+.bk-pay-logos {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.bk-pay-option {
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    margin-bottom: 10px;
+    padding: 16px 18px;
+    background: #FAFAFA;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+}
+.bk-pay-option:hover { border-color: var(--sand); background: var(--sand-light); }
+.bk-pay-option--active {
+    border-color: var(--sand);
+    background: linear-gradient(135deg, #FDF5EC, #FFF9F5);
+    box-shadow: 0 0 0 3px rgba(200,153,111,0.15);
+}
+
+.bk-pay-radio {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+.bk-pay-radio input[type="radio"] { accent-color: var(--sand); width: 16px; height: 16px; }
+
+.bk-card-form {
+    margin-top: 16px;
+    margin-left: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.bk-card-brands { display: flex; gap: 8px; margin-bottom: 4px; }
+.bk-cb {
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 4px 10px;
+    font-size: 10px;
+    font-weight: 700;
+}
+.bk-cb-visa { color: #1434CB; }
+.bk-cb-mc { color: #EB001B; display: flex; align-items: center; }
+.mc-circles { width: 14px; height: 14px; background: #EB001B; border-radius: 50%; position: relative; }
+.mc-circles::after {
+    content: ''; width: 14px; height: 14px; background: #F79E1B; border-radius: 50%;
+    position: absolute; left: 8px; opacity: 0.8;
+}
+
+.bk-select-full {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1.5px solid #E5E7EB;
+    border-radius: var(--radius-sm);
+    background: #FAFAFA;
+    font-family: 'Outfit', sans-serif;
+    font-size: 14px;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.bk-select-full:focus {
+    border-color: var(--sand);
+    box-shadow: 0 0 0 3px rgba(200,153,111,0.15);
+    background: #fff;
+}
+
+.bk-warning-msg {
+    background: #FFFBEB;
+    border: 1px solid #FDE68A;
+    padding: 12px 16px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    color: #92400E;
+    margin-top: 12px;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    line-height: 1.5;
+}
+
+.bk-schedule-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 13px 0;
+    font-size: 14px;
+    font-weight: 500;
+    border-bottom: 1px solid #F3F4F6;
+    color: var(--ink);
+}
+.bk-schedule-row--due { border-bottom: none; padding-bottom: 0; }
+.bk-amt { font-weight: 700; color: var(--ocean); }
+
+.bk-policy-intro { font-size: 14px; color: var(--muted); margin-bottom: 14px; line-height: 1.6; }
+.bk-policy-box {
+    background: #FAFAFA;
+    border: 1px solid var(--border);
+    padding: 15px;
+    font-size: 13px;
+    color: #555;
+    line-height: 1.7;
+    height: 120px;
+    overflow-y: auto;
+    margin-bottom: 15px;
+    border-radius: var(--radius-sm);
+}
+
+.bk-checkbox-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 13px;
+    color: #444;
+    cursor: pointer;
+    line-height: 1.5;
+}
+.bk-checkbox-label input { margin-top: 2px; accent-color: var(--sand); }
+.bk-checkbox-label a { color: var(--ocean); text-decoration: none; font-weight: 600; }
+
+.bk-secured-by {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 12px;
+    font-size: 12px;
+    color: var(--muted);
+}
+
+/* ── Booking Summary Sidebar ──────────────────────────────────── */
+.bk-sidebar {
+    background: #fff;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+    position: sticky;
+    top: 84px;
+}
+
+.bk-sidebar-header {
+    background: linear-gradient(135deg, #1A2B40 0%, #0B3D5E 100%);
+    padding: 22px 24px 18px;
+}
+
+.bk-sb-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 17px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 0;
+}
+
+.bk-sb-inner {
+    padding: 22px 24px;
+}
+
+.bk-sb-dates {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 14px;
+}
+.bk-sb-dcol { display: flex; flex-direction: column; gap: 3px; }
+.bk-sb-dcol:last-child { text-align: right; }
+.bk-sb-dmain { font-size: 14px; font-weight: 700; color: var(--ink); }
+.bk-sb-dsub { font-size: 11px; color: var(--muted); }
+.bk-sb-darrow { color: var(--border); flex-shrink: 0; }
+
+.bk-sb-meta {
+    font-size: 13px;
+    color: var(--ocean);
+    font-weight: 600;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 16px;
+}
+
+.bk-sb-room-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 10px;
+}
+
+.bk-sb-room-detail {
+    background: linear-gradient(135deg, #F9F6F2, #FDF5EC);
+    padding: 14px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    margin-bottom: 20px;
+    border: 1px solid var(--border);
+    color: #555;
+    line-height: 1.6;
+}
+.bk-sb-room-detail strong {
+    display: block;
+    font-weight: 700;
+    color: var(--ink);
+    font-size: 13px;
+    margin-bottom: 3px;
+}
+
+.bk-sb-total-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 0 12px;
+    border-top: 1.5px solid var(--border);
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--ink);
+}
+
+.bk-sb-total-row span:last-child { color: var(--sand-dark); }
+
+.bk-sb-tax-note {
+    font-size: 11px;
+    color: #AAB0BA;
+    text-align: right;
+    margin-top: 2px;
+}
+
+/* ── Trust badges inside sidebar ──────────────────────────────── */
+.bk-trust-badges {
+    display: flex;
+    gap: 8px;
+    padding: 14px 24px 18px;
+    border-top: 1px solid var(--border);
+    justify-content: center;
+}
+
+.bk-trust-badge {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--muted);
+    text-align: center;
+    flex: 1;
+}
+.bk-trust-badge svg { color: var(--green); }
+
+/* ── Error banner ─────────────────────────────────────────────── */
+.bk-error-banner {
+    background: #FEF2F2;
+    border: 1px solid #FECACA;
+    color: #B91C1C;
+    padding: 12px 18px;
+    border-radius: var(--radius-sm);
+    margin-bottom: 22px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+/* ── Success Page ─────────────────────────────────────────────── */
+.booking-page-container {
+    max-width: 760px;
+    margin: 56px auto 80px;
+    padding: 0 24px;
+}
+
+.booking-card {
+    background: #fff;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-lg);
+    padding: 36px;
+}
+
+.success-box { text-align: center; }
+
+.success-icon {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    margin: 0 auto 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #D1FAE5, #A7F3D0);
+    color: #065F46;
+    box-shadow: 0 0 0 8px rgba(16,185,129,0.12);
+}
+
+.success-box h2 {
+    margin: 0 0 10px;
+    font-family: 'Playfair Display', serif;
+    font-size: 32px;
+    color: var(--ink);
+}
+
+.ticket-pass {
+    margin-top: 28px;
+    border: 2px dashed var(--sand);
+    border-radius: var(--radius);
+    background: var(--ivory);
+    padding: 28px;
+    text-align: left;
+}
+
+.ticket-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 18px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+}
+
+.ticket-header-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+}
+
+.ticket-brand {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--sand-dark);
+}
+
+.ticket-ref {
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.ticket-grid {
+    display: grid;
+    grid-template-columns: 1fr 140px;
+    gap: 20px;
+    align-items: center;
+}
+
+.btn-home {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 24px;
+    background: linear-gradient(135deg, var(--sand), var(--sand-dark));
+    color: #fff;
+    text-decoration: none;
+    padding: 13px 28px;
+    border-radius: var(--radius-sm);
+    font-weight: 700;
+    font-size: 15px;
+    box-shadow: 0 4px 14px rgba(200,153,111,0.35);
+    transition: all 0.25s;
+}
+.btn-home:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(200,153,111,0.45); }
+
+.booking-success-actions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 20px;
+}
+
+.btn-pdf {
+    all: unset;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    border: 1.5px solid var(--sand-dark);
+    background: var(--sand-dark);
+    color: #fff;
+    text-decoration: none;
+    padding: 9px 16px;
+    border-radius: var(--radius-sm);
+    font-weight: 700;
+    cursor: pointer;
+    font-family: 'Outfit', sans-serif;
+    font-size: 13px;
+    line-height: 1;
+    min-height: 36px;
+    white-space: nowrap;
+    appearance: none;
+    transition: all 0.2s;
+}
+.btn-pdf--header { padding: 6px 12px; font-size: 11px; min-height: 30px; }
+.btn-pdf:hover { background: var(--sand); border-color: var(--sand); }
+
+/* ── Print ────────────────────────────────────────────────────── */
+@media print {
+    body { background: #fff !important; }
+    .main-header, .btn-home, .btn-pdf, .success-icon { display: none !important; }
+    .booking-page-container { max-width: none; margin: 0; padding: 0; }
+    .booking-card { border: 0; box-shadow: none; padding: 0; }
+    .success-box { text-align: left; }
+    .ticket-pass { break-inside: avoid; page-break-inside: avoid; }
+}
+
+/* ── Responsive ───────────────────────────────────────────────── */
+@media (max-width: 860px) {
+    .bk-columns {
+        grid-template-columns: 1fr;
+    }
+    .bk-sidebar {
+        order: -1;
+        position: static;
+    }
+    .bk-form-grid { grid-template-columns: 1fr; }
+    .bk-progress { max-width: 100%; overflow-x: auto; padding-bottom: 4px; }
+    .bk-step-label { display: none; }
+    .bk-layout { margin-top: 28px; }
+}
+
+@media (max-width: 480px) {
+    .bk-card { padding: 18px; }
+    .bk-actions { flex-direction: column; }
+    .btn-bk-back { justify-content: center; }
+    .booking-card { padding: 20px; }
+}

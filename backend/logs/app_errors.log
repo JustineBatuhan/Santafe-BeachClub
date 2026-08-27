@@ -1,0 +1,56 @@
+[2026-08-21 10:49:40] [WARNING] [IP: ::1] filemtime(): stat failed for C:\SantaBeachClub-BookingSystem\frontend/styles.css in C:\SantaBeachClub-BookingSystem\frontend\rooms.php:238
+[2026-08-21 10:49:40] [WARNING] [IP: ::1] filemtime(): stat failed for C:\SantaBeachClub-BookingSystem\frontend/rooms.css in C:\SantaBeachClub-BookingSystem\frontend\rooms.php:239
+[2026-08-22 08:43:20] [EXCEPTION] [IP: ::1] Class "SecurityLogger" not found in C:\SantaBeachClub-BookingSystem\frontend\settings.php:75
+Stack trace:
+#0 {main}
+
+[2026-08-22 08:45:03] [WARNING] [IP: ::1] require_once(C:\SantaBeachClub-BookingSystem\frontend/../backend/helpers/rbac.php): Failed to open stream: No such file or directory in C:\SantaBeachClub-BookingSystem\frontend\settings.php:6
+[2026-08-22 08:45:03] [EXCEPTION] [IP: ::1] Failed opening required 'C:\SantaBeachClub-BookingSystem\frontend/../backend/helpers/rbac.php' (include_path='C:\xampp\php\PEAR') in C:\SantaBeachClub-BookingSystem\frontend\settings.php:6
+Stack trace:
+#0 {main}
+
+[2026-08-22 08:45:05] [WARNING] [IP: ::1] require_once(C:\SantaBeachClub-BookingSystem\frontend/../backend/helpers/rbac.php): Failed to open stream: No such file or directory in C:\SantaBeachClub-BookingSystem\frontend\settings.php:6
+[2026-08-22 08:45:05] [EXCEPTION] [IP: ::1] Failed opening required 'C:\SantaBeachClub-BookingSystem\frontend/../backend/helpers/rbac.php' (include_path='C:\xampp\php\PEAR') in C:\SantaBeachClub-BookingSystem\frontend\settings.php:6
+Stack trace:
+#0 {main}
+
+[2026-08-22 08:45:10] [WARNING] [IP: ::1] require_once(C:\SantaBeachClub-BookingSystem\frontend/../backend/helpers/rbac.php): Failed to open stream: No such file or directory in C:\SantaBeachClub-BookingSystem\frontend\settings.php:6
+[2026-08-22 08:45:10] [EXCEPTION] [IP: ::1] Failed opening required 'C:\SantaBeachClub-BookingSystem\frontend/../backend/helpers/rbac.php' (include_path='C:\xampp\php\PEAR') in C:\SantaBeachClub-BookingSystem\frontend\settings.php:6
+Stack trace:
+#0 {main}
+
+[2026-08-22 08:45:17] [WARNING] [IP: ::1] require_once(C:\SantaBeachClub-BookingSystem\frontend/../backend/helpers/rbac.php): Failed to open stream: No such file or directory in C:\SantaBeachClub-BookingSystem\frontend\settings.php:6
+[2026-08-22 08:45:17] [EXCEPTION] [IP: ::1] Failed opening required 'C:\SantaBeachClub-BookingSystem\frontend/../backend/helpers/rbac.php' (include_path='C:\xampp\php\PEAR') in C:\SantaBeachClub-BookingSystem\frontend\settings.php:6
+Stack trace:
+#0 {main}
+
+[2026-08-22 08:45:23] [WARNING] [IP: ::1] require_once(C:\SantaBeachClub-BookingSystem\frontend/../backend/helpers/rbac.php): Failed to open stream: No such file or directory in C:\SantaBeachClub-BookingSystem\frontend\settings.php:6
+[2026-08-22 08:45:23] [EXCEPTION] [IP: ::1] Failed opening required 'C:\SantaBeachClub-BookingSystem\frontend/../backend/helpers/rbac.php' (include_path='C:\xampp\php\PEAR') in C:\SantaBeachClub-BookingSystem\frontend\settings.php:6
+Stack trace:
+#0 {main}
+
+[2026-08-22 08:45:31] [WARNING] [IP: ::1] require_once(C:\SantaBeachClub-BookingSystem\frontend/../backend/helpers/rbac.php): Failed to open stream: No such file or directory in C:\SantaBeachClub-BookingSystem\frontend\settings.php:6
+[2026-08-22 08:45:31] [EXCEPTION] [IP: ::1] Failed opening required 'C:\SantaBeachClub-BookingSystem\frontend/../backend/helpers/rbac.php' (include_path='C:\xampp\php\PEAR') in C:\SantaBeachClub-BookingSystem\frontend\settings.php:6
+Stack trace:
+#0 {main}
+
+[2026-08-22 19:07:10] [ERROR] [IP: ::1] file_put_contents(): Passing null to parameter #1 ($filename) of type string is deprecated in C:\SantaBeachClub-BookingSystem\backend\libs\phpqrcode\phpqrcode.php:56
+[2026-08-22 19:07:10] [EXCEPTION] [IP: ::1] Path cannot be empty in C:\SantaBeachClub-BookingSystem\backend\libs\phpqrcode\phpqrcode.php:56
+Stack trace:
+#0 C:\SantaBeachClub-BookingSystem\backend\libs\phpqrcode\phpqrcode.php(56): file_put_contents('', '\x89PNG\r\n\x1A\n\x00\x00\x00\rIHD...')
+#1 C:\SantaBeachClub-BookingSystem\backend\services\mailer.php(78): QRcode::png('http://localhos...', NULL, 3, 6, 4)
+#2 C:\SantaBeachClub-BookingSystem\frontend\admin_notifications.php(69): sendBookingConfirmationEmail('justinebatuhan0...', 'John Batuhan', 'REF-008', 'Standard Room 1...', '2026-08-22', '2026-08-23', 5.0, 'http://localhos...', 'http://localhos...')
+#3 {main}
+
+[2026-08-22 19:13:56] [WARNING] [IP: ::1] file_get_contents(C:\Users\Justi\AppData\Local\Temp\sfbA999.tmp.png): Failed to open stream: No such file or directory in C:\SantaBeachClub-BookingSystem\backend\services\mailer.php:80
+[2026-08-24 23:25:58] [EXCEPTION] [IP: ::1] Call to undefined function sendBookingConfirmationEmail() in C:\SantaBeachClub-BookingSystem\frontend\payments.php:65
+Stack trace:
+#0 {main}
+
+[25-Aug-2026 17:55:21 Asia/Manila] [OTP] Email dispatched to recipient for MFA verification.
+[25-Aug-2026 17:56:13 Asia/Manila] [OTP] Email dispatched to recipient for MFA verification.
+[25-Aug-2026 17:57:00 Asia/Manila] [OTP] Email dispatched to recipient for MFA verification.
+[25-Aug-2026 17:58:23 Asia/Manila] [OTP] Email dispatched to recipient for MFA verification.
+[25-Aug-2026 18:13:28 Asia/Manila] [OTP] Email dispatched to recipient for MFA verification.
+[2026-08-25 20:01:24] [WARNING] [IP: 127.0.0.1] Cannot modify header information - headers already sent by (output started at C:\SantaBeachClub-BookingSystem\backend\scratch\test_analytics.php:6) in C:\SantaBeachClub-BookingSystem\backend\api\analytics_api.php:7
+[26-Aug-2026 13:45:49 Asia/Manila] [OTP] Email dispatched to recipient for MFA verification.

@@ -1,0 +1,196 @@
+/* ==========================================================================
+   SANTA FE BEACH CLUB — RECEPTION DESK & FRONT DESK COCKPIT STYLES
+   Builds upon modern design tokens with specialized reception UI components.
+   ========================================================================== */
+
+@import url('admin.css?v=3');
+
+:root {
+    --color-sidebar-bg: var(--sidebar-bg);
+    --color-sidebar-hover: var(--sidebar-hover);
+    --color-sidebar-active: var(--sidebar-active);
+    --color-primary: var(--primary);
+    --color-primary-hover: var(--primary-hover);
+    --color-text-main: var(--text-main);
+    --color-text-muted: var(--text-muted);
+    --color-bg-body: var(--bg-body);
+
+    /* Accommodation Status Colors */
+    --color-available: #059669;
+    --color-available-bg: #ECFDF5;
+    --color-maintenance: #D97706;
+    --color-maintenance-bg: #FFFBEB;
+    --color-occupied: #2563EB;
+    --color-occupied-bg: #EFF6FF;
+}
+
+/* Reception Specific Grid Styles */
+.metrics-row {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 16px;
+    margin-bottom: 28px;
+}
+
+@media (max-width: 1300px) {
+    .metrics-row {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .metrics-row {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .metrics-row {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Quick Action Top Button */
+.btn-new-res-top {
+    background: var(--primary-grad);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 8px 16px;
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 2px 6px rgba(132, 86, 60, 0.25);
+    transition: all 0.2s ease;
+    height: 38px;
+}
+
+.btn-new-res-top:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(132, 86, 60, 0.35);
+}
+
+/* Arrivals & Guest Tables */
+.arrivals-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.arrivals-table th {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    background: var(--sidebar-hover);
+}
+
+.arrivals-table td {
+    padding: 14px 14px;
+    border-bottom: 1px solid var(--border-light);
+    vertical-align: middle;
+}
+
+.arrivals-table tr:hover td {
+    background-color: var(--primary-subtle);
+}
+
+/* Modal Form specifics */
+.form-group {
+    margin-bottom: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.form-group label {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.form-group input, 
+.form-group select,
+.form-group textarea {
+    padding: 10px 12px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-body);
+    font-size: 13.5px;
+    background: var(--input-bg);
+    color: var(--text-main);
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 3px var(--primary-glow);
+}
+
+.btn-form-submit {
+    background: var(--primary-grad);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 12px;
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 12px;
+    box-shadow: 0 2px 6px rgba(132, 86, 60, 0.3);
+    transition: all 0.2s ease;
+}
+
+.btn-form-submit:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(132, 86, 60, 0.4);
+}
+
+/* GCash modal styling */
+.gcash-modal {
+    background: var(--bg-surface-elev);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    padding: 30px;
+    max-width: 460px;
+    width: 100%;
+    box-shadow: var(--shadow-xl);
+}
+
+.gcash-qr-box {
+    border: 2px dashed #3B82F6;
+    border-radius: var(--radius-md);
+    padding: 16px;
+    background: var(--bg-body);
+    text-align: center;
+    margin: 16px 0;
+}
+
+.gcash-qr-box img {
+    max-width: 200px;
+    height: auto;
+    border-radius: 8px;
+}
+
+.gcash-number-box {
+    background: var(--blue-bg);
+    border: 1px solid var(--blue-border);
+    border-radius: var(--radius-md);
+    padding: 14px;
+    text-align: center;
+    margin-bottom: 16px;
+}

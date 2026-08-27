@@ -1,0 +1,43 @@
+# ─────────────────────────────────────────────────
+#  Santa Fe Beach Club — Server Security & Routing
+# ─────────────────────────────────────────────────
+# Disable Directory Listing
+Options -Indexes
+
+# Protect Sensitive Files
+<FilesMatch "^\.env|config\.php|database\.sql|\.log|\.md|\.ini$">
+    Require all denied
+</FilesMatch>
+
+# Force HTTPS (Uncomment when deployed online)
+# RewriteEngine On
+# RewriteCond %{HTTPS} off
+# RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+RewriteEngine On
+
+# Directly serve static assets (CSS, JS, images, etc.) from frontend/assets if requested without frontend/ prefix
+RewriteCond %{DOCUMENT_ROOT}/SantaBeachClub-BookingSystem/frontend/assets/$1 -f
+RewriteRule ^assets/(.+)$ frontend/assets/$1 [L]
+
+# Directly serve uploaded receipts and photos if requested without frontend/ prefix
+RewriteCond %{DOCUMENT_ROOT}/SantaBeachClub-BookingSystem/frontend/uploads/$1 -f
+RewriteRule ^uploads/(.+)$ frontend/uploads/$1 [L]
+
+# Directly serve backend API endpoints if requested from root
+RewriteCond %{DOCUMENT_ROOT}/SantaBeachClub-BookingSystem/backend/$1 -f
+RewriteRule ^backend/(.+)$ backend/$1 [L,QSA]
+
+# If accessing root directly, let index.php redirect or route
+# If clean URL like /admin_promotions or /accommodations, route to /frontend/$1.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{DOCUMENT_ROOT}/SantaBeachClub-BookingSystem/frontend/$1.php -f
+RewriteRule ^(.+)$ frontend/$1.php [L,QSA]
+
+# Also allow direct file references in frontend folder
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_URI} ^/SantaBeachClub-BookingSystem/frontend/(.+)
+RewriteCond %{DOCUMENT_ROOT}/SantaBeachClub-BookingSystem/frontend/%1.php -f
+RewriteRule ^frontend/(.+)$ frontend/%1.php [L,QSA]

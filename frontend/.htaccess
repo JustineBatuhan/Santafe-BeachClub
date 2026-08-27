@@ -1,0 +1,21 @@
+# ─────────────────────────────────────────────────
+#  Santa Fe Beach Club — Clean URLs (hide .php)
+# ─────────────────────────────────────────────────
+#  Requires mod_rewrite enabled in Apache.
+#  In XAMPP: ensure "LoadModule rewrite_module …"
+#  is uncommented in httpd.conf (it usually is).
+# ─────────────────────────────────────────────────
+
+RewriteEngine On
+
+# Don't rewrite requests for real files (CSS, JS, images, uploads, etc.)
+RewriteCond %{REQUEST_FILENAME} !-f
+
+# Don't rewrite requests for real directories
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# If adding .php makes it a valid file, serve it
+RewriteCond %{REQUEST_FILENAME}\.php -f
+
+# Rewrite: /rooms → /rooms.php (query string is preserved automatically)
+RewriteRule ^(.+)$ $1.php [L]

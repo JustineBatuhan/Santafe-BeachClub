@@ -1,0 +1,60 @@
+[2026-08-21 11:51:56] [WARNING] [FAILED_LOGIN] User: admin" or "1"="1 | IP: ::1 | URI: /SantaBeachClub-BookingSystem/frontend/login.php | Failed login attempt (unknown username): admin" or "1"="1
+[2026-08-21 11:52:02] [WARNING] [FAILED_LOGIN] User: admin" or "1"="1 | IP: ::1 | URI: /SantaBeachClub-BookingSystem/frontend/login.php | Failed login attempt (unknown username): admin" or "1"="1
+[2026-08-21 11:52:32] [WARNING] [FAILED_LOGIN] User: or 1=1 | IP: ::1 | URI: /SantaBeachClub-BookingSystem/frontend/login.php | Failed login attempt (unknown username): or 1=1
+[2026-08-21 11:52:39] [WARNING] [FAILED_LOGIN] User: or 1=1 | IP: ::1 | URI: /SantaBeachClub-BookingSystem/frontend/login.php | Failed login attempt (unknown username): or 1=1
+[2026-08-21 12:49:52] [INFO] [LOGIN_SUCCESS] User: admin | IP: ::1 | URI: /SantaBeachClub-BookingSystem/frontend/login.php | Admin logged in successfully (admin)
+[2026-08-21 13:13:06] [WARNING] [FAILED_LOGIN] User: Justine | IP: ::1 | URI: /SantaBeachClub-BookingSystem/frontend/login.php | Failed login attempt (bad password) for user: Justine
+[2026-08-21 13:13:18] [WARNING] [FAILED_LOGIN] User: Justine | IP: ::1 | URI: /SantaBeachClub-BookingSystem/frontend/login.php | Failed login attempt (bad password) for user: Justine
+[2026-08-21 13:13:25] [INFO] [LOGIN_SUCCESS] User: Justine | IP: ::1 | URI: /SantaBeachClub-BookingSystem/frontend/login.php | Admin logged in successfully (receptionist)
+[2026-08-21 13:14:10] [INFO] [LOGIN_SUCCESS] User: admin | IP: ::1 | URI: /SantaBeachClub-BookingSystem/frontend/login.php | Admin logged in successfully (admin)
+[2026-08-22 08:38:02] [INFO] [LOGIN_SUCCESS] User: admin | IP: ::1 | URI: /SantaBeachClub-BookingSystem/frontend/login | Admin logged in successfully (admin)
+[2026-08-22 08:49:27] [WARNING] [PASSWORD_CHANGE_FAILED] User: admin | IP: ::1 | URI: /SantaBeachClub-BookingSystem/frontend/settings | Incorrect current password attempt
+[2026-08-22 08:55:17] [WARNING] [PASSWORD_CHANGE_FAILED] User: admin | IP: ::1 | URI: /SantaBeachClub-BookingSystem/frontend/settings | Incorrect current password attempt
+[2026-08-22 08:58:04] [INFO] [LOGIN_SUCCESS] User: justinebatuhan@beachclub.com | IP: ::1 | URI: /SantaBeachClub-BookingSystem/frontend/login | Admin logged in successfully (admin)
+[2026-08-22 08:58:30] [INFO] [STAFF_CREATED] User: justinebatuhan@beachclub.com | IP: ::1 | URI: /SantaBeachClub-BookingSystem/frontend/admin_staff | Added receptionist account: Isandro
+[2026-08-22 08:59:14] [WARNING] [STAFF_DELETED] User: justinebatuhan@beachclub.com | IP: ::1 | URI: /SantaBeachClub-BookingSystem/frontend/admin_staff | Removed staff account: Isandro
+[2026-08-22 08:59:32] [INFO] [PASSWORD_RESET] User: justinebatuhan@beachclub.com | IP: ::1 | URI: /SantaBeachClub-BookingSystem/frontend/admin_staff | Reset password for staff: Justinebatuhan@beachclub.com
+[2026-08-22 10:11:18] [INFO] [USERNAME_CHANGED] User: admin@beachclub.com | IP: ::1 | URI: /SantaBeachClub-BookingSystem/frontend/settings | Username changed from justinebatuhan@beachclub.com to admin@beachclub.com
+[2026-08-22 11:52:34] [INFO] [LOGIN_SUCCESS] User: admin@beachclub.com | IP: ::1 | URI: /SantaBeachClub-BookingSystem/frontend/login | Admin logged in successfully (admin)
+[2026-08-22 17:48:15] [INFO] [LOGIN_SUCCESS] User: admin@beachclub.com | IP: 192.168.1.8 | URI: /SantaBeachClub-BookingSystem/frontend/login | Admin logged in successfully (admin)
+[2026-08-22 21:52:09] [INFO] [LOGIN_SUCCESS] User: admin@beachclub.com | IP: ::1 | URI: /SantaBeachClub-BookingSystem/frontend/login | Admin logged in successfully (admin)
+[2026-08-22 21:55:23] [WARNING] [FAILED_LOGIN] User: justine@beachclub.com | IP: ::1 | URI: /SantaBeachClub-BookingSystem/frontend/login | Failed login attempt (bad password) for user: justine@beachclub.com
+[2026-08-22 21:55:37] [WARNING] [FAILED_LOGIN] User: justine@beachclub.com | IP: ::1 | URI: /SantaBeachClub-BookingSystem/frontend/login | Failed login attempt (bad password) for user: justine@beachclub.com
+[2026-08-22 21:55:41] [WARNING] [FAILED_LOGIN] User: justine@beachclub.com | IP: ::1 | URI: /SantaBeachClub-BookingSystem/frontend/login | Failed login attempt (bad password) for user: justine@beachclub.com
+[2026-08-22 21:55:45] [WARNING] [FAILED_LOGIN] User: justine@beachclub.com | IP: ::1 | URI: /SantaBeachClub-BookingSystem/frontend/login | Failed login attempt (bad password) for user: justine@beachclub.com
+[2026-08-22 21:55:56] [INFO] [LOGIN_SUCCESS] User: admin@beachclub.com | IP: ::1 | URI: /SantaBeachClub-BookingSystem/frontend/login | Admin logged in successfully (admin)
+[2026-08-22 22:09:36] [INFO] [LOGIN_SUCCESS] User: admin@beachclub.com | IP: ::1 | URI: /SantaBeachClub-BookingSystem/frontend/login | Admin logged in successfully (admin)
+[2026-08-22 22:10:02] [INFO] [LOGIN_SUCCESS] User: admin@beachclub.com | IP: ::1 | URI: /SantaBeachClub-BookingSystem/frontend/login | Admin logged in successfully (admin)
+[2026-08-22 22:12:42] [INFO] [LOGIN_SUCCESS] User: admin@beachclub.com | IP: ::1 | URI: /SantaBeachClub-BookingSystem/frontend/login | Admin logged in successfully (admin)
+[2026-08-22 22:13:52] [INFO] [LOGIN_SUCCESS] User: admin@beachclub.com | IP: ::1 | URI: /SantaBeachClub-BookingSystem/frontend/login | Admin logged in successfully (admin)
+[2026-08-22 22:14:18] [INFO] [LOGIN_SUCCESS] User: admin@beachclub.com | IP: ::1 | URI: /SantaBeachClub-BookingSystem/frontend/login | Admin logged in successfully (admin)
+[2026-08-22 22:16:52] [INFO] [LOGIN_SUCCESS] User: admin@beachclub.com | IP: ::1 | URI: /SantaBeachClub-BookingSystem/frontend/login | Admin logged in successfully (admin)
+[2026-08-22 22:20:18] [INFO] [LOGIN_SUCCESS] User: admin@beachclub.com | IP: ::1 | URI: /SantaBeachClub-BookingSystem/frontend/login | Admin logged in successfully (admin)
+[2026-08-22 22:21:59] [WARNING] [FAILED_LOGIN] User: justine@beachclub.com | IP: ::1 | URI: /SantaBeachClub-BookingSystem/frontend/login | Failed login attempt (bad password) for user: justine@beachclub.com
+[2026-08-22 22:22:51] [INFO] [LOGIN_SUCCESS] User: admin@beachclub.com | IP: ::1 | URI: /SantaBeachClub-BookingSystem/frontend/login | Admin logged in successfully (admin)
+[2026-08-22 22:26:24] [INFO] [STAFF_CREATED] User: admin@beachclub.com | IP: ::1 | URI: /SantaBeachClub-BookingSystem/frontend/admin_staff | Added receptionist account: Jub@beachclub.com
+[2026-08-22 22:26:40] [INFO] [LOGIN_SUCCESS] User: Jub@beachclub.com | IP: ::1 | URI: /SantaBeachClub-BookingSystem/frontend/login | Admin logged in successfully (receptionist)
+[2026-08-23 13:06:16] [INFO] [LOGIN_SUCCESS] User: admin@beachclub.com | IP: ::1 | URI: /SantaBeachClub-BookingSystem/frontend/login | Admin logged in successfully (admin)
+[2026-08-23 13:11:38] [INFO] [LOGIN_SUCCESS] User: admin@beachclub.com | IP: ::1 | URI: /SantaBeachClub-BookingSystem/frontend/login | Admin logged in successfully (admin)
+[2026-08-23 14:48:11] [INFO] [LOGIN_SUCCESS] User: admin@beachclub.com | IP: ::1 | URI: /SantaBeachClub-BookingSystem/frontend/login | Admin logged in successfully (admin)
+[2026-08-23 15:13:36] [INFO] [STAFF_CREATED] User: admin@beachclub.com | IP: ::1 | URI: /SantaBeachClub-BookingSystem/frontend/admin_staff | Added receptionist account: Hermae@beachclub.com
+[2026-08-23 15:13:55] [INFO] [LOGIN_SUCCESS] User: Hermae@beachclub.com | IP: ::1 | URI: /SantaBeachClub-BookingSystem/frontend/login | Admin logged in successfully (receptionist)
+[2026-08-23 15:14:24] [INFO] [LOGIN_SUCCESS] User: admin@beachclub.com | IP: ::1 | URI: /SantaBeachClub-BookingSystem/frontend/login | Admin logged in successfully (admin)
+[2026-08-23 15:22:16] [INFO] [LOGIN_SUCCESS] User: admin@beachclub.com | IP: ::1 | URI: /SantaBeachClub-BookingSystem/frontend/login | Admin logged in successfully (admin)
+[2026-08-24 20:31:04] [WARNING] [FAILED_LOGIN] User: admin@beachclub.com | IP: ::1 | URI: /SantaBeachClub-BookingSystem/frontend/login | Failed login attempt (bad password) for user: admin@beachclub.com
+[2026-08-24 20:31:16] [INFO] [LOGIN_SUCCESS] User: admin@beachclub.com | IP: ::1 | URI: /SantaBeachClub-BookingSystem/frontend/login | Admin logged in successfully (admin)
+[2026-08-24 20:41:51] [INFO] [LOGIN_SUCCESS] User: justine@beachclub.com | IP: ::1 | URI: /SantaBeachClub-BookingSystem/frontend/login | Admin logged in successfully (receptionist)
+[2026-08-24 20:42:16] [INFO] [LOGIN_SUCCESS] User: admin@beachclub.com | IP: ::1 | URI: /SantaBeachClub-BookingSystem/frontend/login | Admin logged in successfully (admin)
+[2026-08-24 22:42:51] [INFO] [LOGIN_SUCCESS] User: admin@beachclub.com | IP: ::1 | URI: /SantaBeachClub-BookingSystem/frontend/login | Admin logged in successfully (admin)
+[2026-08-24 23:07:40] [INFO] [LOGIN_SUCCESS] User: admin@beachclub.com | IP: ::1 | URI: /SantaBeachClub-BookingSystem/frontend/login | Admin logged in successfully (admin)
+[2026-08-24 23:09:24] [INFO] [LOGIN_SUCCESS] User: admin@beachclub.com | IP: ::1 | URI: /SantaBeachClub-BookingSystem/frontend/login | Admin logged in successfully (admin)
+[2026-08-24 23:10:52] [INFO] [LOGIN_SUCCESS] User: admin@beachclub.com | IP: ::1 | URI: /SantaBeachClub-BookingSystem/frontend/login | Admin logged in successfully (admin)
+[2026-08-24 23:16:17] [INFO] [LOGIN_SUCCESS] User: admin@beachclub.com | IP: ::1 | URI: /SantaBeachClub-BookingSystem/frontend/login | Admin logged in successfully (admin)
+[2026-08-25 10:18:57] [WARNING] [FAILED_LOGIN] User: admin@beachclub.com | IP: ::1 | URI: /SantaBeachClub-BookingSystem/frontend/login | Failed login attempt (bad password) for user: admin@beachclub.com
+[2026-08-25 10:20:13] [INFO] [LOGIN_SUCCESS] User: admin@beachclub.com | IP: ::1 | URI: /SantaBeachClub-BookingSystem/frontend/login | Admin logged in successfully (admin)
+[2026-08-25 17:57:00] [INFO] [MFA_OTP_SENT] User: admin@beachclub.com | IP: ::1 | URI: /SantaBeachClub-BookingSystem/frontend/login | OTP dispatched for admin MFA (step 2)
+[2026-08-25 17:58:23] [INFO] [MFA_OTP_SENT] User: justine@beachclub.com | IP: ::1 | URI: /SantaBeachClub-BookingSystem/frontend/login | OTP dispatched for admin MFA (step 2)
+[2026-08-25 18:13:28] [INFO] [MFA_OTP_SENT] User: admin@beachclub.com | IP: ::1 | URI: /SantaBeachClub-BookingSystem/frontend/login | OTP dispatched for admin MFA (step 2)
+[2026-08-25 18:13:47] [INFO] [LOGIN_SUCCESS_MFA] User: admin@beachclub.com | IP: ::1 | URI: /SantaBeachClub-BookingSystem/frontend/verify_otp | Admin completed MFA and logged in (admin)
+[2026-08-26 13:45:49] [INFO] [MFA_OTP_SENT] User: admin@beachclub.com | IP: ::1 | URI: /SantaBeachClub-BookingSystem/frontend/login | OTP dispatched for admin MFA (step 2)
+[2026-08-26 13:46:30] [INFO] [LOGIN_SUCCESS_MFA] User: admin@beachclub.com | IP: ::1 | URI: /SantaBeachClub-BookingSystem/frontend/verify_otp | Admin completed MFA and logged in (admin)

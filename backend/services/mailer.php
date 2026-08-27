@@ -1,0 +1,308 @@
+<?php
+/**
+ * mailer.php
+ * Sends booking-related emails via Gmail SMTP using PHPMailer.
+ *
+ * SETUP REQUIRED:
+ * 1. This file expects PHPMailer's source files at: libs/PHPMailer/src/
+ *    (PHPMailer.php, SMTP.php, Exception.php)
+ * 2. Fill in GMAIL_USER and GMAIL_APP_PASSWORD below.
+ *    GMAIL_APP_PASSWORD must be a Gmail "App Password" (16 chars, no spaces),
+ *    NOT your normal Gmail login password. Generate one at:
+ *    https://myaccount.google.com/apppasswords
+ *    (Requires 2-Step Verification to be enabled on the Gmail account.)
+ */
+
+require_once __DIR__ . '/../libs/PHPMailer/src/Exception.php';
+require_once __DIR__ . '/../libs/PHPMailer/src/PHPMailer.php';
+require_once __DIR__ . '/../libs/PHPMailer/src/SMTP.php';
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+// ---- Gmail SMTP credentials (fill these in) ----
+define('GMAIL_USER', 'Justinebatuhan017@gmail.com');
+define('GMAIL_APP_PASSWORD', 'owxi hskd qzlq nczl'); // 16-char App Password, spaces are fine
+define('MAIL_FROM_NAME', 'Santa Fe Beach Club');
+
+/**
+ * Sends a booking confirmation email to the guest.
+ *
+ * @param string $to_email    Guest email address
+ * @param string $guest_name  Guest full name
+ * @param string $booking_ref Booking reference (e.g. REF-001)
+ * @param string $room_name   Accommodation name
+ * @param string $check_in    Check-in date (Y-m-d)
+ * @param string $check_out   Check-out date (Y-m-d)
+ * @param float  $total_amount Total booking amount
+ * @param string|null $cancellation_url Optional self-service cancellation link
+ * @param string|null $checkin_url      Optional Check-in URL to generate QR code
+ * @return array ['success' => bool, 'error' => string|null]
+ */
+function sendBookingConfirmationEmail(
+    ?string $to_email,
+    string $guest_name,
+    string $booking_ref,
+    string $room_name,
+    string $check_in,
+    string $check_out,
+    float $total_amount,
+    ?string $cancellation_url = null,
+    ?string $checkin_url = null
+): array {
+    if (empty($to_email)) {
+        return ['success' => false, 'error' => 'No email address provided for this guest.'];
+    }
+
+    $mail = new PHPMailer(true);
+
+    try {
+        // Server settings
+        $mail->isSMTP();
+        $mail->Host       = 'smtp.gmail.com';
+        $mail->SMTPAuth   = true;
+        $mail->Username   = 'Justinebatuhan017@gmail.com';
+        $mail->Password   = 'owxi hskd qzlq nczl';
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->Port       = 587;
+        $mail->Timeout    = 8; // 8 seconds max timeout so page doesn't hang forever
+
+        // Recipients
+        $mail->setFrom(GMAIL_USER, MAIL_FROM_NAME);
+        $mail->addAddress($to_email, $guest_name);
+
+        // Generate QR code if URL provided
+        $qr_html = '';
+        if ($checkin_url) {
+            require_once __DIR__ . '/../libs/phpqrcode/phpqrcode.php';
+            // phpqrcode requires a real file path — write to temp, read bytes, delete
+            $qr_tmp = tempnam(sys_get_temp_dir(), 'sfbc_qr_') . '.png';
+            QRcode::png($checkin_url, $qr_tmp, QR_ECLEVEL_H, 6, 4);
+            $qr_image_data = file_get_contents($qr_tmp);
+            @unlink($qr_tmp);
+
+            if ($qr_image_data) {
+                $mail->addStringEmbeddedImage($qr_image_data, 'qrcode_cid', 'Checkin_QR.png', 'base64', 'image/png');
+                $qr_html = "
+                <div style='text-align: center; margin: 30px 0; padding: 20px; background: #f8fafc; border-radius: 12px; border: 1px dashed #cbd5e1;'>
+                    <h3 style='margin-top: 0; color: #1e293b;'>Your Check-in Pass</h3>
+                    <img src='cid:qrcode_cid' alt='QR Code' style='max-width: 200px; height: auto;' />
+                    <p style='margin-bottom: 0; font-size: 13px; color: #64748b;'>Present this QR code at the front desk for a seamless check-in.</p>
+                </div>";
+            }
+        }
+
+        // Content
+        $checkin_fmt  = date('F j, Y', strtotime($check_in));
+        $checkout_fmt = date('F j, Y', strtotime($check_out));
+        $amount_fmt   = number_format($total_amount, 2);
+        $cancel_section = '';
+        if ($cancellation_url) {
+            $cancel_section = "<p>If you need to cancel your booking, use this secure link: <a href='" . htmlspecialchars($cancellation_url) . "'>" . htmlspecialchars($cancellation_url) . "</a></p>";
+        }
+
+        $mail->isHTML(true);
+        $mail->Subject = "Booking Confirmed – {$booking_ref} – Santa Fe Beach Club";
+        $mail->Body    = "
+            <div style='font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto;'>
+                <h2 style='color:#0ea5e9;'>Your booking is confirmed!</h2>
+                <p>Hi " . htmlspecialchars($guest_name) . ",</p>
+                <p>Great news — your reservation at <strong>Santa Fe Beach Club</strong> has been confirmed.</p>
+                <table style='width:100%; border-collapse: collapse; margin: 20px 0;'>
+                    <tr><td style='padding:6px 0; color:#777;'>Booking Reference</td><td style='padding:6px 0; text-align:right; font-weight:bold;'>" . htmlspecialchars($booking_ref) . "</td></tr>
+                    <tr><td style='padding:6px 0; color:#777;'>Room</td><td style='padding:6px 0; text-align:right;'>" . htmlspecialchars($room_name) . "</td></tr>
+                    <tr><td style='padding:6px 0; color:#777;'>Check-in</td><td style='padding:6px 0; text-align:right;'>{$checkin_fmt}</td></tr>
+                    <tr><td style='padding:6px 0; color:#777;'>Check-out</td><td style='padding:6px 0; text-align:right;'>{$checkout_fmt}</td></tr>
+                    <tr><td style='padding:6px 0; color:#777;'>Total Amount</td><td style='padding:6px 0; text-align:right; font-weight:bold;'>₱ {$amount_fmt}</td></tr>
+                </table>
+                {$qr_html}
+                <p>Please keep your booking reference and QR code handy for check-in.</p>
+                {$cancel_section}
+                <p style='color:#999; font-size:12px; margin-top:30px;'>See you soon at Santa Fe Beach Club!</p>
+            </div>
+        ";
+        $mail->AltBody = "Hi {$guest_name}, your booking {$booking_ref} at Santa Fe Beach Club is confirmed. "
+            . "Room: {$room_name}. Check-in: {$checkin_fmt}. Check-out: {$checkout_fmt}. Total: PHP {$amount_fmt}.";
+        if ($cancellation_url) {
+            $mail->AltBody .= " Cancel here: {$cancellation_url}.";
+        }
+
+        $mail->send();
+        return ['success' => true, 'error' => null];
+    } catch (Exception $e) {
+        return ['success' => false, 'error' => $mail->ErrorInfo];
+    }
+}
+
+/**
+ * Sends a booking cancellation email to the guest.
+ */
+function sendBookingCancellationEmail(
+    string $to_email,
+    string $guest_name,
+    string $booking_ref,
+    string $room_name,
+    string $check_in,
+    string $check_out,
+    ?string $reason = null
+): array {
+    $mail = new PHPMailer(true);
+
+    try {
+        $mail->isSMTP();
+        $mail->Host       = 'smtp.gmail.com';
+        $mail->SMTPAuth   = true;
+        $mail->Username   = GMAIL_USER;
+        $mail->Password   = GMAIL_APP_PASSWORD;
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->Port       = 587;
+
+        $mail->setFrom(GMAIL_USER, MAIL_FROM_NAME);
+        $mail->addAddress($to_email, $guest_name);
+
+        $checkin_fmt  = date('F j, Y', strtotime($check_in));
+        $checkout_fmt = date('F j, Y', strtotime($check_out));
+        $reason_html  = (!empty($reason))
+            ? "<li><strong>Reason Provided:</strong> " . htmlspecialchars($reason) . "</li>"
+            : "";
+
+        $mail->isHTML(true);
+        $mail->Subject = "Booking Cancelled – {$booking_ref} – Santa Fe Beach Club";
+        $mail->Body    = "
+            <div style='font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto;'>
+                <div style='background:#dc2626; padding:24px 28px; border-radius:12px 12px 0 0;'>
+                    <h2 style='color:#fff; margin:0; font-size:20px;'>Booking Cancellation Confirmation</h2>
+                    <p style='color:rgba(255,255,255,0.85); margin:6px 0 0; font-size:13px;'>Santa Fe Beach Club</p>
+                </div>
+                <div style='background:#fff; padding:24px 28px; border:1px solid #f3f4f6; border-top:none; border-radius:0 0 12px 12px;'>
+                    <p>Hi " . htmlspecialchars($guest_name) . ",</p>
+                    <p>Your reservation at <strong>Santa Fe Beach Club</strong> has been cancelled successfully.</p>
+                    <table style='width:100%; border-collapse:collapse; margin:18px 0; font-size:14px;'>
+                        <tr style='border-bottom:1px solid #f0f0f0;'>
+                            <td style='padding:6px 0; color:#6b7280;'>Booking Reference</td>
+                            <td style='padding:6px 0; text-align:right; font-weight:700;'>" . htmlspecialchars($booking_ref) . "</td>
+                        </tr>
+                        <tr style='border-bottom:1px solid #f0f0f0;'>
+                            <td style='padding:6px 0; color:#6b7280;'>Room / Accommodation</td>
+                            <td style='padding:6px 0; text-align:right;'>" . htmlspecialchars($room_name) . "</td>
+                        </tr>
+                        <tr style='border-bottom:1px solid #f0f0f0;'>
+                            <td style='padding:6px 0; color:#6b7280;'>Check-in</td>
+                            <td style='padding:6px 0; text-align:right;'>{$checkin_fmt}</td>
+                        </tr>
+                        <tr style='border-bottom:1px solid #f0f0f0;'>
+                            <td style='padding:6px 0; color:#6b7280;'>Check-out</td>
+                            <td style='padding:6px 0; text-align:right;'>{$checkout_fmt}</td>
+                        </tr>
+                        " . (!empty($reason) ? "<tr><td style='padding:6px 0; color:#6b7280;'>Reason</td><td style='padding:6px 0; text-align:right; color:#dc2626; font-weight:600;'>" . htmlspecialchars($reason) . "</td></tr>" : "") . "
+                    </table>
+                    <p>If this was a mistake or your plans change in the future, we would love to welcome you back anytime.</p>
+                    <p style='color:#999; font-size:12px; margin-top:24px;'>Santa Fe Beach Club Front Desk</p>
+                </div>
+            </div>
+        ";
+        $mail->AltBody = "Hi {$guest_name}, your booking {$booking_ref} at Santa Fe Beach Club has been cancelled. Room: {$room_name}. Check-in: {$checkin_fmt}. Check-out: {$checkout_fmt}."
+            . (!empty($reason) ? " Reason: {$reason}." : "");
+
+        $mail->send();
+        return ['success' => true, 'error' => null];
+    } catch (Exception $e) {
+        return ['success' => false, 'error' => $mail->ErrorInfo];
+    }
+}
+
+/**
+ * Sends a payment-rejected / booking-cancelled email to the guest.
+ * Called when an admin rejects a payment submission.
+ *
+ * @param string $to_email    Guest email address
+ * @param string $guest_name  Guest full name
+ * @param string $booking_ref Booking reference (e.g. REF-001)
+ * @param string $room_name   Accommodation name
+ * @param string $check_in    Check-in date (Y-m-d)
+ * @param string $check_out   Check-out date (Y-m-d)
+ * @param string $reason      Optional reason provided by admin
+ * @return array ['success' => bool, 'error' => string|null]
+ */
+function sendPaymentRejectedEmail(
+    string $to_email,
+    string $guest_name,
+    string $booking_ref,
+    string $room_name,
+    string $check_in,
+    string $check_out,
+    string $reason = ''
+): array {
+    if (empty($to_email)) {
+        return ['success' => false, 'error' => 'No email address provided for this guest.'];
+    }
+
+    $mail = new PHPMailer(true);
+
+    try {
+        $mail->isSMTP();
+        $mail->Host       = 'smtp.gmail.com';
+        $mail->SMTPAuth   = true;
+        $mail->Username   = GMAIL_USER;
+        $mail->Password   = GMAIL_APP_PASSWORD;
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->Port       = 587;
+        $mail->Timeout    = 8;
+
+        $mail->setFrom(GMAIL_USER, MAIL_FROM_NAME);
+        $mail->addAddress($to_email, $guest_name);
+
+        $checkin_fmt  = date('F j, Y', strtotime($check_in));
+        $checkout_fmt = date('F j, Y', strtotime($check_out));
+        $reason_html  = $reason !== ''
+            ? "<p><strong>Reason:</strong> " . htmlspecialchars($reason) . "</p>"
+            : '';
+
+        $mail->isHTML(true);
+        $mail->Subject = "Payment Not Accepted \u2013 {$booking_ref} \u2013 Santa Fe Beach Club";
+        $mail->Body    = "
+            <div style='font-family:Arial,sans-serif;max-width:520px;margin:0 auto;'>
+                <div style='background:#dc2626;padding:28px 32px;border-radius:12px 12px 0 0;'>
+                    <h2 style='color:#fff;margin:0;font-size:22px;'>\u26a0\ufe0f Payment Not Accepted</h2>
+                    <p style='color:rgba(255,255,255,0.85);margin:8px 0 0;font-size:14px;'>Santa Fe Beach Club \u2014 Reservation Update</p>
+                </div>
+                <div style='background:#fff;padding:28px 32px;border:1px solid #f3f4f6;border-top:none;border-radius:0 0 12px 12px;'>
+                    <p>Hi " . htmlspecialchars($guest_name) . ",</p>
+                    <p>We regret to inform you that your payment submission for the following reservation could <strong>not be accepted</strong>, and the booking has been cancelled.</p>
+                    <table style='width:100%;border-collapse:collapse;margin:20px 0;font-size:14px;'>
+                        <tr style='border-bottom:1px solid #f0f0f0;'>
+                            <td style='padding:8px 0;color:#6b7280;'>Booking Reference</td>
+                            <td style='padding:8px 0;text-align:right;font-weight:700;'>" . htmlspecialchars($booking_ref) . "</td>
+                        </tr>
+                        <tr style='border-bottom:1px solid #f0f0f0;'>
+                            <td style='padding:8px 0;color:#6b7280;'>Room / Accommodation</td>
+                            <td style='padding:8px 0;text-align:right;'>" . htmlspecialchars($room_name) . "</td>
+                        </tr>
+                        <tr style='border-bottom:1px solid #f0f0f0;'>
+                            <td style='padding:8px 0;color:#6b7280;'>Check-in</td>
+                            <td style='padding:8px 0;text-align:right;'>{$checkin_fmt}</td>
+                        </tr>
+                        <tr>
+                            <td style='padding:8px 0;color:#6b7280;'>Check-out</td>
+                            <td style='padding:8px 0;text-align:right;'>{$checkout_fmt}</td>
+                        </tr>
+                    </table>
+                    {$reason_html}
+                    <p>If you believe this is a mistake or would like to make a new reservation, please contact our front desk:</p>
+                    <p style='margin:0;'>\ud83d\udcde <strong>Front Desk:</strong> Contact us directly</p>
+                    <p style='margin:6px 0 0;'>\ud83d\udce7 <strong>Email:</strong> " . GMAIL_USER . "</p>
+                    <p style='color:#9ca3af;font-size:12px;margin-top:28px;'>We apologise for the inconvenience. We hope to welcome you at Santa Fe Beach Club soon.</p>
+                </div>
+            </div>
+        ";
+        $mail->AltBody = "Hi {$guest_name}, your payment for booking {$booking_ref} at Santa Fe Beach Club was not accepted and the booking has been cancelled."
+            . " Room: {$room_name}. Check-in: {$checkin_fmt}. Check-out: {$checkout_fmt}."
+            . ($reason !== '' ? " Reason: {$reason}." : '')
+            . " Please contact us if you have questions.";
+
+        $mail->send();
+        return ['success' => true, 'error' => null];
+    } catch (Exception $e) {
+        return ['success' => false, 'error' => $mail->ErrorInfo];
+    }
+}
