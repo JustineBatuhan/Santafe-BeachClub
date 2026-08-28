@@ -78,7 +78,7 @@ $promos = $conn->query("SELECT * FROM promotions ORDER BY is_active DESC, valid_
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Promotions — Santa Fe Beach Club</title>
-    <link rel="stylesheet" href="assets/css/admin.css?v=3">
+    <link rel="stylesheet" href="assets/css/admin.css?v=4">
 </head>
 <body>
     <?php $active_page = 'promotions'; include __DIR__ . '/partials/_sidebar.php'; ?>
@@ -147,6 +147,7 @@ $promos = $conn->query("SELECT * FROM promotions ORDER BY is_active DESC, valid_
 
             <div style="display:flex;gap:8px;">
                 <form method="POST" style="flex:1;">
+                    <?php echo csrf_field(); ?>
                     <input type="hidden" name="action" value="toggle_promo">
                     <input type="hidden" name="promo_id" value="<?php echo $p['id']; ?>">
                     <button type="submit" class="btn-secondary" style="width:100%;justify-content:center;">
@@ -154,6 +155,7 @@ $promos = $conn->query("SELECT * FROM promotions ORDER BY is_active DESC, valid_
                     </button>
                 </form>
                 <form method="POST" onsubmit="return false;" data-confirm-title="Delete Promotion" data-confirm-msg="This promotion will be permanently deleted." data-confirm-icon="🗑️" data-confirm-icon-bg="#FEE2E2">
+                    <?php echo csrf_field(); ?>
                     <input type="hidden" name="action" value="delete_promo">
                     <input type="hidden" name="promo_id" value="<?php echo $p['id']; ?>">
                     <button type="submit" class="btn-danger">Delete</button>
@@ -172,6 +174,7 @@ $promos = $conn->query("SELECT * FROM promotions ORDER BY is_active DESC, valid_
         <h3>New Promotion</h3>
         <p class="modal-sub">Create a discount offer for guests.</p>
         <form method="POST">
+            <?php echo csrf_field(); ?>
             <input type="hidden" name="action" value="add_promo">
             <div class="admin-form-group"><label>Title</label><input type="text" name="title" required placeholder="e.g. Summer Beach Deal"></div>
             <div class="admin-form-group"><label>Promo / Coupon Code (e.g. SUMMER2026)</label><input type="text" name="code" placeholder="e.g. BEACH10" style="text-transform:uppercase;"></div>

@@ -60,6 +60,20 @@ if (isset($conn) && $countBkgStmt = $conn->prepare("SELECT COUNT(*) AS cnt FROM 
     $countBkgStmt->close();
 }
 
+// Pending / Unverified payments count
+$_pending_payments = 0;
+if (isset($conn)) {
+    $tableCheckPay = $conn->query("SHOW TABLES LIKE 'payments'");
+    if ($tableCheckPay && $tableCheckPay->num_rows > 0) {
+        if ($countPayStmt = $conn->prepare("SELECT COUNT(*) AS cnt FROM payments WHERE LOWER(status) = 'pending'")) {
+            $countPayStmt->execute();
+            $countPayResult = $countPayStmt->get_result()->fetch_assoc();
+            $_pending_payments = (int)($countPayResult['cnt'] ?? 0);
+            $countPayStmt->close();
+        }
+    }
+}
+
 // Helper: returns 'active' css class if page matches
 function _sb_active($page, $current) {
     return $page === $current ? 'active' : '';
@@ -102,93 +116,103 @@ function _sb_badge($count, $type = '') {
         </button>
     </div>
 
-    <p class="sidebar-section-label">Overview</p>
-    <ul class="sidebar-nav">
-        <li><a href="admin_dashboard" class="sidebar-link <?php echo _sb_active('dashboard',$_page); ?>" title="Dashboard">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
-            Dashboard
-        </a></li>
-        <li><a href="admin_notifications" class="sidebar-link <?php echo _sb_active('notifications',$_page); ?>" title="Notifications">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-            Notifications
-            <?php echo _sb_badge($_unread_count, 'notifications'); ?>
-        </a></li>
-    </ul>
+    <!-- Sidebar Search -->
+    <div class="sidebar-search-wrap">
+        <div class="sidebar-search-inner">
+            <svg class="sidebar-search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" class="sidebar-search-input" id="sidebarSearchInput" placeholder="Search" autocomplete="off">
+        </div>
+    </div>
 
-    <p class="sidebar-section-label">Reservations & Desk</p>
-    <ul class="sidebar-nav">
-        <li><a href="admin_reservations" class="sidebar-link <?php echo _sb_active('reservations',$_page); ?>" title="Reservations">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-            Reservations
-        </a></li>
-        <li><a href="admin_checkin" class="sidebar-link <?php echo _sb_active('checkin',$_page); ?>" title="Check-in">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
-            Check-in
-        </a></li>
-        <li><a href="admin_checkout" class="sidebar-link <?php echo _sb_active('checkout',$_page); ?>" title="Check-out">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-            Check-out
-        </a></li>
-        <li><a href="javascript:void(0)" onclick="launchDesktopScanner()" class="sidebar-link" title="Launch QR Scanner" style="color:#0284c7; font-weight:600;">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="9" x2="12" y2="15"/><line x1="9" y1="12" x2="15" y2="12"/></svg>
-            Launch QR Scanner
-        </a></li>
-    </ul>
+    <div class="sidebar-scroll-body">
+        <p class="sidebar-section-label">Overview</p>
+        <ul class="sidebar-nav">
+            <li><a href="admin_dashboard" class="sidebar-link <?php echo _sb_active('dashboard',$_page); ?>" title="Dashboard">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+                Dashboard
+            </a></li>
+            <li><a href="admin_notifications" class="sidebar-link <?php echo _sb_active('notifications',$_page); ?>" title="Notifications">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                Notifications
+                <?php echo _sb_badge($_unread_count, 'notifications'); ?>
+            </a></li>
+        </ul>
 
-    <p class="sidebar-section-label">Operations</p>
-    <ul class="sidebar-nav">
-        <li><a href="guests" class="sidebar-link <?php echo _sb_active('guests',$_page); ?>" title="Customers & Guests">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-            Customers & Guests
-        </a></li>
-        <li><a href="payments" class="sidebar-link <?php echo _sb_active('payments',$_page); ?>" title="Payments">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="12" y1="10" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
-            Payments
-        </a></li>
-        <li><a href="accommodations" class="sidebar-link <?php echo _sb_active('accommodations',$_page); ?>" title="Accommodations">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-            Accommodations
-        </a></li>
-        <li><a href="admin_calendar" class="sidebar-link <?php echo _sb_active('calendar',$_page); ?>" title="Availability Calendar">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><rect x="7" y="14" width="3" height="3" rx="0.5"/><rect x="14" y="14" width="3" height="3" rx="0.5"/></svg>
-            Availability Calendar
-        </a></li>
-        <li><a href="admin_reports" class="sidebar-link <?php echo _sb_active('reports',$_page); ?>" title="Reports & Analytics">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-            Reports & Analytics
-        </a></li>
-    </ul>
+        <p class="sidebar-section-label">Reservations & Desk</p>
+        <ul class="sidebar-nav">
+            <li><a href="admin_reservations" class="sidebar-link <?php echo _sb_active('reservations',$_page); ?>" title="Reservations">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                Reservations
+            </a></li>
+            <li><a href="admin_checkin" class="sidebar-link <?php echo _sb_active('checkin',$_page); ?>" title="Check-in">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+                Check-in
+            </a></li>
+            <li><a href="admin_checkout" class="sidebar-link <?php echo _sb_active('checkout',$_page); ?>" title="Check-out">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                Check-out
+            </a></li>
+            <li><a href="javascript:void(0)" onclick="launchDesktopScanner()" class="sidebar-link" title="Launch QR Scanner" style="color:#0284c7; font-weight:600;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="9" x2="12" y2="15"/><line x1="9" y1="12" x2="15" y2="12"/></svg>
+                Launch QR Scanner
+            </a></li>
+        </ul>
 
-    <p class="sidebar-section-label">Administration</p>
-    <ul class="sidebar-nav">
-        <li><a href="admin_staff" class="sidebar-link <?php echo _sb_active('staff',$_page); ?>" title="Staff Management">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-            Staff Management
-        </a></li>
-        <li><a href="admin_promotions" class="sidebar-link <?php echo _sb_active('promotions',$_page); ?>" title="Promotions">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-            Promotions & Coupons
-        </a></li>
-        <li><a href="admin_gallery" class="sidebar-link <?php echo _sb_active('gallery',$_page); ?>" title="Gallery">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-            Gallery
-        </a></li>
-        <li><a href="admin_room_types" class="sidebar-link <?php echo _sb_active('room_photos',$_page); ?>" title="Room Types & Photos">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><rect x="9" y="14" width="6" height="8"/><circle cx="12" cy="7" r="1.5"/></svg>
-            Room Types & Photos
-        </a></li>
-        <li><a href="admin_logs" class="sidebar-link <?php echo _sb_active('logs',$_page); ?>" title="Activity Logs">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-            Activity Logs
-        </a></li>
+        <p class="sidebar-section-label">Operations</p>
+        <ul class="sidebar-nav">
+            <li><a href="guests" class="sidebar-link <?php echo _sb_active('guests',$_page); ?>" title="Customers & Guests">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                Customers & Guests
+            </a></li>
+            <li><a href="payments" class="sidebar-link <?php echo _sb_active('payments',$_page); ?>" title="Payments">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="12" y1="10" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                Payments
+                <?php echo _sb_badge($_pending_payments, 'payments'); ?>
+            </a></li>
+            <li><a href="accommodations" class="sidebar-link <?php echo _sb_active('accommodations',$_page); ?>" title="Accommodations">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                Accommodations
+            </a></li>
+            <li><a href="admin_calendar" class="sidebar-link <?php echo _sb_active('calendar',$_page); ?>" title="Availability Calendar">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><rect x="7" y="14" width="3" height="3" rx="0.5"/><rect x="14" y="14" width="3" height="3" rx="0.5"/></svg>
+                Availability Calendar
+            </a></li>
+            <li><a href="admin_reports" class="sidebar-link <?php echo _sb_active('reports',$_page); ?>" title="Reports & Analytics">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                Reports & Analytics
+            </a></li>
+        </ul>
 
-        <li><a href="admin_inquiries" class="sidebar-link <?php echo _sb_active('inquiries',$_page); ?>" title="Inquiries">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-            Inquiries
-            <?php echo _sb_badge($_unread_inquiries, 'inquiries'); ?>
-        </a></li>
-    </ul>
+        <p class="sidebar-section-label">Administration</p>
+        <ul class="sidebar-nav">
+            <li><a href="admin_staff" class="sidebar-link <?php echo _sb_active('staff',$_page); ?>" title="Staff Management">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                Staff Management
+            </a></li>
+            <li><a href="admin_promotions" class="sidebar-link <?php echo _sb_active('promotions',$_page); ?>" title="Promotions">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                Promotions & Coupons
+            </a></li>
+            <li><a href="admin_gallery" class="sidebar-link <?php echo _sb_active('gallery',$_page); ?>" title="Gallery">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                Gallery
+            </a></li>
+            <li><a href="admin_room_types" class="sidebar-link <?php echo _sb_active('room_photos',$_page); ?>" title="Room Types & Photos">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><rect x="9" y="14" width="6" height="8"/><circle cx="12" cy="7" r="1.5"/></svg>
+                Room Types & Photos
+            </a></li>
+            <li><a href="admin_logs" class="sidebar-link <?php echo _sb_active('logs',$_page); ?>" title="Activity Logs">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                Activity Logs
+            </a></li>
 
+            <li><a href="admin_inquiries" class="sidebar-link <?php echo _sb_active('inquiries',$_page); ?>" title="Inquiries">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                Inquiries
+                <?php echo _sb_badge($_unread_inquiries, 'inquiries'); ?>
+            </a></li>
+        </ul>
+    </div>
 
     <div class="sidebar-bottom">
         <div class="user-pill" title="<?php echo htmlspecialchars($_user !== '' ? $_user : 'Admin'); ?>">
@@ -217,56 +241,67 @@ function _sb_badge($count, $type = '') {
         </button>
     </div>
 
-    <p class="sidebar-section-label">Front Desk</p>
-    <ul class="nav-links">
-        <li><a href="dashboard" class="nav-item <?php echo _sb_active('dashboard',$_page); ?>" title="Dashboard">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"></rect><rect x="14" y="3" width="7" height="5"></rect><rect x="14" y="12" width="7" height="9"></rect><rect x="3" y="16" width="7" height="5"></rect></svg>
-            Console Dashboard
-        </a></li>
-        <li><a href="notifications" class="nav-item <?php echo _sb_active('notifications',$_page); ?>" title="Notifications">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-            Notifications
-            <?php echo _sb_badge($_unread_count, 'notifications'); ?>
-        </a></li>
-        <li><a href="reservations" class="nav-item <?php echo _sb_active('reservations',$_page); ?>" title="Reservations">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-            Reservations
-        </a></li>
-        <li><a href="checkin" class="nav-item <?php echo _sb_active('checkin',$_page); ?>" title="Check-in">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></svg>
-            Express Check-in
-        </a></li>
-        <li><a href="checkout" class="nav-item <?php echo _sb_active('checkout',$_page); ?>" title="Check-out">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-            Check-out
-        </a></li>
-        <li><a href="javascript:void(0)" onclick="launchDesktopScanner()" class="nav-item" title="Launch QR Scanner" style="color:#0284c7; font-weight:600;">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="9" x2="12" y2="15"/><line x1="9" y1="12" x2="15" y2="12"/></svg>
-            Launch QR Scanner
-        </a></li>
-    </ul>
+    <!-- Sidebar Search -->
+    <div class="sidebar-search-wrap">
+        <div class="sidebar-search-inner">
+            <svg class="sidebar-search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" class="sidebar-search-input" id="sidebarSearchInputReception" placeholder="Search" autocomplete="off">
+        </div>
+    </div>
 
-    <p class="sidebar-section-label">Operations</p>
-    <ul class="nav-links">
-        <li><a href="admin_calendar" class="nav-item <?php echo _sb_active('calendar',$_page); ?>" title="Room Calendar">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line><rect x="7" y="14" width="3" height="3" rx="0.5"></rect><rect x="14" y="14" width="3" height="3" rx="0.5"></rect></svg>
-            Room Calendar
-        </a></li>
-        <li><a href="guests" class="nav-item <?php echo _sb_active('guests',$_page); ?>" title="Guest Directory">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-            Guest Directory
-        </a></li>
-        <li><a href="payments" class="nav-item <?php echo _sb_active('payments',$_page); ?>" title="Payments & Billing">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2" ry="2"></rect><line x1="12" y1="10" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
-            Payments & Billing
-        </a></li>
+    <div class="sidebar-scroll-body">
+        <p class="sidebar-section-label">Front Desk</p>
+        <ul class="nav-links">
+            <li><a href="dashboard" class="nav-item <?php echo _sb_active('dashboard',$_page); ?>" title="Dashboard">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"></rect><rect x="14" y="3" width="7" height="5"></rect><rect x="14" y="12" width="7" height="9"></rect><rect x="3" y="16" width="7" height="5"></rect></svg>
+                Console Dashboard
+            </a></li>
+            <li><a href="notifications" class="nav-item <?php echo _sb_active('notifications',$_page); ?>" title="Notifications">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                Notifications
+                <?php echo _sb_badge($_unread_count, 'notifications'); ?>
+            </a></li>
+            <li><a href="reservations" class="nav-item <?php echo _sb_active('reservations',$_page); ?>" title="Reservations">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                Reservations
+            </a></li>
+            <li><a href="checkin" class="nav-item <?php echo _sb_active('checkin',$_page); ?>" title="Check-in">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></svg>
+                Express Check-in
+            </a></li>
+            <li><a href="checkout" class="nav-item <?php echo _sb_active('checkout',$_page); ?>" title="Check-out">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                Check-out
+            </a></li>
+            <li><a href="javascript:void(0)" onclick="launchDesktopScanner()" class="nav-item" title="Launch QR Scanner" style="color:#0284c7; font-weight:600;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="9" x2="12" y2="15"/><line x1="9" y1="12" x2="15" y2="12"/></svg>
+                Launch QR Scanner
+            </a></li>
+        </ul>
 
-        <li><a href="admin_inquiries" class="nav-item <?php echo _sb_active('inquiries',$_page); ?>" title="Guest Inquiries">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-            Guest Inquiries
-            <?php echo _sb_badge($_unread_inquiries, 'inquiries'); ?>
-        </a></li>
-    </ul>
+        <p class="sidebar-section-label">Operations</p>
+        <ul class="nav-links">
+            <li><a href="admin_calendar" class="nav-item <?php echo _sb_active('calendar',$_page); ?>" title="Room Calendar">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line><rect x="7" y="14" width="3" height="3" rx="0.5"></rect><rect x="14" y="14" width="3" height="3" rx="0.5"></rect></svg>
+                Room Calendar
+            </a></li>
+            <li><a href="guests" class="nav-item <?php echo _sb_active('guests',$_page); ?>" title="Guest Directory">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                Guest Directory
+            </a></li>
+            <li><a href="payments" class="nav-item <?php echo _sb_active('payments',$_page); ?>" title="Payments & Billing">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2" ry="2"></rect><line x1="12" y1="10" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+                Payments & Billing
+                <?php echo _sb_badge($_pending_payments, 'payments'); ?>
+            </a></li>
+
+            <li><a href="admin_inquiries" class="nav-item <?php echo _sb_active('inquiries',$_page); ?>" title="Guest Inquiries">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                Guest Inquiries
+                <?php echo _sb_badge($_unread_inquiries, 'inquiries'); ?>
+            </a></li>
+        </ul>
+    </div>
 
     <div class="sidebar-bottom">
         <div class="user-pill" title="<?php echo htmlspecialchars($_user !== '' ? $_user : 'Front Desk'); ?>">
@@ -302,8 +337,47 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 <?php endif; ?>
 
-<script src="assets/js/dark-mode-toggle.js?v=3"></script>
-<script src="assets/js/sidebar-toggle.js?v=3"></script>
+<script src="assets/js/dark-mode-toggle.js?v=4"></script>
+<script src="assets/js/sidebar-toggle.js?v=4"></script>
+<script src="assets/js/security.js?v=4"></script>
+<script>
+// Sidebar search filter: filters nav links in real-time
+(function() {
+    function initSidebarSearch(inputId) {
+        var input = document.getElementById(inputId);
+        if (!input) return;
+        var sidebar = input.closest('.admin-sidebar, .sidebar');
+        if (!sidebar) return;
+
+        input.addEventListener('input', function() {
+            var query = this.value.trim().toLowerCase();
+            var links = sidebar.querySelectorAll('.sidebar-link, .nav-item');
+            var sections = sidebar.querySelectorAll('.sidebar-section-label');
+
+            links.forEach(function(link) {
+                var text = link.textContent.trim().toLowerCase();
+                var li = link.closest('li');
+                if (!li) return;
+                li.style.display = (!query || text.includes(query)) ? '' : 'none';
+            });
+
+            // Hide section labels if all their items are hidden
+            sections.forEach(function(label) {
+                var ul = label.nextElementSibling;
+                if (!ul) return;
+                var visibleItems = ul.querySelectorAll('li:not([style*="display: none"])');
+                label.style.display = visibleItems.length === 0 ? 'none' : '';
+            });
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        initSidebarSearch('sidebarSearchInput');
+        initSidebarSearch('sidebarSearchInputReception');
+    });
+})();
+</script>
+
 
 <!-- ══════════════════════════════════════════════════
      GLOBAL CUSTOM CONFIRMATION DIALOG
@@ -845,9 +919,9 @@ document.addEventListener('DOMContentLoaded', function() {
     display: none;
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.8);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    background: rgba(10, 15, 29, 0.75);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     z-index: 999998;
     align-items: center;
     justify-content: center;
@@ -855,15 +929,16 @@ document.addEventListener('DOMContentLoaded', function() {
 #qr-scanner-overlay.open { display: flex; }
 
 #qr-scanner-box {
-    background: #12122a;
-    border-radius: 24px;
-    padding: 24px;
-    width: 360px;
+    background: linear-gradient(180deg, #1E293B 0%, #0F172A 100%);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 28px;
+    padding: 28px 24px 22px;
+    width: 380px;
     max-width: calc(100vw - 32px);
-    box-shadow: 0 30px 80px rgba(0,0,0,0.6);
+    box-shadow: 0 30px 80px -15px rgba(0, 0, 0, 0.8), 0 0 1px rgba(255, 255, 255, 0.15);
     position: relative;
     text-align: center;
-    animation: qrSlideUp 0.3s cubic-bezier(0.16,1,0.3,1);
+    animation: qrSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 @keyframes qrSlideUp {
     from { opacity:0; transform:translateY(24px) scale(0.96); }
@@ -871,16 +946,18 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 #qr-scanner-box h3 {
-    color: #fff; font-size: 17px; font-weight: 700;
+    color: #FFFFFF; font-size: 18px; font-weight: 800;
     margin: 0 0 4px; font-family: 'Outfit', sans-serif;
-    display: flex; align-items: center; justify-content: center; gap: 8px;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    letter-spacing: -0.01em;
 }
 #qr-scanner-box .qr-logo {
-    width: 26px; height: 26px; border-radius: 50%;
-    object-fit: cover; border: 1px solid rgba(255,255,255,0.7);
+    width: 34px; height: 34px; border-radius: 50%;
+    object-fit: cover; border: 2px solid #C8996F;
+    box-shadow: 0 4px 12px rgba(200, 153, 111, 0.35);
 }
 #qr-scanner-box .qr-sub {
-    color: rgba(255,255,255,0.45); font-size: 13px;
+    color: #94A3B8; font-size: 13px;
     margin: 0 0 18px; font-family: 'Outfit', sans-serif;
 }
 
@@ -888,105 +965,111 @@ document.addEventListener('DOMContentLoaded', function() {
 #qr-video-wrap {
     position: relative;
     width: 100%;
-    border-radius: 14px;
+    border-radius: 18px;
     overflow: hidden;
     background: #000;
     line-height: 0;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
 }
 #qr-video-wrap::before {
     content: '';
     position: absolute;
-    inset: 12px;
+    inset: 16px;
     z-index: 2;
-    border: 2px solid rgba(34, 211, 238, 0.9);
-    border-radius: 12px;
-    box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.2), 0 0 22px rgba(34, 211, 238, 0.22);
+    border: 2px solid rgba(200, 153, 111, 0.85);
+    border-radius: 16px;
+    box-shadow: 0 0 0 9999px rgba(15, 23, 42, 0.35), 0 0 20px rgba(200, 153, 111, 0.25);
     pointer-events: none;
 }
 #qr-video {
     width: 100%;
     height: auto;
     display: block;
-    border-radius: 14px;
+    border-radius: 18px;
     transform: scaleX(-1); /* mirror for front cam feel */
 }
 #qr-canvas { display: none; }
 
 /* Corner brackets */
 .qr-corner {
-    position: absolute; width: 40px; height: 40px;
-    z-index: 3; pointer-events: none; opacity: 0.25;
+    position: absolute; width: 36px; height: 36px;
+    z-index: 3; pointer-events: none; opacity: 0.9;
 }
 .qr-corner::before, .qr-corner::after {
     content: ''; position: absolute;
-    background: #22d3ee; border-radius: 3px;
+    background: #C8996F; border-radius: 2px;
+    box-shadow: 0 0 8px rgba(200, 153, 111, 0.6);
 }
-.qr-corner::before { width: 4px; height: 100%; }
-.qr-corner::after  { width: 100%; height: 4px; }
-.qr-corner.tl { top:10px;    left:10px;  }
+.qr-corner::before { width: 3.5px; height: 100%; }
+.qr-corner::after  { width: 100%; height: 3.5px; }
+.qr-corner.tl { top:14px; left:14px; }
 .qr-corner.tl::before { top:0; left:0; }
 .qr-corner.tl::after  { top:0; left:0; }
-.qr-corner.tr { top:10px;    right:10px; transform:scaleX(-1); }
+.qr-corner.tr { top:14px; right:14px; transform:scaleX(-1); }
 .qr-corner.tr::before { top:0; left:0; }
 .qr-corner.tr::after  { top:0; left:0; }
-.qr-corner.bl { bottom:10px; left:10px;  transform:scaleY(-1); }
+.qr-corner.bl { bottom:14px; left:14px; transform:scaleY(-1); }
 .qr-corner.bl::before { top:0; left:0; }
 .qr-corner.bl::after  { top:0; left:0; }
-.qr-corner.br { bottom:10px; right:10px; transform:scale(-1,-1); }
+.qr-corner.br { bottom:14px; right:14px; transform:scale(-1,-1); }
 .qr-corner.br::before { top:0; left:0; }
 .qr-corner.br::after  { top:0; left:0; }
 
 /* Scan line */
 .qr-scanline {
-    position: absolute; left:14px; right:14px; height:2px;
-    background: linear-gradient(90deg,transparent,#22d3ee,transparent);
+    position: absolute; left:18px; right:18px; height:2.5px;
+    background: linear-gradient(90deg, transparent, #38BDF8 30%, #C8996F 70%, transparent);
+    box-shadow: 0 0 12px rgba(200, 153, 111, 0.8), 0 0 6px rgba(56, 189, 248, 0.6);
     z-index: 3; pointer-events: none;
     animation: scanMove 2.2s ease-in-out infinite;
 }
 @keyframes scanMove {
-    0%   { top:14px;           opacity:0; }
+    0%   { top:18px;           opacity:0; }
     10%  {                     opacity:1; }
     90%  {                     opacity:1; }
-    100% { top:calc(100% - 14px); opacity:0; }
+    100% { top:calc(100% - 18px); opacity:0; }
 }
 
 /* Success flash */
 #qr-success-flash {
     display: none; position: absolute; inset: 0;
-    background: rgba(34,197,94,0.4); border-radius: 14px;
+    background: rgba(22, 101, 52, 0.85); backdrop-filter: blur(4px); border-radius: 18px;
     z-index: 4; align-items: center; justify-content: center;
-    flex-direction: column; gap: 8px;
+    flex-direction: column; gap: 10px;
 }
-#qr-success-flash.show { display: flex; }
+#qr-success-flash.show { display: flex; animation: popIn 0.25s ease; }
 #qr-success-flash span {
-    color:#fff; font-weight:700; font-size:15px;
-    font-family:'Outfit',sans-serif;
+    color:#fff; font-weight:800; font-size:16px;
+    font-family:'Outfit',sans-serif; letter-spacing: -0.01em;
 }
 
 /* Status bar */
 #qr-status-text {
-    margin-top: 14px; font-size: 13px;
-    color: rgba(255,255,255,0.5);
+    margin: 16px 0 4px; font-size: 13px;
+    color: #CBD5E1;
     font-family: 'Outfit', sans-serif; min-height: 20px;
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 6px 14px; background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 20px;
 }
 
 /* Close button */
 #qr-close-btn {
-    position: absolute; top:14px; right:14px;
-    background: rgba(255,255,255,0.12); border: none; color: #fff;
-    width: 30px; height: 30px; border-radius: 50%; font-size: 16px;
+    position: absolute; top: 16px; right: 16px;
+    background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.12); color: #CBD5E1;
+    width: 32px; height: 32px; border-radius: 50%; font-size: 16px;
     cursor: pointer; display: flex; align-items: center;
-    justify-content: center; transition: background 0.2s;
+    justify-content: center; transition: all 0.2s;
 }
-#qr-close-btn:hover { background: rgba(255,255,255,0.25); }
+#qr-close-btn:hover { background: rgba(255, 255, 255, 0.2); color: #fff; transform: scale(1.05); }
 </style>
 
 <!-- Modal HTML -->
 <div id="qr-scanner-overlay">
     <div id="qr-scanner-box">
-        <button id="qr-close-btn" onclick="closeQrScanner()">✕</button>
+        <button id="qr-close-btn" onclick="closeQrScanner()">&times;</button>
         <h3><img src="assets/logo.jpg" alt="Santa Fe Beach Club logo" class="qr-logo"> QR Code Scanner</h3>
-        <p class="qr-sub">Point the camera at a guest's booking QR code</p>
+        <p class="qr-sub">Align the guest's booking QR code within the frame</p>
 
         <div id="qr-video-wrap">
             <video id="qr-video" autoplay playsinline muted></video>
@@ -997,17 +1080,17 @@ document.addEventListener('DOMContentLoaded', function() {
             <div class="qr-corner br"></div>
             <div class="qr-scanline"></div>
             <div id="qr-success-flash">
-                <svg width="44" height="44" viewBox="0 0 24 24" fill="none"
-                     stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none"
+                     stroke="#4ADE80" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="12" r="10"/>
                     <polyline points="9 12 11 14 15 10"/>
                 </svg>
-                <span>QR Detected! Redirecting…</span>
+                <span>QR Verified! Loading Pass…</span>
             </div>
         </div>
 
         <div id="qr-status-text">Starting camera…</div>
-        <select id="qr-cam-select" style="display:none; margin-top:12px; width:100%; padding:8px; border-radius:8px; background:rgba(255,255,255,0.1); color:#fff; border:1px solid rgba(255,255,255,0.2); font-family:'Outfit',sans-serif; font-size:13px;"></select>
+        <select id="qr-cam-select" style="display:none; margin-top:12px; width:100%; padding:10px 14px; border-radius:12px; background:rgba(30,41,59,0.9); color:#F1F5F9; border:1px solid rgba(255,255,255,0.15); font-family:'Outfit',sans-serif; font-size:13px; outline:none; cursor:pointer;"></select>
     </div>
 </div>
 
@@ -1099,12 +1182,11 @@ document.addEventListener('DOMContentLoaded', function() {
     function tryConstraints(list, idx) {
         if (idx >= list.length) {
             // All constraints failed — show a retry button
-            statusEl.innerHTML = '⚠️ Camera didn\'t open on first try.<br>' +
-                '<button id="qr-retry-btn" style="margin-top:10px;padding:10px 28px;border:none;border-radius:10px;' +
-                'background:#22d3ee;color:#000;font-weight:700;font-size:14px;cursor:pointer;' +
-                'font-family:Outfit,sans-serif;animation:qrSlideUp 0.3s ease;">🔄 Tap to Retry</button>';
+            statusEl.innerHTML = '⚠️ Camera unavailable. &nbsp;<button id="qr-retry-btn" style="display:inline-flex;align-items:center;gap:6px;margin-left:6px;padding:5px 14px;border:none;border-radius:20px;' +
+                'background:linear-gradient(135deg,#C8996F,#B07D52);color:#fff;font-weight:700;font-size:12px;cursor:pointer;' +
+                'font-family:Outfit,sans-serif;box-shadow:0 2px 8px rgba(200,153,111,0.4);">↻ Retry</button>';
             document.getElementById('qr-retry-btn').addEventListener('click', function() {
-                statusEl.textContent = '🔄 Retrying camera...';
+                statusEl.textContent = '↻ Retrying camera…';
                 startCamera();
             });
             return;
@@ -1115,7 +1197,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 video.srcObject = s;
                 video.onloadedmetadata = function () {
                     video.play();
-                    statusEl.textContent = '✅ Camera ready — point at a QR code.';
+                    statusEl.textContent = '✓ Camera live — align QR code to frame';
                     scanLoop();
                 };
             })

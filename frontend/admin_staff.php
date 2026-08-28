@@ -169,7 +169,7 @@ $staff_list = $conn->query("SELECT id, username, email, role, created_at FROM ad
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Staff Management — Santa Fe Beach Club</title>
-    <link rel="stylesheet" href="assets/css/admin.css?v=3">
+    <link rel="stylesheet" href="assets/css/admin.css?v=4">
 </head>
 <body>
     <?php $active_page = 'staff'; include __DIR__ . '/partials/_sidebar.php'; ?>

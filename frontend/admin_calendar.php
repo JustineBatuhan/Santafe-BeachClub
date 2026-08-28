@@ -23,7 +23,7 @@ if ($rtResult) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Availability Calendar — Santa Fe Beach Club</title>
-    <link rel="stylesheet" href="assets/css/admin.css?v=3">
+    <link rel="stylesheet" href="assets/css/admin.css?v=4">
     <style>
     /* ══════════════════════════════════════════════════════════════════════════
        AVAILABILITY CALENDAR — SCOPED STYLES
@@ -461,8 +461,8 @@ if ($rtResult) {
     .cal-bar.status-pending      { background: #F59E0B; color: #FFFFFF; }
     .cal-bar.status-pending-payment { background: #F59E0B; color: #FFFFFF; }
     .cal-bar.status-confirmed    { background: #F59E0B; color: #FFFFFF; }
-    .cal-bar.status-checked-in   { background: #10B981; }
-    .cal-bar.status-checked-out  { background: #94A3B8; }
+    .cal-bar.status-checked-in   { background: #10B981; color: #FFFFFF; }
+    .cal-bar.status-checked-out  { background: #64748B; color: #FFFFFF; }
     .cal-bar.status-cancelled    { background: #991B1B; color: #FFFFFF; opacity: 1; text-decoration: line-through; cursor: default; }
 
     .cal-bar-guest {
@@ -801,7 +801,7 @@ require_once 'partials/_sidebar.php';
 
     function setViewStartNearToday() {
         viewStart = getTodayDate();
-        viewStart.setDate(viewStart.getDate() - 3);
+        viewStart.setDate(viewStart.getDate() - 7);
         viewStart.setHours(0, 0, 0, 0);
     }
 

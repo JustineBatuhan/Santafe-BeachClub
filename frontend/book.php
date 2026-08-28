@@ -603,8 +603,11 @@ $full_name = trim(($_SESSION['guest_first_name'] ?? '') . ' ' . ($_SESSION['gues
                                 </ul>
                             </div>
                             <div class="bk-room-right">
+                                <button type="button" class="bk-edit-icon" id="editRoomBtn" aria-label="Edit room">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                                </button>
                                 <div class="bk-room-price">₱ <?php echo number_format($total_amount, 2); ?></div>
-                                <div class="bk-room-subtext">1 room, <?php echo $nights; ?> night<?php echo $nights>1?'s':''; ?>, <?php echo $guests; ?> adult<?php echo $guests>1?'s':''; ?></div>
+                                <div class="bk-room-subtext">1 room, <?php echo $nights; ?> night<?php echo $nights>1?'s':''; ?>, <?php echo $guests; ?> adult<?php echo $guests>1?'s':''; ?> included in price</div>
                                 <?php if ($discount_amount > 0): ?>
                                     <div style="font-size:11px; color:#15803D; font-weight:700; margin-top:4px;">Coupon applied: -₱<?php echo number_format($discount_amount, 2); ?></div>
                                 <?php endif; ?>
@@ -721,11 +724,11 @@ $full_name = trim(($_SESSION['guest_first_name'] ?? '') . ' ' . ($_SESSION['gues
                         <div class="bk-card-header-flex">
                             <h2 class="bk-card-title" style="margin:0;">Pay 50% Deposit With</h2>
                             <div class="bk-pay-logos">
-                                <span style="font-size:11px; font-weight:700; display:flex; align-items:center; color:#555;">
-                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                                <span style="font-size:11px; font-weight:700; display:flex; align-items:center; color:#555; letter-spacing:0.5px;">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right:4px;"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
                                     BANK TRANSFER
                                 </span>
-                                <span style="font-size:11px; font-weight:700; display:flex; align-items:center; color:#005CE6; margin-left:10px;">
+                                <span style="font-size:11px; font-weight:800; display:flex; align-items:center; color:#005CE6; margin-left:14px; letter-spacing:0.5px;">
                                     <img src="assets/images/gcash_logo.png?v=<?php echo time(); ?>" alt="GCash" style="width:16px; height:16px; margin-right:4px; vertical-align:middle; border-radius:3px; object-fit:contain;">
                                     GCASH QR
                                 </span>
@@ -735,30 +738,30 @@ $full_name = trim(($_SESSION['guest_first_name'] ?? '') . ' ' . ($_SESSION['gues
                         <div class="bk-pay-option bk-pay-option--active" id="opt-bank">
                             <label class="bk-pay-radio">
                                 <input type="radio" name="payment_method" value="Bank Deposit" checked>
-                                <span style="font-size:11px; font-weight:700; display:flex; align-items:center; margin-right:8px; color:#555;">
-                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                                <span style="font-size:11px; font-weight:700; display:inline-flex; align-items:center; margin-right:6px; color:#555; letter-spacing:0.5px;">
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right:4px;"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
                                     BANK TRANSFER
                                 </span>
-                                <strong>Bank Deposit</strong>
+                                <strong style="font-size:15px; color:#0F172A;">Bank Deposit</strong>
                             </label>
-                            <div id="bank-form" class="bk-card-form" style="padding-top: 15px;">
-                                <p style="font-size:13px; color:#555;">Please transfer the 50% deposit amount (<strong>₱ <?php echo number_format($deposit_amount, 2); ?></strong>) to our BDO Account.</p>
-                                <div style="background:#F8FAFC; border-radius:12px; padding:16px; margin: 15px 0; border:1px solid #F1F5F9;">
-                                    <div style="font-size:12px; color:#64748B; margin-bottom:4px;">Bank Name: <strong style="color:#0F172A;">BDO (Banco de Oro)</strong></div>
-                                    <div style="font-size:12px; color:#64748B; margin-bottom:4px;">Account Name: <strong style="color:#0F172A;">Santa Fe Beach Club</strong></div>
-                                    <div style="font-size:12px; color:#64748B;">Account Number: <strong style="color:#0F172A;">0012 3456 7890</strong></div>
+                            <div id="bank-form" class="bk-card-form" style="padding-top: 16px;">
+                                <p style="font-size:13.5px; color:#475569; margin:0 0 16px 0; line-height:1.5;">Please transfer the 50% deposit amount (<strong>₱ <?php echo number_format($deposit_amount, 2); ?></strong>) to our BDO Account.</p>
+                                <div style="background:#F0F8FF; border-radius:12px; padding:16px 20px; margin-bottom:20px; border:1px solid #E0F2FE;">
+                                    <div style="font-size:13px; color:#64748B; margin-bottom:6px;">Bank Name: <strong style="color:#0F172A;">BDO (Banco de Oro)</strong></div>
+                                    <div style="font-size:13px; color:#64748B; margin-bottom:6px;">Account Name: <strong style="color:#0F172A;">Santa Fe Beach Club</strong></div>
+                                    <div style="font-size:13px; color:#64748B;">Account Number: <strong style="color:#0F172A; letter-spacing:0.5px;">0012 3456 7890</strong></div>
                                 </div>
-                                <div class="bk-form-group" style="width:100%; text-align:left; margin-bottom:12px;">
-                                    <label style="font-size:12px; font-weight:600; color:#334155; margin-bottom:8px; display:block;">Bank Reference / Transaction Number <span class="req" style="color:#EF4444;">*</span></label>
-                                    <input type="text" name="bank_reference" id="bankReferenceInput" placeholder="Enter reference number" value="<?php echo htmlspecialchars($_POST['bank_reference'] ?? ''); ?>" style="width:100%; padding:12px 16px; border:2px solid #E2E8F0; border-radius:10px; font-size:14px; outline:none;" onfocus="this.style.borderColor='#007AFF';" onblur="this.style.borderColor='#E2E8F0';">
-                                    <div id="bankRefError" style="display:none; color:#B91C1C; font-size:12px; margin-top:5px; font-weight:500;">Please enter the reference number.</div>
+                                <div class="bk-form-group" style="width:100%; text-align:left; margin-bottom:18px;">
+                                    <label style="font-size:11px; font-weight:800; color:#1E293B; margin-bottom:8px; display:block; text-transform:uppercase; letter-spacing:0.5px;">Bank Reference / Transaction Number <span class="req" style="color:#EF4444;">*</span></label>
+                                    <input type="text" name="bank_reference" id="bankReferenceInput" placeholder="Enter reference number" value="<?php echo htmlspecialchars($_POST['bank_reference'] ?? ''); ?>" style="width:100%; padding:13px 16px; border:1.5px solid #E0F2FE; border-radius:10px; font-size:14px; outline:none; background:#F8FAFC; color:#1E293B; box-sizing:border-box; transition:border-color 0.2s, background 0.2s;" onfocus="this.style.borderColor='#007AFF'; this.style.background='#FFFFFF';" onblur="this.style.borderColor='#E0F2FE'; this.style.background='#F8FAFC';">
+                                    <div id="bankRefError" style="display:none; color:#B91C1C; font-size:12px; margin-top:6px; font-weight:500;">Please enter the reference number.</div>
                                 </div>
-                                <div class="bk-form-group" style="width:100%; text-align:left; margin-bottom:12px;">
-                                    <label style="font-size:12px; font-weight:600; color:#334155; margin-bottom:8px; display:block;">Upload Payment Receipt (JPG, PNG, PDF &mdash; Max 2MB) <span class="req" style="color:#EF4444;">*</span></label>
-                                    <input type="file" name="bank_receipt" id="bankReceiptInput" accept="image/jpeg,image/png,image/webp,application/pdf" data-max-size="2" data-label="Bank receipt" style="width:100%; padding:12px 16px; border:2px dashed #E2E8F0; border-radius:10px; font-size:14px; outline:none; background:#F8FAFC;" onchange="validateReceiptFile(this, ['jpg','jpeg','png','pdf'], 'bankReceiptError')">
+                                <div class="bk-form-group" style="width:100%; text-align:left; margin-bottom:16px;">
+                                    <label style="font-size:11px; font-weight:800; color:#1E293B; margin-bottom:8px; display:block; text-transform:uppercase; letter-spacing:0.5px;">Upload Payment Receipt (JPG, PNG, PDF &mdash; Max 2MB) <span class="req" style="color:#EF4444;">*</span></label>
+                                    <input type="file" name="bank_receipt" id="bankReceiptInput" accept="image/jpeg,image/png,image/webp,application/pdf" data-max-size="2" data-label="Bank receipt" style="width:100%; padding:12px 16px; border:1.5px dashed #BAE6FD; border-radius:10px; font-size:14px; outline:none; background:#F8FAFC; color:#64748B; box-sizing:border-box;" onchange="validateReceiptFile(this, ['jpg','jpeg','png','pdf'], 'bankReceiptError')">
                                     <div id="bankReceiptError" style="display:none; color:#B91C1C; font-size:12px; margin-top:6px; font-weight:500; background:#FEF2F2; border:1px solid #FECACA; border-radius:6px; padding:8px 12px;">⚠️ Invalid file. Please upload an actual JPG, PNG, or PDF file — renaming other file types (e.g. .exe renamed to .png) is not allowed.</div>
                                 </div>
-                                <p style="font-size:12px; color:#94A3B8; text-align:center; margin:0;">Your booking remains pending until our front desk verifies the payment.</p>
+                                <p style="font-size:12px; color:#94A3B8; text-align:center; margin:16px 0 0 0;">Your booking remains pending until our front desk verifies the payment.</p>
                             </div>
                         </div>
 
@@ -1201,6 +1204,112 @@ function showFileError(input, errorDiv, message) {
     input.style.borderColor = '#EF4444';
     input.value = ''; // Clear the invalid file
 }
+</script>
+
+<!-- ══ Edit Room Modal ══════════════════════════════════════════ -->
+<div id="editRoomModal" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.45); backdrop-filter:blur(3px); align-items:center; justify-content:center;">
+    <div style="background:#fff; border-radius:14px; box-shadow:0 24px 64px rgba(0,0,0,0.18); width:100%; max-width:560px; margin:24px; overflow:hidden; font-family:'Outfit',sans-serif;">
+
+        <!-- Header -->
+        <div style="display:flex; align-items:center; justify-content:space-between; padding:20px 24px 18px; border-bottom:1px solid #F1F5F9;">
+            <h3 style="font-size:17px; font-weight:700; color:#1A1A2E; margin:0;">Edit Room</h3>
+            <button id="closeEditRoomModal" type="button" style="background:none; border:none; cursor:pointer; color:#6B7280; padding:4px; line-height:0; border-radius:6px; transition:background 0.15s;" onmouseover="this.style.background='#F3F4F6'" onmouseout="this.style.background='none'">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
+
+        <!-- Body -->
+        <div style="padding:22px 24px 24px;">
+
+            <!-- Warning notice -->
+            <div style="display:flex; gap:12px; background:#FFFBEB; border:1px solid #FDE68A; border-radius:10px; padding:14px 16px; margin-bottom:22px; align-items:flex-start;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2.5" stroke-linecap="round" style="flex-shrink:0; margin-top:1px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                <div>
+                    <div style="font-size:13px; font-weight:600; color:#92400E;">Room quantity can only be reduced. Guest numbers are flexible.</div>
+                    <div style="font-size:12px; color:#B45309; margin-top:3px;">Once decreased, it cannot be increased.</div>
+                </div>
+            </div>
+
+            <!-- Room count -->
+            <div style="margin-bottom:18px;">
+                <label style="font-size:12px; font-weight:700; color:#374151; text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:8px;">Room</label>
+                <select id="editRoomCount" style="width:100%; padding:12px 16px; border:1.5px solid #E5E7EB; border-radius:10px; font-family:'Outfit',sans-serif; font-size:14px; color:#1A1A2E; background:#F9FAFB; outline:none; cursor:pointer; appearance:none; background-image:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%234B5563' stroke-width='2.5' stroke-linecap='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E\"); background-repeat:no-repeat; background-position:calc(100% - 14px) center;">
+                    <option value="1" selected>1 room</option>
+                </select>
+            </div>
+
+            <!-- Guest in Room 1 -->
+            <div id="editGuestSection" style="border:1.5px solid #E5E7EB; border-radius:10px; overflow:hidden;">
+                <div style="background:#F8FAFC; padding:12px 16px; font-size:13px; font-weight:700; color:#374151; border-bottom:1px solid #E5E7EB;">Guest in Room 1</div>
+                <div style="padding:14px 16px; display:flex; gap:12px; align-items:center;">
+                    <div style="font-size:13px; font-weight:600; color:#6B7280; flex-shrink:0; width:40px;">Main</div>
+                    <select id="editAdults" style="flex:1; padding:10px 14px; border:1.5px solid #E5E7EB; border-radius:8px; font-family:'Outfit',sans-serif; font-size:13px; color:#1A1A2E; background:#fff; outline:none; cursor:pointer; appearance:none; background-image:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%234B5563' stroke-width='2.5' stroke-linecap='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E\"); background-repeat:no-repeat; background-position:calc(100% - 12px) center;">
+                        <option value="1" <?php echo ($guests == 1) ? 'selected' : ''; ?>>1 adult</option>
+                        <option value="2" <?php echo ($guests == 2) ? 'selected' : ''; ?>>2 adults</option>
+                        <option value="3" <?php echo ($guests == 3) ? 'selected' : ''; ?>>3 adults</option>
+                        <option value="4" <?php echo ($guests == 4) ? 'selected' : ''; ?>>4 adults</option>
+                        <option value="5" <?php echo ($guests >= 5) ? 'selected' : ''; ?>>5 adults</option>
+                    </select>
+                    <select id="editChildren" style="flex:1; padding:10px 14px; border:1.5px solid #E5E7EB; border-radius:8px; font-family:'Outfit',sans-serif; font-size:13px; color:#1A1A2E; background:#fff; outline:none; cursor:pointer; appearance:none; background-image:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%234B5563' stroke-width='2.5' stroke-linecap='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E\"); background-repeat:no-repeat; background-position:calc(100% - 12px) center;">
+                        <option value="0" selected>0 children</option>
+                        <option value="1">1 child</option>
+                        <option value="2">2 children</option>
+                    </select>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Footer -->
+        <div style="display:flex; justify-content:flex-end; padding:16px 24px; border-top:1px solid #F1F5F9;">
+            <button id="applyEditRoom" type="button" style="padding:11px 28px; background:linear-gradient(135deg,#C8996F,#A67850); color:#fff; border:none; border-radius:9px; font-family:'Outfit',sans-serif; font-size:14px; font-weight:700; cursor:pointer; box-shadow:0 4px 14px rgba(200,153,111,0.4); transition:all 0.2s;" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform='translateY(0)'">
+                Close
+            </button>
+        </div>
+
+    </div>
+</div>
+
+<script>
+(function(){
+    var modal   = document.getElementById('editRoomModal');
+    var openBtn = document.getElementById('editRoomBtn');
+    var closeBtn= document.getElementById('closeEditRoomModal');
+    var applyBtn= document.getElementById('applyEditRoom');
+
+    function openModal() {
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+    function closeModal() {
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+    }
+
+    if (openBtn)  openBtn.addEventListener('click', openModal);
+    if (closeBtn) closeBtn.addEventListener('click', closeModal);
+    if (applyBtn) applyBtn.addEventListener('click', function(){
+        // Build new URL with updated guests value and reload step 1
+        var adults   = document.getElementById('editAdults').value;
+        var params   = new URLSearchParams(window.location.search);
+        params.set('step', '1');
+        params.set('guests', adults);
+        params.set('checkin',  '<?php echo htmlspecialchars($checkin); ?>');
+        params.set('checkout', '<?php echo htmlspecialchars($checkout); ?>');
+        params.set('room_type','<?php echo htmlspecialchars($room_type); ?>');
+        window.location.href = 'book?' + params.toString();
+    });
+
+    // Close on backdrop click
+    modal.addEventListener('click', function(e){
+        if (e.target === modal) closeModal();
+    });
+
+    // Close on Escape key
+    document.addEventListener('keydown', function(e){
+        if (e.key === 'Escape' && modal.style.display === 'flex') closeModal();
+    });
+})();
 </script>
 </body>
 </html>

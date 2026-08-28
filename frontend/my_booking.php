@@ -625,7 +625,6 @@ $csrf_token = get_csrf_token();
 <div class="lookup-section">
     <div class="lookup-card">
         <div class="lookup-card-header">
-            <div class="portal-icon">🏖️</div>
             <h1>My Booking</h1>
             <p>Enter your email and booking reference to view your reservation</p>
         </div>

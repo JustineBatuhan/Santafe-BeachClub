@@ -62,6 +62,10 @@ if ($action === 'stream') {
     $lastEventId = isset($_SERVER['HTTP_LAST_EVENT_ID']) ? (int)$_SERVER['HTTP_LAST_EVENT_ID'] : (int)($_GET['last_id'] ?? 0);
     $startTime = time();
 
+    // CRITICAL: Release the PHP session lock before entering the long-running loop.
+    // Otherwise, all other requests (like navigating to other pages) from this user will hang.
+    session_write_close();
+
     while (time() - $startTime < 25) { // Stream for 25 seconds per connection cycle
         $stmt = $conn->prepare("
             SELECT id, title, message, type, is_read, booking_id, created_at 

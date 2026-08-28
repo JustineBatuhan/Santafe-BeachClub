@@ -498,8 +498,17 @@ if (isset($conn)) {
 
 <header class="page-header">
     <div class="page-header-left">
-        <button class="sidebar-toggle-btn" aria-label="Toggle Navigation" title="Toggle Sidebar">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        <button class="sidebar-toggle-btn" id="sidebarToggleBtn" aria-label="Toggle Navigation" title="Toggle Sidebar">
+            <!-- Arrow icon (shown when sidebar is open/expanded) -->
+            <svg class="toggle-icon-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M15 18l-6-6 6-6"/>
+            </svg>
+            <!-- Burger icon (shown when sidebar is collapsed/closed) -->
+            <svg class="toggle-icon-burger" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;">
+                <line x1="3" y1="6" x2="21" y2="6"/>
+                <line x1="3" y1="12" x2="21" y2="12"/>
+                <line x1="3" y1="18" x2="21" y2="18"/>
+            </svg>
         </button>
 
         <div class="page-header-titles">
@@ -841,5 +850,55 @@ document.addEventListener('keydown', function(e) {
 
     tick();
     setInterval(tick, 1000);
+})();
+
+// Dynamic toggle button icon: arrow when open, burger when collapsed
+(function() {
+    function updateToggleIcon() {
+        var btn = document.getElementById('sidebarToggleBtn');
+        if (!btn) return;
+        var arrowIcon  = btn.querySelector('.toggle-icon-arrow');
+        var burgerIcon = btn.querySelector('.toggle-icon-burger');
+        if (!arrowIcon || !burgerIcon) return;
+        var isCollapsed = document.documentElement.classList.contains('sbc-collapsed') ||
+                          (document.querySelector('.admin-sidebar, .sidebar') &&
+                           document.querySelector('.admin-sidebar, .sidebar').classList.contains('collapsed'));
+        var isMobile = window.innerWidth <= 1024;
+        var isOpenMobile = document.querySelector('.admin-sidebar, .sidebar') &&
+                           document.querySelector('.admin-sidebar, .sidebar').classList.contains('open');
+        if (isMobile) {
+            // On mobile: burger when closed, arrow when open overlay
+            arrowIcon.style.display  = isOpenMobile ? '' : 'none';
+            burgerIcon.style.display = isOpenMobile ? 'none' : '';
+        } else {
+            // On desktop: arrow when expanded, burger when collapsed
+            arrowIcon.style.display  = isCollapsed ? 'none' : '';
+            burgerIcon.style.display = isCollapsed ? '' : 'none';
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        updateToggleIcon();
+        // Re-check on every click of the toggle button
+        var btn = document.getElementById('sidebarToggleBtn');
+        if (btn) {
+            btn.addEventListener('click', function() {
+                setTimeout(updateToggleIcon, 40);
+            });
+        }
+        // Also watch for sidebar open/close on mobile
+        var sidebar = document.querySelector('.admin-sidebar, .sidebar');
+        if (sidebar) {
+            var obs = new MutationObserver(updateToggleIcon);
+            obs.observe(sidebar, { attributes: true, attributeFilter: ['class'] });
+        }
+        var htmlEl = document.documentElement;
+        var htmlObs = new MutationObserver(updateToggleIcon);
+        htmlObs.observe(htmlEl, { attributes: true, attributeFilter: ['class'] });
+    });
+
+    window.addEventListener('resize', function() {
+        setTimeout(updateToggleIcon, 50);
+    });
 })();
 </script>

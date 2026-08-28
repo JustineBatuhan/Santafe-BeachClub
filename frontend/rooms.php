@@ -5,7 +5,7 @@ require_once __DIR__ . '/../backend/config/db.php';
    Filter inputs
 ───────────────────────────────────────── */
 $filter_type     = isset($_GET['room_type']) ? $_GET['room_type'] : 'any';
-$filter_guests   = isset($_GET['guests'])    ? (int)$_GET['guests']    : 2;
+$filter_guests   = isset($_GET['guests'])    ? (int)$_GET['guests']    : 1;
 $filter_checkin  = isset($_GET['checkin'])   ? $_GET['checkin']        : date('Y-m-d');
 $filter_checkout = isset($_GET['checkout'])  ? $_GET['checkout']       : date('Y-m-d', strtotime('+1 day'));
 
@@ -1445,7 +1445,7 @@ function renderExtraPersonsPanel(type) {
         childWrap.className = 'rate-extra-select-wrap';
         var childSelect = document.createElement('select');
         childSelect.className = 'rate-extra-select';
-        [0, 1, 2, 3, 4].forEach(function(count) {
+        [0, 1, 2].forEach(function(count) {
             var opt = document.createElement('option');
             opt.value = count;
             opt.textContent = count + ' child' + (count === 1 ? '' : 'ren');

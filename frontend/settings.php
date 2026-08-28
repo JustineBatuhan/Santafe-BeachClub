@@ -176,7 +176,7 @@ $active_tab = $_GET['tab'] ?? 'profile';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="assets/css/dashboard.css?v=3">
+    <link rel="stylesheet" href="assets/css/dashboard.css?v=4">
     <style>
         /* ── Settings Page Layout ── */
         .settings-wrapper {

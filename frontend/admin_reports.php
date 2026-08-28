@@ -8,7 +8,7 @@ $admin = $_SESSION['admin_username'] ?? 'Admin';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Financial & Occupancy Reports — Santa Fe Beach Club</title>
-    <link rel="stylesheet" href="assets/css/admin.css?v=3">
+    <link rel="stylesheet" href="assets/css/admin.css?v=4">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="config.js"></script>
     <style>
@@ -79,7 +79,7 @@ $admin = $_SESSION['admin_username'] ?? 'Admin';
                 </div>
                 <div class="kpi-mini">
                     <div class="label">Average Stay</div>
-                    <div class="value" style="color:var(--primary);"><span id="kpi-avg-stay">...</span> <span style="font-size:16px;">nights</span></div>
+                    <div class="value" style="color:var(--primary);"><span id="kpi-avg-stay">...</span></div>
                     <div class="sub">Excluding cancellations</div>
                 </div>
             </div>
@@ -171,21 +171,24 @@ $admin = $_SESSION['admin_username'] ?? 'Admin';
     const gridColor = isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(15, 23, 42, 0.06)';
     const tickColor = isDark ? '#94A3B8' : '#64748B';
 
-    // Helper to make API calls with the Key
+    // Proxy to Python Analytics Service (via PHP analytics_proxy.php)
     async function fetchAPI(endpoint) {
         try {
-            const res = await fetch(`${API_BASE_URL}${endpoint}`, {
+            const action = endpoint.replace('/api/', '').replace(/^\//, '');
+            const res = await fetch(`../backend/api/analytics_proxy.php?action=${encodeURIComponent(action)}`, {
                 method: 'GET',
-                headers: { 'X-API-Key': API_KEY }
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
             });
             if (!res.ok) throw new Error('API Error: ' + res.statusText);
             return await res.json();
         } catch (error) {
             console.error('Fetch error:', error);
-            document.getElementById('api-connection-error').style.display = 'block';
+            const err = document.getElementById('api-connection-error');
+            if (err) err.style.display = 'block';
             throw error;
         }
     }
+
 
     async function loadDashboardData() {
         try {

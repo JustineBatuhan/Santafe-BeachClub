@@ -28,7 +28,7 @@ $checked_in_count = $conn->query("SELECT COUNT(*) as c FROM bookings WHERE statu
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>All Reservations — Admin Command</title>
-    <link rel="stylesheet" href="assets/css/admin.css?v=3">
+    <link rel="stylesheet" href="assets/css/admin.css?v=4">
 </head>
 <body>
 
@@ -39,10 +39,6 @@ $checked_in_count = $conn->query("SELECT COUNT(*) as c FROM bookings WHERE statu
         $page_title = 'Reservations Management';
         $page_subtitle = 'Comprehensive register of all resort guest bookings and status';
         $header_extra_html = '
-            <div class="search-wrapper">
-                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                <input type="text" placeholder="Search guests, rooms…" class="search-input" id="reservationSearch" onkeyup="filterTable()">
-            </div>
             <a href="book" target="_blank" class="btn-primary" style="height:38px;">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                 New Booking
@@ -55,6 +51,15 @@ $checked_in_count = $conn->query("SELECT COUNT(*) as c FROM bookings WHERE statu
             <!-- Filter Bar & Quick Stats -->
             <div class="admin-card" style="margin-bottom: 24px;">
                 <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px;">
+                    <div class="search-wrapper" style="width: 280px; max-width: 100%;">
+                        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                        <input type="text" placeholder="Search guests, rooms…" class="search-input" id="reservationSearch" onkeyup="filterTable()" style="width: 100%; border:1.5px solid var(--border); border-radius:var(--radius-sm); padding:8px 14px 8px 36px; background:var(--input-bg); color:var(--text-main); font-size:13px;">
+                        <style>
+                            .search-wrapper { position: relative; }
+                            .search-wrapper .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; color: var(--text-muted); }
+                            .search-wrapper input:focus { outline: none; border-color: var(--primary); }
+                        </style>
+                    </div>
                     <form method="GET" action="admin_reservations" style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
                         <span style="font-size:12px; font-weight:700; color:var(--text-muted); text-transform:uppercase;">Filter Status:</span>
                         <select name="status" onchange="this.form.submit()" style="padding:8px 14px; border:1.5px solid var(--border); border-radius:var(--radius-sm); font-size:13px; background:var(--input-bg); color:var(--text-main);">

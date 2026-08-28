@@ -252,7 +252,9 @@ $bookings_query = $conn->query("
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="assets/css/dashboard.css?v=3">
+    <meta name="csrf-token" content="<?php echo htmlspecialchars(get_csrf_token(), ENT_QUOTES, 'UTF-8'); ?>">
+    <title>Guest Check-in — Santa Fe Beach Club</title>
+    <link rel="stylesheet" href="assets/css/dashboard.css?v=4">
     <style>
         .reservations-table {
             width: 100%;
@@ -407,24 +409,60 @@ $bookings_query = $conn->query("
                 $spec_paid = floatval($specific_booking['amount_paid']);
                 $spec_balance = max(0, $spec_total - $spec_paid);
                 ?>
-                <div class="specific-checkin-card">
-                    <h2 style="margin-bottom: 15px;">QR Code Check-in Scanned</h2>
-                    <p><strong>Guest:</strong> <?php echo $spec_name; ?></p>
-                    <p><strong>Accommodation:</strong> <?php echo $spec_acc; ?></p>
-                    <p><strong>Ref:</strong> <?php echo htmlspecialchars($ref); ?></p>
-                    
-                    <?php if ($spec_balance > 0): ?>
-                        <div style="background: #FFF3E0; border: 1px solid #FFE0B2; border-radius: 8px; padding: 12px; margin: 15px 0; color: #E65100;">
-                            <strong>⚠️ Balance Due: ₱<?php echo number_format($spec_balance, 2); ?></strong>
-                            <p style="font-size: 12px; margin-top: 4px;">Please collect the balance payment before check-in.</p>
+                <div class="specific-checkin-overlay" style="position: fixed; inset: 0; background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; z-index: 10000;">
+                    <div style="background: #ffffff; border-radius: 22px; width: 100%; max-width: 440px; padding: 34px 28px 26px; box-shadow: 0 25px 60px -15px rgba(15, 23, 42, 0.28), 0 0 1px rgba(15, 23, 42, 0.1); position: relative; text-align: center; animation: popIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);">
+                        <a href="checkin" style="position: absolute; top: 16px; right: 16px; width: 32px; height: 32px; border-radius: 50%; background: #F1F5F9; color: #64748B; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 18px; font-weight: 600; transition: all 0.2s;" onmouseover="this.style.background='#E2E8F0'; this.style.color='#0F172A';" onmouseout="this.style.background='#F1F5F9'; this.style.color='#64748B';" title="Close">&times;</a>
+                        
+                        <div style="width: 70px; height: 70px; border-radius: 50%; margin: 0 auto 18px; overflow: hidden; border: 3px solid #EFE4D6; box-shadow: 0 10px 25px -5px rgba(200, 153, 111, 0.4); background: #ffffff; display: flex; align-items: center; justify-content: center;">
+                            <img src="assets/logo.jpg" alt="Santa Fe Beach Club" style="width: 100%; height: 100%; object-fit: cover;">
                         </div>
-                    <?php endif; ?>
-                    
-                    <form method="POST" action="checkin" style="margin-top: 20px;">
-                        <input type="hidden" name="action" value="checkin">
-                        <input type="hidden" name="booking_id" value="<?php echo $spec_id; ?>">
-                        <button type="submit" class="btn-checkin" style="font-size: 16px; padding: 12px 24px;" onclick="handleCheckinClick(event, <?php echo $spec_id; ?>, '<?php echo addslashes($spec_name); ?>', '<?php echo addslashes($spec_acc); ?>', <?php echo $spec_total; ?>, <?php echo $spec_balance; ?>)">Confirm Check-in</button>
-                    </form>
+                        
+                        <h2 style="margin: 0 0 6px; font-size: 21px; font-weight: 800; color: #0F172A; letter-spacing: -0.01em;">Guest Scanned!</h2>
+                        <p style="margin: 0 0 20px; color: #64748B; font-size: 13.5px;">Reservation identified and verified successfully.</p>
+                        
+                        <div style="background: #F8FAFC; border: 1.5px solid #E2E8F0; border-radius: 14px; padding: 14px 16px; margin-bottom: 18px; text-align: left;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 10px; margin-bottom: 10px; border-bottom: 1px dashed #E2E8F0;">
+                                <span style="font-size: 12px; color: #64748B; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Guest</span>
+                                <strong style="font-size: 14px; color: #0F172A; font-weight: 800;"><?php echo $spec_name; ?></strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 10px; margin-bottom: 10px; border-bottom: 1px dashed #E2E8F0;">
+                                <span style="font-size: 12px; color: #64748B; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Room</span>
+                                <strong style="font-size: 13.5px; color: #0F172A; font-weight: 700;"><?php echo $spec_acc; ?></strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="font-size: 12px; color: #64748B; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Booking Ref</span>
+                                <span style="background: #EFF6FF; color: #1D4ED8; font-weight: 800; font-size: 12px; padding: 3px 8px; border-radius: 6px; letter-spacing: 0.5px; font-family: monospace;"><?php echo htmlspecialchars($ref); ?></span>
+                            </div>
+                        </div>
+                        
+                        <?php if ($spec_balance > 0): ?>
+                            <div style="background: linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%); border: 1.5px solid #FDBA74; border-radius: 14px; padding: 14px 16px; margin-bottom: 22px; text-align: left; display: flex; align-items: center; justify-content: space-between;">
+                                <div>
+                                    <div style="font-size: 11px; font-weight: 800; color: #9A3412; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px;">⚠️ Balance Due</div>
+                                    <div style="font-size: 12px; color: #C2410C; font-weight: 500;">Collect before room turnover</div>
+                                </div>
+                                <div style="font-size: 20px; font-weight: 900; color: #C2410C; letter-spacing: -0.02em;">₱<?php echo number_format($spec_balance, 2); ?></div>
+                            </div>
+                        <?php else: ?>
+                            <div style="background: linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 100%); border: 1.5px solid #86EFAC; border-radius: 14px; padding: 14px 16px; margin-bottom: 22px; text-align: left; display: flex; align-items: center; justify-content: space-between;">
+                                <div>
+                                    <div style="font-size: 11px; font-weight: 800; color: #166534; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px;">Payment Status</div>
+                                    <div style="font-size: 12px; color: #15803D; font-weight: 500;">All charges fully settled</div>
+                                </div>
+                                <span style="background: #15803D; color: #fff; font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 6px; letter-spacing: 0.5px;">✓ PAID IN FULL</span>
+                            </div>
+                        <?php endif; ?>
+                        
+                        <form method="POST" action="checkin" style="margin: 0;">
+                            <?php echo csrf_field(); ?>
+                            <input type="hidden" name="action" value="checkin">
+                            <input type="hidden" name="booking_id" value="<?php echo $spec_id; ?>">
+                            <button type="submit" style="width: 100%; padding: 13px 0; background: linear-gradient(135deg, #15803D, #166534); color: #ffffff; border: none; border-radius: 12px; font-size: 15px; font-weight: 800; cursor: pointer; box-shadow: 0 4px 16px rgba(22, 101, 52, 0.35); display: flex; align-items: center; justify-content: center; gap: 8px; transition: transform 0.15s ease, box-shadow 0.15s ease;" onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 6px 20px rgba(22, 101, 52, 0.45)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 16px rgba(22, 101, 52, 0.35)';" onclick="handleCheckinClick(event, <?php echo $spec_id; ?>, '<?php echo addslashes($spec_name); ?>', '<?php echo addslashes($spec_acc); ?>', <?php echo $spec_total; ?>, <?php echo $spec_balance; ?>)">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                                Check In Guest Now
+                            </button>
+                        </form>
+                    </div>
                 </div>
             <?php elseif (!empty($ref)): ?>
                 <div class="alert-success" style="background-color: #FFEBEE; color: #C62828;">
@@ -487,8 +525,10 @@ $bookings_query = $conn->query("
                                     echo "<td><span style='background: #E8F5E9; color: #2E7D32; padding: 4px 8px; border-radius: 4px; font-weight: 700; font-size: 12px;'>Paid In Full</span></td>";
                                 }
                                 
+                                $csrf = htmlspecialchars(get_csrf_token(), ENT_QUOTES, 'UTF-8');
                                 echo "<td>
                                     <form method='POST' action='checkin' style='display:inline;'>
+                                        <input type='hidden' name='csrf_token' value='{$csrf}'>
                                         <input type='hidden' name='action' value='checkin'>
                                         <input type='hidden' name='booking_id' value='{$id}'>
                                         <button type='submit' class='btn-checkin' onclick=\"handleCheckinClick(event, {$id}, '" . addslashes($name) . "', '" . addslashes($accommodation) . "', {$total_cost}, {$balance_due})\">Check-in</button>
@@ -523,6 +563,7 @@ $bookings_query = $conn->query("
             </div>
 
             <form method="POST" id="walkinForm" action="checkin">
+                <?php echo csrf_field(); ?>
                 <input type="hidden" name="action" value="walkin_checkin">
                 
                 <!-- Guest Information -->
@@ -699,6 +740,7 @@ $bookings_query = $conn->query("
             </div>
             
             <form method="POST" id="balanceForm" action="checkin">
+                <?php echo csrf_field(); ?>
                 <input type="hidden" name="action" value="checkin">
                 <input type="hidden" name="booking_id" id="modalBookingId" value="">
                 <input type="hidden" name="collect_payment" value="1">

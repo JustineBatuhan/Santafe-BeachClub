@@ -1,0 +1,23 @@
+﻿# Logs
+backend/logs/*.log
+*.log
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+
+# Uploads / Dynamic generated QR codes & receipts
+frontend/uploads/receipts/*
+!frontend/uploads/receipts/.gitkeep
+frontend/assets/qrcodes/*
+!frontend/assets/qrcodes/.gitkeep
+
+# OS / Editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

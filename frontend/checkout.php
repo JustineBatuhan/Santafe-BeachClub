@@ -50,7 +50,7 @@ $bookings_query = $conn->query("SELECT id, guest_name, guest_email, guest_type, 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="assets/css/dashboard.css?v=3">
+    <link rel="stylesheet" href="assets/css/dashboard.css?v=4">
     <style>
         .reservations-table {
             width: 100%;
@@ -151,8 +151,10 @@ $bookings_query = $conn->query("SELECT id, guest_name, guest_email, guest_type, 
                                 echo "<td>{$accommodation}</td>";
                                 echo "<td>{$checkin}</td>";
                                 echo "<td><strong>{$checkout}</strong></td>";
+                                $csrf = htmlspecialchars(get_csrf_token(), ENT_QUOTES, 'UTF-8');
                                 echo "<td>
                                     <form method='POST' action='checkout' id='checkout-form-{$id}' style='display:inline;'>
+                                        <input type='hidden' name='csrf_token' value='{$csrf}'>
                                         <input type='hidden' name='action' value='checkout'>
                                         <input type='hidden' name='booking_id' value='{$id}'>
                                         <button type='button' class='btn-checkout' onclick='confirmCheckout({$id}, \"{$name}\")'>Check-out</button>

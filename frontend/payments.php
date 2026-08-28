@@ -285,7 +285,9 @@ if ($bk_res) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="assets/css/dashboard.css?v=3">
+    <meta name="csrf-token" content="<?php echo htmlspecialchars(get_csrf_token(), ENT_QUOTES, 'UTF-8'); ?>">
+    <title>Payment Processing — Santa Fe Beach Club</title>
+    <link rel="stylesheet" href="assets/css/dashboard.css?v=4">
     <style>
         .reservations-table {
             width: 100%;
@@ -564,21 +566,52 @@ if ($bk_res) {
             $send_stmt->close();
         ?>
         <?php if ($send_booking): ?>
-            <div class="gcash-overlay active" id="sendConfirmationOverlay">
-                <div class="gcash-modal" style="max-width:440px;">
-                    <div style="width:54px;height:54px;border-radius:50%;background:#EFF6FF;display:flex;align-items:center;justify-content:center;margin:0 auto 18px;">
-                        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#1D4ED8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-0.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            <div class="gcash-overlay active" id="sendConfirmationOverlay" style="background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; z-index: 99999;">
+                <div style="background: #ffffff; border-radius: 20px; max-width: 450px; width: calc(100% - 32px); padding: 32px 28px 26px; text-align: center; box-shadow: 0 25px 60px -15px rgba(15, 23, 42, 0.25), 0 0 1px rgba(15, 23, 42, 0.1); position: relative; animation: popIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);">
+                    
+                    <!-- Close button -->
+                    <a href="payments" style="position: absolute; top: 16px; right: 16px; width: 32px; height: 32px; border-radius: 50%; background: #F1F5F9; color: #64748B; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 18px; font-weight: 600; transition: all 0.2s;" onmouseover="this.style.background='#E2E8F0'; this.style.color='#0F172A';" onmouseout="this.style.background='#F1F5F9'; this.style.color='#64748B';">&times;</a>
+
+                    <!-- Icon with glow -->
+                    <div style="width: 64px; height: 64px; border-radius: 20px; background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%); border: 1.5px solid #BFDBFE; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.25);">
+                        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+                        </svg>
                     </div>
-                    <h3 style="margin:0 0 8px;font-size:18px;font-weight:700;color:#0f172a;">Send Confirmation Email?</h3>
-                    <p style="margin:0 0 8px;font-size:14px;color:#475569;line-height:1.6;">Payment verified. Send the booking code and check-in QR code to:</p>
-                    <p style="margin:0 0 24px;font-size:14px;font-weight:700;color:#0f172a;word-break:break-word;"><?php echo htmlspecialchars($send_booking['guest_email'] ?: 'No email address'); ?></p>
-                    <div style="display:flex;gap:10px;justify-content:center;">
-                        <a href="payments" class="btn-receipt" style="flex:1;padding:11px 0;text-decoration:none;">Not Now</a>
+
+                    <h3 style="margin: 0 0 8px; font-size: 20px; font-weight: 800; color: #0F172A; letter-spacing: -0.01em;">Send Confirmation Email?</h3>
+                    <p style="margin: 0 0 20px; font-size: 13.5px; color: #64748B; line-height: 1.55;">Payment is verified! Dispatch the booking voucher and check-in QR pass directly to the guest.</p>
+
+                    <!-- Guest Email Box -->
+                    <div style="background: #F8FAFC; border: 1.5px solid #E2E8F0; border-radius: 14px; padding: 14px 16px; margin-bottom: 24px; text-align: left; display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 38px; height: 38px; border-radius: 10px; background: #0F172A; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; flex-shrink: 0;">
+                            <?php echo strtoupper(substr($send_booking['guest_name'] ?: 'G', 0, 1)); ?>
+                        </div>
+                        <div style="min-width: 0; flex: 1;">
+                            <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 2px;">
+                                <strong style="font-size: 13.5px; color: #0F172A; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><?php echo htmlspecialchars($send_booking['guest_name'] ?: 'Guest'); ?></strong>
+                                <span style="background: #DCFCE7; color: #15803D; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.5px;">Verified</span>
+                            </div>
+                            <div style="font-size: 12.5px; color: #475569; word-break: break-all; font-weight: 500;">
+                                <?php echo htmlspecialchars($send_booking['guest_email'] ?: 'No email address on file'); ?>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div style="display: flex; gap: 12px; justify-content: center;">
+                        <a href="payments" style="flex: 1; padding: 12px 0; background: #F1F5F9; color: #475569; border-radius: 10px; font-size: 14px; font-weight: 600; text-decoration: none; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" onmouseover="this.style.background='#E2E8F0'; this.style.color='#0F172A';" onmouseout="this.style.background='#F1F5F9'; this.style.color='#475569';">
+                            Not Now
+                        </a>
                         <?php if (!empty($send_booking['guest_email'])): ?>
-                            <form method="POST" action="payments" style="flex:1;margin:0;">
+                            <form method="POST" action="payments" style="flex: 1.3; margin: 0;">
+                                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(get_csrf_token(), ENT_QUOTES, 'UTF-8'); ?>">
                                 <input type="hidden" name="action" value="send_confirmation_email">
                                 <input type="hidden" name="booking_id" value="<?php echo $send_booking_id; ?>">
-                                <button type="submit" class="btn-pay" style="width:100%;padding:11px 0;">Yes, Send Email</button>
+                                <button type="submit" style="width: 100%; padding: 12px 0; background: linear-gradient(135deg, #15803D, #166534); color: #ffffff; border: none; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 14px rgba(22, 101, 52, 0.35); display: flex; align-items: center; justify-content: center; gap: 6px; transition: transform 0.15s ease, box-shadow 0.15s ease;" onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 6px 18px rgba(22, 101, 52, 0.45)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 14px rgba(22, 101, 52, 0.35)';">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+                                    Send Email
+                                </button>
                             </form>
                         <?php endif; ?>
                     </div>
@@ -610,6 +643,7 @@ if ($bk_res) {
             </div>
             <div id="refundModalInfo" style="background:#F3E5F5; border-radius:8px; padding:12px 14px; margin-bottom:16px; font-size:14px; color:#4A148C;"></div>
             <form method="POST" action="payments" id="refundForm">
+                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(get_csrf_token(), ENT_QUOTES, 'UTF-8'); ?>">
                 <input type="hidden" name="action" value="refund_payment">
                 <input type="hidden" name="payment_id" id="refundPaymentId">
                 <div style="margin-bottom:14px;">

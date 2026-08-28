@@ -519,17 +519,17 @@ body {
 .bk-pay-option {
     border: 1.5px solid var(--border);
     border-radius: var(--radius-sm);
-    margin-bottom: 10px;
-    padding: 16px 18px;
+    margin-bottom: 14px;
+    padding: 18px 20px;
     background: #FAFAFA;
     cursor: pointer;
     transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
 }
-.bk-pay-option:hover { border-color: var(--sand); background: var(--sand-light); }
+.bk-pay-option:hover { border-color: var(--sand); background: #FFFDFB; }
 .bk-pay-option--active {
     border-color: var(--sand);
-    background: linear-gradient(135deg, #FDF5EC, #FFF9F5);
-    box-shadow: 0 0 0 3px rgba(200,153,111,0.15);
+    background: #FFFDFB;
+    box-shadow: 0 0 0 1px rgba(200,153,111,0.25);
 }
 
 .bk-pay-radio {

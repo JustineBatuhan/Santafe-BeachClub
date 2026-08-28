@@ -8,7 +8,7 @@ $admin = $_SESSION['admin_username'] ?? 'Admin';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Command Dashboard — Santa Fe Beach Club</title>
-    <link rel="stylesheet" href="assets/css/admin.css?v=3">
+    <link rel="stylesheet" href="assets/css/admin.css?v=4">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
         .loading { text-align: center; padding: 20px; color: var(--text-muted); font-size: 14px; }
@@ -188,14 +188,18 @@ include __DIR__ . '/partials/_sidebar.php';
                     <div class="stat-card-sub">Last 7 rolling days</div>
                 </div>
                 <div class="stat-icon brown">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M7 21V3h7.5a4.5 4.5 0 1 1 0 9H7" />
+                        <line x1="4" y1="8" x2="17" y2="8" />
+                        <line x1="4" y1="12" x2="17" y2="12" />
+                    </svg>
                 </div>
             </div>
 
             <div class="stat-card">
                 <div>
                     <div class="stat-card-label">Occupancy Rate</div>
-                    <div class="stat-card-value"><span id="kpi-occupancy-rate">...</span>%</div>
+                    <div class="stat-card-value"><span id="kpi-occupancy-rate">...</span></div>
                     <div class="stat-card-sub">
                         <span id="kpi-occupied-rooms">...</span> of <span id="kpi-total-rooms">...</span> rooms occupied
                     </div>
@@ -452,7 +456,7 @@ const tickColor = isDark ? '#94A3B8' : '#64748B';
 async function fetchAPI(endpoint) {
     try {
         const action = endpoint.replace('/api/', '').replace('/', '');
-        const res = await fetch(`../backend/api/analytics_api.php?action=${encodeURIComponent(action)}`, {
+        const res = await fetch(`../backend/api/analytics_proxy.php?action=${encodeURIComponent(action)}`, {
             method: 'GET',
             headers: { 'X-Requested-With': 'XMLHttpRequest' }
         });

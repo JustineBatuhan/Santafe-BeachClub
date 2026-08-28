@@ -47,7 +47,7 @@ $inquiriesResult = $conn->query("SELECT * FROM inquiries ORDER BY created_at DES
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inquiries - Admin Dashboard</title>
-    <link rel="stylesheet" href="assets/css/admin.css?v=3">
+    <link rel="stylesheet" href="assets/css/admin.css?v=4">
     <style>
         .inquiries-container {
             padding: 24px;
@@ -184,6 +184,7 @@ $inquiriesResult = $conn->query("SELECT * FROM inquiries ORDER BY created_at DES
                         
                         <div class="inquiry-actions">
                             <form method="POST" style="display:inline;">
+                                <?php echo csrf_field(); ?>
                                 <input type="hidden" name="inquiry_id" value="<?php echo $inq['id']; ?>">
                                 <?php if ($inq['status'] === 'Unread'): ?>
                                     <button type="submit" name="action" value="mark_read" class="btn-action btn-read">Mark as Read</button>
