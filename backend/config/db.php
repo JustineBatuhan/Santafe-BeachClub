@@ -3,24 +3,44 @@ require_once __DIR__ . '/../helpers/error_handler.php';
 require_once __DIR__ . '/../helpers/business_time_helper.php';
 require_once __DIR__ . '/../helpers/password_helper.php';
 
-// MySQL database connection configuration
-$host = '127.0.0.1';
-$port = 3307;
-$dbname = 'santafe_beach_club';
+// MySQL database connection configuration (Supports Local XAMPP & Live TiDB Cloud)
+$is_local_env = in_array($_SERVER['HTTP_HOST'] ?? '127.0.0.1', ['localhost', '127.0.0.1', '::1']);
 
-// Suppress strict reporting so we can handle connection fallback manually
+// Suppress strict reporting during initial connection attempts
 mysqli_report(MYSQLI_REPORT_OFF);
 
-// Always use root for local XAMPP (santafe_app requires Aria fix on production)
-// To switch to restricted user on live server: replace 'root' / '' with host credentials
-$conn = @new mysqli($host, 'root', '', '', $port);
+$conn = null;
 
-// Restore strict reporting for the rest of the application
+if ($is_local_env) {
+    // 1. Try Local XAMPP Database
+    $conn = @new mysqli('127.0.0.1', 'root', '', 'santafe_beach_club', 3307);
+    if ($conn && !$conn->connect_error) {
+        $dbname = 'santafe_beach_club';
+    }
+}
+
+// 2. Connect to Live TiDB Cloud if remote or local is offline
+if (!$conn || $conn->connect_error) {
+    $tidb_host = 'gateway01.ap-southeast-1.prod.aws.tidbcloud.com';
+    $tidb_port = 4000;
+    $tidb_user = '3QXoXQuJo9As2Sx.root';
+    $tidb_pass = 'ZCu3jpuVMLl4B2Vf';
+    $dbname    = 'test';
+
+    $conn = mysqli_init();
+    if (defined('MYSQLI_OPT_SSL_VERIFY_SERVER_CERT')) {
+        $conn->options(MYSQLI_OPT_SSL_VERIFY_SERVER_CERT, false);
+    }
+    @$conn->ssl_set(NULL, NULL, NULL, NULL, NULL);
+    @$conn->real_connect($tidb_host, $tidb_user, $tidb_pass, $dbname, $tidb_port, NULL, MYSQLI_CLIENT_SSL);
+}
+
+// Restore strict reporting for application queries
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
 try {
-    if (!$conn) {
-        throw new mysqli_sql_exception("Connection failed");
+    if (!$conn || $conn->connect_error) {
+        throw new mysqli_sql_exception("Connection failed: " . ($conn ? $conn->connect_error : 'Unknown error'));
     }
     
     $conn->query("CREATE DATABASE IF NOT EXISTS $dbname");

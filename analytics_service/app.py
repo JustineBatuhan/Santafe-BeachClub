@@ -16,6 +16,16 @@ CORS(app)  # Allow PHP proxy to call this service
 
 # ── Database Configuration ─────────────────────────────────────────────────────
 DB_CONFIG = {
+    'host': 'gateway01.ap-southeast-1.prod.aws.tidbcloud.com',
+    'port': 4000,
+    'user': '3QXoXQuJo9As2Sx.root',
+    'password': 'ZCu3jpuVMLl4B2Vf',
+    'database': 'test',
+    'use_pure': True,
+    'autocommit': True,
+}
+
+LOCAL_DB_CONFIG = {
     'host': '127.0.0.1',
     'port': 3307,
     'user': 'root',
@@ -25,7 +35,10 @@ DB_CONFIG = {
 }
 
 def get_db():
-    return mysql.connector.connect(**DB_CONFIG)
+    try:
+        return mysql.connector.connect(**DB_CONFIG)
+    except Exception:
+        return mysql.connector.connect(**LOCAL_DB_CONFIG)
 
 def fetchone(cursor, query, params=()):
     cursor.execute(query, params)

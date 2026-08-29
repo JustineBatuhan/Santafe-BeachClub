@@ -13,6 +13,15 @@ CORS(app)
 API_KEY = "santafe-super-secret-key-2026"
 
 DB_CONFIG = {
+    'host': 'gateway01.ap-southeast-1.prod.aws.tidbcloud.com',
+    'port': 4000,
+    'user': '3QXoXQuJo9As2Sx.root',
+    'password': 'ZCu3jpuVMLl4B2Vf',
+    'database': 'test',
+    'use_pure': True
+}
+
+LOCAL_DB_CONFIG = {
     'host': '127.0.0.1',
     'user': 'root',
     'password': '',
@@ -21,7 +30,10 @@ DB_CONFIG = {
 }
 
 def get_db_connection():
-    return mysql.connector.connect(**DB_CONFIG)
+    try:
+        return mysql.connector.connect(**DB_CONFIG)
+    except Exception:
+        return mysql.connector.connect(**LOCAL_DB_CONFIG)
 
 def require_api_key(f):
     @wraps(f)
