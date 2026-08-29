@@ -218,6 +218,120 @@ switch ($action) {
         ]);
         break;
 
+    // ── 8. Dashboard KPI Stats ──────────────────────────────────────────────
+    case 'dashboard-stats':
+        $rev_res = $conn->query("SELECT COALESCE(SUM(amount), 0) AS total_revenue FROM payments WHERE status = 'verified'");
+        $total_revenue = (float)($rev_res ? $rev_res->fetch_assoc()['total_revenue'] : 0);
+
+        $bk_res = $conn->query("SELECT COUNT(*) AS total_bookings FROM bookings");
+        $total_bookings = (int)($bk_res ? $bk_res->fetch_assoc()['total_bookings'] : 0);
+
+        $pb_res = $conn->query("SELECT COUNT(*) AS pending_bookings FROM bookings WHERE status = 'Pending'");
+        $pending_bookings = (int)($pb_res ? $pb_res->fetch_assoc()['pending_bookings'] : 0);
+
+        $g_res = $conn->query("SELECT COALESCE(SUM(guests_count), 0) AS total_guests FROM bookings");
+        $total_guests = (int)($g_res ? $g_res->fetch_assoc()['total_guests'] : 0);
+
+        $avg_res = $conn->query("SELECT ROUND(AVG(DATEDIFF(check_out, check_in)), 1) AS avg_stay FROM bookings WHERE status != 'Cancelled'");
+        $avg_stay = (float)($avg_res ? ($avg_res->fetch_assoc()['avg_stay'] ?? 0) : 0);
+
+        echo json_encode([
+            'total_revenue'    => $total_revenue,
+            'total_bookings'   => $total_bookings,
+            'pending_bookings' => $pending_bookings,
+            'total_guests'     => $total_guests,
+            'avg_stay'         => $avg_stay,
+        ]);
+        break;
+
+    // ── 9. Monthly Revenue ───────────────────────────────────────────────────
+    case 'monthly-revenue':
+        $labels = [];
+        $revenue = [];
+        for ($i = 5; $i >= 0; $i--) {
+            $monthTime = strtotime("-$i months");
+            $m = date('Y-m', $monthTime);
+            $label = date('M Y', $monthTime);
+
+            $stmt = $conn->prepare("SELECT COALESCE(SUM(amount), 0) AS v FROM payments WHERE status = 'verified' AND DATE_FORMAT(paid_at, '%Y-%m') = ?");
+            $stmt->bind_param("s", $m);
+            $stmt->execute();
+            $val = (float)($stmt->get_result()->fetch_assoc()['v'] ?? 0);
+            $stmt->close();
+
+            $labels[] = $label;
+            $revenue[] = $val;
+        }
+        echo json_encode([
+            'labels'  => $labels,
+            'revenue' => $revenue,
+        ]);
+        break;
+
+    // ── 10. Top Accommodations ───────────────────────────────────────────────
+    case 'top-accommodations':
+        $res = $conn->query("
+            SELECT accommodation_name, COUNT(*) AS cnt, COALESCE(SUM(guests_count), 0) AS guests
+            FROM bookings
+            GROUP BY accommodation_name
+            ORDER BY cnt DESC
+            LIMIT 8
+        ");
+        $data = [];
+        if ($res) {
+            while ($row = $res->fetch_assoc()) {
+                $data[] = [
+                    'accommodation_name' => $row['accommodation_name'],
+                    'cnt'                => (int)$row['cnt'],
+                    'guests'             => (int)$row['guests'],
+                ];
+            }
+        }
+        echo json_encode($data);
+        break;
+
+    // ── 11. Payment Methods Breakdown ────────────────────────────────────────
+    case 'payment-methods':
+        $res = $conn->query("
+            SELECT payment_method, COUNT(*) AS cnt, COALESCE(SUM(amount), 0) AS total
+            FROM payments
+            WHERE status = 'verified'
+            GROUP BY payment_method
+            ORDER BY total DESC
+        ");
+        $data = [];
+        if ($res) {
+            while ($row = $res->fetch_assoc()) {
+                $data[] = [
+                    'payment_method' => $row['payment_method'],
+                    'cnt'            => (int)$row['cnt'],
+                    'total'          => (float)$row['total'],
+                ];
+            }
+        }
+        echo json_encode($data);
+        break;
+
+    // ── 12. Accommodation Popularity ─────────────────────────────────────────
+    case 'accommodation-popularity':
+        $res = $conn->query("
+            SELECT accommodation_name, COUNT(id) AS booking_count
+            FROM bookings
+            GROUP BY accommodation_name
+            ORDER BY booking_count DESC
+        ");
+        $data = [];
+        if ($res) {
+            while ($row = $res->fetch_assoc()) {
+                $data[] = [
+                    'accommodation_name' => $row['accommodation_name'],
+                    'booking_count'      => (int)$row['booking_count'],
+                ];
+            }
+        }
+        echo json_encode($data);
+        break;
+
     default:
         http_response_code(400);
         echo json_encode(['error' => 'Invalid action endpoint']);

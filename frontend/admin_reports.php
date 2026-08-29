@@ -10,7 +10,6 @@ $admin = $_SESSION['admin_username'] ?? 'Admin';
     <title>Financial & Occupancy Reports — Santa Fe Beach Club</title>
     <link rel="stylesheet" href="assets/css/admin.css?v=4">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <script src="config.js"></script>
     <style>
         .report-kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px; }
         .kpi-mini { background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 18px 20px; box-shadow: var(--shadow-sm); }
@@ -57,7 +56,7 @@ $admin = $_SESSION['admin_username'] ?? 'Admin';
         <div class="admin-body">
             
             <div id="api-connection-error" style="display: none; background: #FEF2F2; color: #991B1B; padding: 15px; border-radius: 6px; margin-bottom: 20px; border: 1px solid #F87171;">
-                <strong>⚠️ API Connection Failed!</strong> Could not connect to the local Flask API. Please ensure your PC is running <code>start_tunnel.bat</code> and that the URL in <code>config.js</code> is correct.
+                <strong>⚠️ Analytics Error:</strong> Could not load reports data. Please verify your database connection.
             </div>
 
             <!-- KPI Strip -->
