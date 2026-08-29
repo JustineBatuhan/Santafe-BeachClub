@@ -12,19 +12,32 @@ header('Content-Type: application/json; charset=utf-8');
 
 $action = $_GET['action'] ?? '';
 
-// ── Try Python Flask service first ────────────────────────────────────────────
+// ── Try Live Render Python service first (or Local Flask if running) ──────────
 if (function_exists('curl_init')) {
-    $python_url = "http://127.0.0.1:5000/api/" . urlencode($action);
+    // Check if local Flask is active, else use Live Render URL
+    $is_local_dev = in_array($_SERVER['HTTP_HOST'] ?? '', ['localhost', '127.0.0.1', '::1']);
+    
+    // Choose Python endpoint
+    $python_url = "https://santafe-beachclub-analytics.onrender.com/api/" . urlencode($action);
+    if ($is_local_dev) {
+        // For local development testing, try local port 5000 first if reachable
+        $local_test = @fsockopen('127.0.0.1', 5000, $errno, $errstr, 0.2);
+        if ($local_test) {
+            fclose($local_test);
+            $python_url = "http://127.0.0.1:5000/api/" . urlencode($action);
+        }
+    }
 
     $ch = curl_init($python_url);
     curl_setopt_array($ch, [
         CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_TIMEOUT        => 2,
-        CURLOPT_CONNECTTIMEOUT => 1,
+        CURLOPT_TIMEOUT        => 8,
+        CURLOPT_CONNECTTIMEOUT => 4,
         CURLOPT_HTTPHEADER     => [
             'Accept: application/json',
             'X-API-Key: santafe-super-secret-key-2026'
         ],
+        CURLOPT_SSL_VERIFYPEER => false,
         CURLOPT_FAILONERROR    => false,
     ]);
     $python_response = curl_exec($ch);

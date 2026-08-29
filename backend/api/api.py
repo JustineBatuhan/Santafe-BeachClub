@@ -44,6 +44,15 @@ def require_api_key(f):
         return f(*args, **kwargs)
     return decorated_function
 
+@app.route('/')
+def root_index():
+    return jsonify({
+        "status": "online",
+        "service": "Santa Fe Beach Club Python Analytics API",
+        "database": "TiDB Cloud",
+        "version": "2.0"
+    })
+
 @app.route('/api/dashboard-stats')
 @require_api_key
 def dashboard_stats():
