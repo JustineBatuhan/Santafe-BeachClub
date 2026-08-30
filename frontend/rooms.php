@@ -415,11 +415,11 @@ $SF_BASE_URL = $_sf_scheme . "://" . $_sf_host . $_sf_dir;
                 <div class="be-field be-field--guests">
                     <span class="be-field-label">Guests</span>
                     <select name="guests" class="be-select">
-                        <option value="1" <?php if($filter_guests==1) echo 'selected'; ?>>1 adult Â· 1 room</option>
-                        <option value="2" <?php if($filter_guests==2) echo 'selected'; ?>>2 adults Â· 1 room</option>
-                        <option value="3" <?php if($filter_guests==3) echo 'selected'; ?>>3 adults Â· 1 room</option>
-                        <option value="4" <?php if($filter_guests==4) echo 'selected'; ?>>4 adults Â· 1 room</option>
-                        <option value="5" <?php if($filter_guests>=5) echo 'selected'; ?>>5+ adults Â· 1 room</option>
+                        <option value="1" <?php if($filter_guests==1) echo 'selected'; ?>>1 adult &middot; 1 room</option>
+                        <option value="2" <?php if($filter_guests==2) echo 'selected'; ?>>2 adults &middot; 1 room</option>
+                        <option value="3" <?php if($filter_guests==3) echo 'selected'; ?>>3 adults &middot; 1 room</option>
+                        <option value="4" <?php if($filter_guests==4) echo 'selected'; ?>>4 adults &middot; 1 room</option>
+                        <option value="5" <?php if($filter_guests>=5) echo 'selected'; ?>>5+ adults &middot; 1 room</option>
                     </select>
                 </div>
                 <div class="be-divider"></div>
@@ -674,7 +674,7 @@ $SF_BASE_URL = $_sf_scheme . "://" . $_sf_host . $_sf_dir;
                                     <span class="rate-photo-badge">Signature Stay</span>
                                     <div class="rate-photo-copy">
                                         <span class="rate-photo-kicker"><?php echo htmlspecialchars($label); ?></span>
-                                        <strong class="rate-photo-title"><?php echo $capacity; ?> guests Â· <?php echo htmlspecialchars($bed); ?></strong>
+                                        <strong class="rate-photo-title"><?php echo $capacity; ?> guests &middot; <?php echo htmlspecialchars($bed); ?></strong>
                                     </div>
                                 </div>
                                 <span class="rate-photo-count">
@@ -727,8 +727,8 @@ $SF_BASE_URL = $_sf_scheme . "://" . $_sf_host . $_sf_dir;
                             </div>
                             <div class="rate-pricing">
                                 <div class="rate-from-label">From</div>
-                                <div class="rate-price-main">â‚± <?php echo number_format($price, 2); ?></div>
-                                <div class="rate-price-sub">per night Â· <?php echo max(1,$filter_guests); ?> adult<?php echo $filter_guests > 1 ? 's' : ''; ?></div>
+                                <div class="rate-price-main">PHP <?php echo number_format($price, 2); ?></div>
+                                <div class="rate-price-sub">per night &middot; <?php echo max(1,$filter_guests); ?> adult<?php echo $filter_guests > 1 ? 's' : ''; ?></div>
                                 <div class="rate-price-note">All taxes &amp; fees included</div>
                             </div>
                             <div class="rate-actions-box">
@@ -845,7 +845,7 @@ $SF_BASE_URL = $_sf_scheme . "://" . $_sf_host . $_sf_dir;
                                     <span class="rate-photo-badge">Signature Stay</span>
                                     <div class="rate-photo-copy">
                                         <span class="rate-photo-kicker"><?php echo htmlspecialchars($label); ?></span>
-                                        <strong class="rate-photo-title"><?php echo $capacity; ?> guests Â· <?php echo htmlspecialchars($bed); ?></strong>
+                                        <strong class="rate-photo-title"><?php echo $capacity; ?> guests &middot; <?php echo htmlspecialchars($bed); ?></strong>
                                     </div>
                                 </div>
                                 <span class="rate-photo-count">
@@ -897,8 +897,8 @@ $SF_BASE_URL = $_sf_scheme . "://" . $_sf_host . $_sf_dir;
                             </div>
                             <div class="rate-pricing">
                                 <div class="rate-from-label">From</div>
-                                <div class="rate-price-main">â‚± <?php echo number_format($price, 2); ?></div>
-                                <div class="rate-price-sub">per night Â· <?php echo max(1,$filter_guests); ?> adult<?php echo $filter_guests > 1 ? 's' : ''; ?></div>
+                                <div class="rate-price-main">PHP <?php echo number_format($price, 2); ?></div>
+                                <div class="rate-price-sub">per night &middot; <?php echo max(1,$filter_guests); ?> adult<?php echo $filter_guests > 1 ? 's' : ''; ?></div>
                                 <div class="rate-price-note">All taxes &amp; fees included</div>
                             </div>
                             <div class="rate-actions-box">
@@ -993,7 +993,7 @@ $SF_BASE_URL = $_sf_scheme . "://" . $_sf_host . $_sf_dir;
                                     <span class="rate-photo-badge"><?php echo $unavail_reason; ?></span>
                                     <div class="rate-photo-copy">
                                         <span class="rate-photo-kicker"><?php echo htmlspecialchars($label); ?></span>
-                                        <strong class="rate-photo-title"><?php echo $capacity; ?> guests Â· <?php echo htmlspecialchars($bed); ?></strong>
+                                        <strong class="rate-photo-title"><?php echo $capacity; ?> guests &middot; <?php echo htmlspecialchars($bed); ?></strong>
                                     </div>
                                 </div>
                             </div>
@@ -1008,8 +1008,8 @@ $SF_BASE_URL = $_sf_scheme . "://" . $_sf_host . $_sf_dir;
                         <div class="rate-card-right rate-card-right--unavailable">
                             <h4 class="rate-name"><?php echo htmlspecialchars($label); ?></h4>
                             <div class="rate-pricing">
-                                <div class="rate-price-main" style="color:#776B62;">â‚± <?php echo number_format($price, 2); ?></div>
-                                <div class="rate-price-sub">per night Â· <?php echo max(1, $filter_guests); ?> adult<?php echo $filter_guests > 1 ? 's' : ''; ?></div>
+                                <div class="rate-price-main">PHP <?php echo number_format($price, 2); ?></div>
+                                <div class="rate-price-sub">per night &middot; <?php echo max(1,$filter_guests); ?> adult<?php echo $filter_guests > 1 ? 's' : ''; ?></div>
                             </div>
 
                             <?php if (!$is_all_maintenance): ?>
