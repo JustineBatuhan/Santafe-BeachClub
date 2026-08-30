@@ -1,4 +1,4 @@
-name: Deploy to InfinityFree
+﻿name: Deploy to InfinityFree
 
 on:
   push:
@@ -11,18 +11,18 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 🚚 Checkout Latest Code
+      - name: 📥 Checkout Latest Code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: 📂 Sync Files to InfinityFree via FTP
+      - name: 📡 Sync Files to santafebeachclub.42web.io via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          server-dir: /htdocs/
+          server-dir: /santafebeachclub.42web.io/htdocs/
           exclude: |
             **/.git*
             **/.git*/**
