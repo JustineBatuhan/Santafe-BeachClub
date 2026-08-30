@@ -272,7 +272,7 @@ if ($tab === 'security') {
                     <?php if ($i === $page_num): ?><span class="current"><?php echo $i; ?></span>
                     <?php else: ?><a href="?tab=<?php echo urlencode($tab); ?>&p=<?php echo $i; ?>&user=<?php echo urlencode($filter_user); ?>&action_type=<?php echo urlencode($filter_action); ?>&date=<?php echo urlencode($filter_date); ?>"><?php echo $i; ?></a><?php endif; ?>
                 <?php endfor; ?>
-                <?php if ($page_num < $total_pages): ?><a href="?tab=<?php echo urlencode($tab); ?>&p=<?php echo $page_num+1; ?>&user=<?php echo urlencode($filter_user); ?>&action_type=<?php echo urlencode($filter_action); ?>&date=<?php echo urlencode($filter_date); ?>">Next →</a><?php endif; ?>
+                <?php if ($page_num < $total_pages): ?><a href="?tab=<?php echo urlencode($tab); ?>&p=<?php echo $page_num+1; ?>&user=<?php echo urlencode($filter_user); ?>&action_type=<?php echo urlencode($filter_action); ?>&date=<?php echo urlencode($filter_date); ?>">Next &rarr;</a><?php endif; ?>
             </div>
             <?php endif; ?>
         </div>

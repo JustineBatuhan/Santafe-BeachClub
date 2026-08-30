@@ -290,7 +290,7 @@ include __DIR__ . '/partials/_sidebar.php';
                         <h3>Revenue Trajectory (Last 7 Days)</h3>
                         <p>Verified daily receipts & guest settlements</p>
                     </div>
-                    <a href="admin_reports" class="btn-view-all">Full Report →</a>
+                    <a href="admin_reports" class="btn-view-all">Full Report &rarr;</a>
                 </div>
                 <div class="chart-container" style="height:230px;">
                     <div class="loading" id="loading-rev">Loading chart data...</div>
@@ -320,7 +320,7 @@ include __DIR__ . '/partials/_sidebar.php';
                     <h3>Room Type Occupancy Breakdown</h3>
                     <p style="font-size:12px; color:var(--text-muted); margin-top:2px;">Live utilization by accommodation category</p>
                 </div>
-                <a href="accommodations">Manage Units →</a>
+                <a href="accommodations">Manage Units &rarr;</a>
             </div>
             <div class="chart-container" style="height:190px;">
                 <div class="loading" id="loading-occ">Loading chart data...</div>
@@ -407,7 +407,7 @@ include __DIR__ . '/partials/_sidebar.php';
                         <h3>Recent Reservations</h3>
                         <p style="font-size:12px; color:var(--text-muted); margin-top:2px;">Latest guest booking transactions</p>
                     </div>
-                    <a href="admin_reservations">View All (<span id="link-total-bookings">...</span>) →</a>
+                    <a href="admin_reservations">View All (<span id="link-total-bookings">...</span>) &rarr;</a>
                 </div>
                 <div class="table-responsive">
                     <table class="admin-table">
@@ -434,7 +434,7 @@ include __DIR__ . '/partials/_sidebar.php';
                         <h3>Live Audit Feed</h3>
                         <p style="font-size:12px; color:var(--text-muted); margin-top:2px;">Real-time administrator & staff actions</p>
                     </div>
-                    <a href="admin_logs">Full Log →</a>
+                    <a href="admin_logs">Full Log &rarr;</a>
                 </div>
                 <div id="recent-logs-container">
                     <div class="loading">Loading activity logs...</div>

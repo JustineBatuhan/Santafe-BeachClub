@@ -523,7 +523,7 @@ $checkout_fmt = $booking ? date('D, d M Y', strtotime($booking['check_out'])) : 
                         <div class="detail"><div class="label">Booking Ref</div><div class="value"><?php echo htmlspecialchars($booking_ref); ?></div></div>
                         <div class="detail"><div class="label">Guest Name</div><div class="value"><?php echo htmlspecialchars($booking['guest_name']); ?></div></div>
                         <div class="detail"><div class="label">Room</div><div class="value"><?php echo htmlspecialchars($booking['accommodation_name']); ?></div></div>
-                        <div class="detail"><div class="label">Stay Dates</div><div class="value"><?php echo htmlspecialchars($checkin_fmt); ?> → <?php echo htmlspecialchars($checkout_fmt); ?></div></div>
+                        <div class="detail"><div class="label">Stay Dates</div><div class="value"><?php echo htmlspecialchars($checkin_fmt); ?> &rarr; <?php echo htmlspecialchars($checkout_fmt); ?></div></div>
                     </div>
 
                     <?php if (!empty($error)): ?>

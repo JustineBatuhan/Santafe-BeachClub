@@ -236,7 +236,7 @@ if ($rt_q && $rt_q->num_rows > 0) {
                             <h2>Live Unit Availability</h2>
                             <p style="font-size:12px; color:var(--text-muted); margin-top:2px;">Real-time room status matrix</p>
                         </div>
-                        <a href="admin_calendar" class="btn-view-all">Full Matrix →</a>
+                        <a href="admin_calendar" class="btn-view-all">Full Matrix &rarr;</a>
                     </div>
 
                     <div class="room-grid" id="roomStatusGrid">

@@ -681,7 +681,7 @@ $full_name = trim(($_SESSION['guest_first_name'] ?? '') . ' ' . ($_SESSION['gues
                     <div class="bk-actions">
                         <a href="rooms" class="btn-bk-back">← Back</a>
                         <input type="hidden" name="action" value="go_step_2">
-                        <button type="submit" class="btn-bk-next" <?php echo ($available_rooms === 0) ? 'disabled' : ''; ?>>Next →</button>
+                        <button type="submit" class="btn-bk-next" <?php echo ($available_rooms === 0) ? 'disabled' : ''; ?>>Next &rarr;</button>
                     </div>
 
 
@@ -758,7 +758,7 @@ $full_name = trim(($_SESSION['guest_first_name'] ?? '') . ' ' . ($_SESSION['gues
                     <div class="bk-actions">
                         <a href="book?step=1" class="btn-bk-back">← Back</a>
                         <input type="hidden" name="action" value="go_step_3">
-                        <button type="submit" class="btn-bk-next">Next →</button>
+                        <button type="submit" class="btn-bk-next">Next &rarr;</button>
                     </div>
 
 

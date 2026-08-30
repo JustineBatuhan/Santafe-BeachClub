@@ -984,9 +984,9 @@ require_once 'partials/_sidebar.php';
         bar.style.top    = (topPx + ROW_HEIGHT / 2) + 'px';
         bar.dataset.bookingId = booking.id;
         bar.innerHTML = '<span class="cal-bar-guest">' + booking.guest_name + '</span>';
-        bar.title = booking.guest_name + ' · ' + booking.check_in + ' → ' + booking.check_out + ' · ' + booking.status;
+        bar.title = booking.guest_name + ' · ' + booking.check_in + ' &rarr; ' + booking.check_out + ' · ' + booking.status;
 
-        // ── Click → show details ────────────────────────────────
+        // ── Click &rarr; show details ────────────────────────────────
         bar.addEventListener('click', (e) => {
             if (bar.classList.contains('dragging')) return;
             showDetail(booking);
@@ -1084,7 +1084,7 @@ require_once 'partials/_sidebar.php';
                     // Update local state
                     booking.check_in  = newCIstr;
                     booking.check_out = newCOstr;
-                    bar.title = booking.guest_name + ' · ' + newCIstr + ' → ' + newCOstr + ' · ' + booking.status;
+                    bar.title = booking.guest_name + ' · ' + newCIstr + ' &rarr; ' + newCOstr + ' · ' + booking.status;
                     toast('✓ ' + data.message, 'success');
                 } else {
                     // Revert
@@ -1257,7 +1257,7 @@ require_once 'partials/_sidebar.php';
                     else                                        reserved.push(room);
                 });
 
-                subtitle.textContent = fmtDate(ci) + '  →  ' + fmtDate(co) + '  ·  ' + nightLabel;
+                subtitle.textContent = fmtDate(ci) + '  &rarr;  ' + fmtDate(co) + '  ·  ' + nightLabel;
 
                 // Dot colours matching CSS classes
                 const dotColors = { available:'#047857', reserved:'#1D4ED8', occupied:'#059669', maintenance:'#D97706' };

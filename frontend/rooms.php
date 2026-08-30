@@ -453,7 +453,7 @@ $SF_BASE_URL = $_sf_scheme . "://" . $_sf_host . $_sf_dir;
             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 20px;">
                 <div>
                     <h3 style="font-size: 18px; font-weight: 800; color: #0F172A; margin: 0; display: flex; align-items: center; gap: 8px;">
-                        <span>ðŸ“…</span> Live Availability & Rates Calendar
+                        <span>&#128197;</span> Live Availability & Rates Calendar
                     </h3>
                     <p style="font-size: 13px; color: #64748B; margin: 4px 0 0;">Green dates indicate open availability; red dates are sold out. Click any date to set your check-in!</p>
                 </div>
@@ -1091,7 +1091,7 @@ $SF_BASE_URL = $_sf_scheme . "://" . $_sf_host . $_sf_dir;
             <div class="mobile-book-bar-count" id="mobile-bar-count">1 room selected</div>
             <div class="mobile-book-bar-total" id="mobile-bar-total">&#8369; 0.00</div>
         </div>
-        <button class="mobile-book-bar-btn" onclick="proceedToBook()">Book Now â†’</button>
+        <button class="mobile-book-bar-btn" onclick="proceedToBook()">Book Now &rarr;</button>
     </div>
 
     <div class="room-modal" id="room-modal" aria-hidden="true">

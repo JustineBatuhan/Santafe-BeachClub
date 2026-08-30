@@ -417,7 +417,7 @@ if ($photo_q) {
                     <h2 class="testimonials-heading" style="margin-bottom:0;">What Our Guests Say</h2>
                 </div>
                 <button type="button" class="btn btn-primary" onclick="openReviewModal()" style="padding:10px 22px; font-size:14px; font-weight:600; border-radius:30px; cursor:pointer;">
-                    â˜… Leave a Review
+                    &#9733; Leave a Review
                 </button>
             </div>
 
