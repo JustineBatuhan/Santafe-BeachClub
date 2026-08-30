@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require_once __DIR__ . '/../helpers/error_handler.php';
 require_once __DIR__ . '/../helpers/business_time_helper.php';
 require_once __DIR__ . '/../helpers/password_helper.php';
@@ -24,7 +24,7 @@ if (!$conn || $conn->connect_error) {
     $tidb_host = 'gateway01.ap-southeast-1.prod.aws.tidbcloud.com';
     $tidb_port = 4000;
     $tidb_user = '3QXoXQuJo9As2Sx.root';
-    $tidb_pass = 'ZCu3jpuVMLl4B2Vf';
+    $tidb_pass = 'VKweBYleHtG91N9K';
     $dbname    = 'test';
 
     $conn = mysqli_init();
@@ -251,7 +251,7 @@ try {
     $conn->query("ALTER TABLE admins ADD COLUMN IF NOT EXISTS email VARCHAR(150) DEFAULT NULL");
 
     // -----------------------------------------------------------------------
-    // MFA: admin_otps — stores hashed OTPs for two-factor admin login
+    // MFA: admin_otps â€” stores hashed OTPs for two-factor admin login
     // Raw OTP codes are NEVER stored here; only SHA-256 hashes.
     // -----------------------------------------------------------------------
     $conn->query("CREATE TABLE IF NOT EXISTS admin_otps (
@@ -267,7 +267,7 @@ try {
     )");
 
     // -----------------------------------------------------------------------
-    // MFA: guest_otps — stores hashed OTPs for customer booking portal login
+    // MFA: guest_otps â€” stores hashed OTPs for customer booking portal login
     // -----------------------------------------------------------------------
     $conn->query("CREATE TABLE IF NOT EXISTS guest_otps (
         id         INT AUTO_INCREMENT PRIMARY KEY,
@@ -435,3 +435,4 @@ function log_activity($conn, $username, $action, $details = '') {
     $stmt->close();
 }
 ?>
+
