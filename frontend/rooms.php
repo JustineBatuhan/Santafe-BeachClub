@@ -727,7 +727,7 @@ $SF_BASE_URL = $_sf_scheme . "://" . $_sf_host . $_sf_dir;
                             </div>
                             <div class="rate-pricing">
                                 <div class="rate-from-label">From</div>
-                                <div class="rate-price-main">PHP <?php echo number_format($price, 2); ?></div>
+                                <div class="rate-price-main">&#8369;<?php echo number_format($price, 2); ?></div>
                                 <div class="rate-price-sub">per night &middot; <?php echo max(1,$filter_guests); ?> adult<?php echo $filter_guests > 1 ? 's' : ''; ?></div>
                                 <div class="rate-price-note">All taxes &amp; fees included</div>
                             </div>
@@ -897,7 +897,7 @@ $SF_BASE_URL = $_sf_scheme . "://" . $_sf_host . $_sf_dir;
                             </div>
                             <div class="rate-pricing">
                                 <div class="rate-from-label">From</div>
-                                <div class="rate-price-main">PHP <?php echo number_format($price, 2); ?></div>
+                                <div class="rate-price-main">&#8369;<?php echo number_format($price, 2); ?></div>
                                 <div class="rate-price-sub">per night &middot; <?php echo max(1,$filter_guests); ?> adult<?php echo $filter_guests > 1 ? 's' : ''; ?></div>
                                 <div class="rate-price-note">All taxes &amp; fees included</div>
                             </div>
@@ -1008,7 +1008,7 @@ $SF_BASE_URL = $_sf_scheme . "://" . $_sf_host . $_sf_dir;
                         <div class="rate-card-right rate-card-right--unavailable">
                             <h4 class="rate-name"><?php echo htmlspecialchars($label); ?></h4>
                             <div class="rate-pricing">
-                                <div class="rate-price-main">PHP <?php echo number_format($price, 2); ?></div>
+                                <div class="rate-price-main">&#8369;<?php echo number_format($price, 2); ?></div>
                                 <div class="rate-price-sub">per night &middot; <?php echo max(1,$filter_guests); ?> adult<?php echo $filter_guests > 1 ? 's' : ''; ?></div>
                             </div>
 
