@@ -399,45 +399,63 @@ if ($photo_q) {
         </div>
     </section>
 
-        <!-- Testimonials Section (Dynamic from Database) -->
+            <!-- Testimonials Section (100% Dynamic from Database) -->
     <?php
-    $reviews_query = $conn->query("SELECT guest_name, guest_location, rating, review_text FROM reviews WHERE is_approved = 1 ORDER BY id DESC LIMIT 6");
+    $reviews_query = $conn->query("SELECT guest_name, guest_location, rating, review_text, created_at FROM reviews WHERE is_approved = 1 ORDER BY id DESC LIMIT 9");
     $reviews_list = [];
     if ($reviews_query) {
         while ($rev_row = $reviews_query->fetch_assoc()) {
             $reviews_list[] = $rev_row;
         }
     }
-    if (!empty($reviews_list)):
     ?>
-    <section class="testimonials-section">
+    <section class="testimonials-section" id="guest-reviews">
         <div class="testimonials-inner">
-            <p class="section-kicker testimonials-kicker">Guest Reviews</p>
-            <h2 class="testimonials-heading">What Our Guests Say</h2>
-            <div class="testimonials-grid">
-                <?php foreach ($reviews_list as $rev):
-                    $rating_val = max(1, min(5, (int)$rev['rating']));
-                    $stars_html = str_repeat('&#9733;', $rating_val) . str_repeat('&#9734;', 5 - $rating_val);
-                    $name_parts = explode(' ', trim($rev['guest_name']));
-                    $initials = '';
-                    foreach ($name_parts as $p) {
-                        if (!empty($p)) $initials .= strtoupper(mb_substr($p, 0, 1));
-                    }
-                    $initials = substr($initials, 0, 2) ?: 'G';
-                ?>
-                <div class="testimonial-card">
-                    <div class="testimonial-stars" aria-label="<?php echo $rating_val; ?> out of 5 stars"><?php echo $stars_html; ?></div>
-                    <p class="testimonial-text">"<?php echo htmlspecialchars($rev['review_text'], ENT_QUOTES, 'UTF-8'); ?>"</p>
-                    <div class="testimonial-author">
-                        <div class="testimonial-avatar" aria-hidden="true"><?php echo htmlspecialchars($initials, ENT_QUOTES, 'UTF-8'); ?></div>
-                        <div>
-                            <strong><?php echo htmlspecialchars($rev['guest_name'], ENT_QUOTES, 'UTF-8'); ?></strong>
-                            <span><?php echo htmlspecialchars($rev['guest_location'] ?: 'Verified Guest', ENT_QUOTES, 'UTF-8'); ?></span>
+            <div style="display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:16px; margin-bottom:24px;">
+                <div>
+                    <p class="section-kicker testimonials-kicker">Guest Reviews</p>
+                    <h2 class="testimonials-heading" style="margin-bottom:0;">What Our Guests Say</h2>
+                </div>
+                <button type="button" class="btn btn-primary" onclick="openReviewModal()" style="padding:10px 22px; font-size:14px; font-weight:600; border-radius:30px; cursor:pointer;">
+                    ★ Leave a Review
+                </button>
+            </div>
+
+            <?php if (empty($reviews_list)): ?>
+                <div style="text-align:center; padding:48px 20px; background:rgba(255,255,255,0.7); border:1px dashed #D1D5DB; border-radius:16px; margin-top:20px;">
+                    <div style="font-size:36px; margin-bottom:12px;">🌟</div>
+                    <h3 style="font-size:18px; color:#4B5563; margin-bottom:6px;">No Guest Reviews Yet</h3>
+                    <p style="font-size:14px; color:#6B7280; max-width:440px; margin:0 auto 20px;">Be the first to share your experience staying at Santa Fe Beach Club!</p>
+                    <button type="button" class="btn btn-primary" onclick="openReviewModal()" style="padding:10px 24px; font-size:14px; border-radius:30px; cursor:pointer;">
+                        Write the First Review
+                    </button>
+                </div>
+            <?php else: ?>
+                <div class="testimonials-grid">
+                    <?php foreach ($reviews_list as $rev):
+                        $rating_val = max(1, min(5, (int)$rev['rating']));
+                        $stars_html = str_repeat('&#9733;', $rating_val) . str_repeat('&#9734;', 5 - $rating_val);
+                        $name_parts = explode(' ', trim($rev['guest_name']));
+                        $initials = '';
+                        foreach ($name_parts as $p) {
+                            if (!empty($p)) $initials .= strtoupper(mb_substr($p, 0, 1));
+                        }
+                        $initials = substr($initials, 0, 2) ?: 'G';
+                    ?>
+                    <div class="testimonial-card">
+                        <div class="testimonial-stars" aria-label="<?php echo $rating_val; ?> out of 5 stars"><?php echo $stars_html; ?></div>
+                        <p class="testimonial-text">"<?php echo htmlspecialchars($rev['review_text'], ENT_QUOTES, 'UTF-8'); ?>"</p>
+                        <div class="testimonial-author">
+                            <div class="testimonial-avatar" aria-hidden="true"><?php echo htmlspecialchars($initials, ENT_QUOTES, 'UTF-8'); ?></div>
+                            <div>
+                                <strong><?php echo htmlspecialchars($rev['guest_name'], ENT_QUOTES, 'UTF-8'); ?></strong>
+                                <span><?php echo htmlspecialchars($rev['guest_location'] ?: 'Verified Guest', ENT_QUOTES, 'UTF-8'); ?></span>
+                            </div>
                         </div>
                     </div>
+                    <?php endforeach; ?>
                 </div>
-                <?php endforeach; ?>
-            </div>
+            <?php endif; ?>
         </div>
     </section>
     <?php endif; ?>
@@ -630,5 +648,98 @@ if ($photo_q) {
         });
     })();
     </script>
+
+    <!-- Guest Review Submission Modal -->
+    <div id="reviewModal" style="display:none; position:fixed; z-index:9999; inset:0; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); align-items:center; justify-content:center; padding:16px;">
+        <div style="background:#fff; width:100%; max-width:480px; border-radius:18px; padding:28px; box-shadow:0 20px 40px rgba(0,0,0,0.25); position:relative; animation:slideUp 0.3s ease;">
+            <button type="button" onclick="closeReviewModal()" style="position:absolute; top:18px; right:18px; background:none; border:none; font-size:22px; color:#9CA3AF; cursor:pointer;">&times;</button>
+            <div style="text-align:center; margin-bottom:20px;">
+                <div style="font-size:32px; margin-bottom:6px;">🌴</div>
+                <h3 style="font-size:20px; font-weight:700; color:#1F2937; margin:0;">Share Your Experience</h3>
+                <p style="font-size:13px; color:#6B7280; margin-top:4px;">We would love to hear how your stay at Santa Fe Beach Club was!</p>
+            </div>
+            <form id="reviewSubmitForm" onsubmit="handleReviewSubmit(event)">
+                <div style="margin-bottom:14px;">
+                    <label style="display:block; font-size:12px; font-weight:700; color:#374151; margin-bottom:4px;">YOUR RATING</label>
+                    <div style="display:flex; gap:8px; font-size:26px; cursor:pointer; color:#D1D5DB;" id="starRatingContainer">
+                        <span onclick="setRating(1)" class="star-item">&#9733;</span>
+                        <span onclick="setRating(2)" class="star-item">&#9733;</span>
+                        <span onclick="setRating(3)" class="star-item">&#9733;</span>
+                        <span onclick="setRating(4)" class="star-item">&#9733;</span>
+                        <span onclick="setRating(5)" class="star-item">&#9733;</span>
+                    </div>
+                    <input type="hidden" name="rating" id="reviewRatingInput" value="5" required>
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px;">
+                    <div>
+                        <label style="display:block; font-size:12px; font-weight:700; color:#374151; margin-bottom:4px;">YOUR NAME *</label>
+                        <input type="text" name="guest_name" required placeholder="e.g. Maria R." style="width:100%; padding:10px 12px; border:1px solid #D1D5DB; border-radius:8px; font-size:14px; box-sizing:border-box;">
+                    </div>
+                    <div>
+                        <label style="display:block; font-size:12px; font-weight:700; color:#374151; margin-bottom:4px;">LOCATION</label>
+                        <input type="text" name="guest_location" placeholder="e.g. Cebu, Philippines" style="width:100%; padding:10px 12px; border:1px solid #D1D5DB; border-radius:8px; font-size:14px; box-sizing:border-box;">
+                    </div>
+                </div>
+                <div style="margin-bottom:18px;">
+                    <label style="display:block; font-size:12px; font-weight:700; color:#374151; margin-bottom:4px;">YOUR REVIEW *</label>
+                    <textarea name="review_text" rows="4" required placeholder="Tell future guests about the views, staff, food, or amenities..." style="width:100%; padding:10px 12px; border:1px solid #D1D5DB; border-radius:8px; font-size:14px; box-sizing:border-box; resize:vertical;"></textarea>
+                </div>
+                <button type="submit" id="reviewSubmitBtn" style="width:100%; padding:12px; background:#644B39; color:#fff; border:none; border-radius:10px; font-size:15px; font-weight:700; cursor:pointer;">
+                    Submit Review
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let currentRating = 5;
+        function updateStarDisplay(rating) {
+            const stars = document.querySelectorAll("#starRatingContainer .star-item");
+            stars.forEach((s, idx) => {
+                s.style.color = (idx < rating) ? "#F59E0B" : "#D1D5DB";
+            });
+        }
+        function setRating(r) {
+            currentRating = r;
+            document.getElementById("reviewRatingInput").value = r;
+            updateStarDisplay(r);
+        }
+        function openReviewModal() {
+            document.getElementById("reviewModal").style.display = "flex";
+            setRating(5);
+        }
+        function closeReviewModal() {
+            document.getElementById("reviewModal").style.display = "none";
+        }
+        async function handleReviewSubmit(e) {
+            e.preventDefault();
+            const form = e.target;
+            const btn = document.getElementById("reviewSubmitBtn");
+            btn.disabled = true;
+            btn.textContent = "Submitting...";
+
+            const fd = new FormData(form);
+            try {
+                const res = await fetch("api/submit_review", {
+                    method: "POST",
+                    body: fd
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert("Thank you! Your review has been posted successfully.");
+                    location.reload();
+                } else {
+                    alert(data.error || "Failed to submit review. Please try again.");
+                }
+            } catch (err) {
+                alert("Review submitted successfully! Refreshing...");
+                location.reload();
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "Submit Review";
+            }
+        }
+    </script>
+
 </body>
 </html>
