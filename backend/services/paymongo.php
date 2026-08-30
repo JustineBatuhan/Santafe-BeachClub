@@ -16,8 +16,7 @@ class PayMongoService
         if (defined('PAYMONGO_SECRET_KEY')) {
             return PAYMONGO_SECRET_KEY;
         }
-        // Fallback decoded key
-        return base64_decode('c2tfdGVzdF9wVDRYUmFhYVJ5VldjajdyNXdnRThUZGE=');
+        return base64_decode('c2tfdGVzdF83bTY1dHRyMmtINmQ4V0VDTDZyTVM5R2M=');
     }
 
     public static function getPublicKey(): string
@@ -28,8 +27,7 @@ class PayMongoService
         if (defined('PAYMONGO_PUBLIC_KEY')) {
             return PAYMONGO_PUBLIC_KEY;
         }
-        // Fallback decoded key
-        return base64_decode('cGtfdGVzdF9MOHVTZ1QzWm5jSkJ2elNkdDJGQW5icFM=');
+        return base64_decode('cGtfdGVzdF9RdGNNY3c4eGRhb2ZkUHZnNUFIQkp6Vjc=');
     }
 
     /**
