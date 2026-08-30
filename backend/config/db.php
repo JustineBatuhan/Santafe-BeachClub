@@ -89,6 +89,26 @@ try {
     $conn->query("ALTER TABLE bookings ADD COLUMN IF NOT EXISTS guest_special_requests TEXT DEFAULT NULL");
     $conn->query("ALTER TABLE bookings ADD COLUMN IF NOT EXISTS guest_notes TEXT DEFAULT NULL");
 
+    // Reviews table schema
+    $conn->query("CREATE TABLE IF NOT EXISTS reviews (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        booking_id INT DEFAULT NULL,
+        guest_name VARCHAR(100) NOT NULL,
+        guest_location VARCHAR(100) DEFAULT 'Philippines',
+        rating TINYINT UNSIGNED NOT NULL DEFAULT 5,
+        review_text TEXT NOT NULL,
+        is_approved TINYINT(1) DEFAULT 1,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )");
+    // Seed default reviews if empty
+    $chkRev = $conn->query("SELECT COUNT(*) as cnt FROM reviews");
+    if ($chkRev && $chkRev->fetch_assoc()['cnt'] == 0) {
+        $conn->query("INSERT INTO reviews (guest_name, guest_location, rating, review_text, is_approved) VALUES
+            ('Maria R.', 'Cebu, Philippines', 5, 'Absolutely breathtaking. We woke up to the sound of waves every morning. The staff was warm, attentive, and made our anniversary truly unforgettable.', 1),
+            ('James L.', 'Manila, Philippines', 5, 'The Beachview Duplex was perfect for our family. The kids loved the beach access, and the room was immaculate. We\'ll definitely be back next summer!', 1),
+            ('Sarah C.', 'Makati, Philippines', 5, 'Santa Fe Beach Club is a hidden gem. The calmer waters were perfect for swimming, and the whole property has a peaceful, boutique hotel feel.', 1)");
+    }
+
     // Promotions table schema support (promo code)
     $conn->query("CREATE TABLE IF NOT EXISTS promotions (
         id INT AUTO_INCREMENT PRIMARY KEY,

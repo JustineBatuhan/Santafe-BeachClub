@@ -399,48 +399,48 @@ if ($photo_q) {
         </div>
     </section>
 
-    <!-- Testimonials Section -->
+        <!-- Testimonials Section (Dynamic from Database) -->
+    <?php
+    $reviews_query = $conn->query("SELECT guest_name, guest_location, rating, review_text FROM reviews WHERE is_approved = 1 ORDER BY id DESC LIMIT 6");
+    $reviews_list = [];
+    if ($reviews_query) {
+        while ($rev_row = $reviews_query->fetch_assoc()) {
+            $reviews_list[] = $rev_row;
+        }
+    }
+    if (!empty($reviews_list)):
+    ?>
     <section class="testimonials-section">
         <div class="testimonials-inner">
             <p class="section-kicker testimonials-kicker">Guest Reviews</p>
             <h2 class="testimonials-heading">What Our Guests Say</h2>
             <div class="testimonials-grid">
+                <?php foreach ($reviews_list as $rev):
+                    $rating_val = max(1, min(5, (int)$rev['rating']));
+                    $stars_html = str_repeat('&#9733;', $rating_val) . str_repeat('&#9734;', 5 - $rating_val);
+                    $name_parts = explode(' ', trim($rev['guest_name']));
+                    $initials = '';
+                    foreach ($name_parts as $p) {
+                        if (!empty($p)) $initials .= strtoupper(mb_substr($p, 0, 1));
+                    }
+                    $initials = substr($initials, 0, 2) ?: 'G';
+                ?>
                 <div class="testimonial-card">
-                    <div class="testimonial-stars" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
-                    <p class="testimonial-text">"Absolutely breathtaking. We woke up to the sound of waves every morning. The staff was warm, attentive, and made our anniversary truly unforgettable."</p>
+                    <div class="testimonial-stars" aria-label="<?php echo $rating_val; ?> out of 5 stars"><?php echo $stars_html; ?></div>
+                    <p class="testimonial-text">"<?php echo htmlspecialchars($rev['review_text'], ENT_QUOTES, 'UTF-8'); ?>"</p>
                     <div class="testimonial-author">
-                        <div class="testimonial-avatar" aria-hidden="true">MR</div>
+                        <div class="testimonial-avatar" aria-hidden="true"><?php echo htmlspecialchars($initials, ENT_QUOTES, 'UTF-8'); ?></div>
                         <div>
-                            <strong>Maria R.</strong>
-                            <span>Cebu, Philippines</span>
+                            <strong><?php echo htmlspecialchars($rev['guest_name'], ENT_QUOTES, 'UTF-8'); ?></strong>
+                            <span><?php echo htmlspecialchars($rev['guest_location'] ?: 'Verified Guest', ENT_QUOTES, 'UTF-8'); ?></span>
                         </div>
                     </div>
                 </div>
-                <div class="testimonial-card">
-                    <div class="testimonial-stars" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
-                    <p class="testimonial-text">"The Beachview Duplex was perfect for our family. The kids loved the beach access, and the room was immaculate. We'll definitely be back next summer!"</p>
-                    <div class="testimonial-author">
-                        <div class="testimonial-avatar" aria-hidden="true">JL</div>
-                        <div>
-                            <strong>James L.</strong>
-                            <span>Manila, Philippines</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="testimonial-card">
-                    <div class="testimonial-stars" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
-                    <p class="testimonial-text">"Santa Fe Beach Club is a hidden gem. The calmer waters were perfect for swimming, and the whole property has a peaceful, boutique hotel feel."</p>
-                    <div class="testimonial-author">
-                        <div class="testimonial-avatar" aria-hidden="true">SC</div>
-                        <div>
-                            <strong>Sarah C.</strong>
-                            <span>Makati, Philippines</span>
-                        </div>
-                    </div>
-                </div>
+                <?php endforeach; ?>
             </div>
         </div>
     </section>
+    <?php endif; ?>
 
     <!-- Gallery Strip -->
     <section class="gallery-strip" aria-label="Property photo gallery">
