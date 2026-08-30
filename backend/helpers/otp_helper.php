@@ -252,6 +252,14 @@ function otp_send_email(string $toEmail, string $rawOtp, string $name): array {
         $mail->Password   = GMAIL_APP_PASSWORD;
         $mail->SMTPSecure = \PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port       = 587;
+        $mail->Timeout    = 8;
+        $mail->SMTPOptions = [
+            'ssl' => [
+                'verify_peer'       => false,
+                'verify_peer_name'  => false,
+                'allow_self_signed' => true
+            ]
+        ];
 
         $mail->setFrom(GMAIL_USER, MAIL_FROM_NAME);
         $mail->addAddress($toEmail, $name);
