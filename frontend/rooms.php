@@ -1,18 +1,18 @@
-<?php
+﻿<?php
 require_once __DIR__ . '/../backend/config/db.php';
 
-/* ─────────────────────────────────────────
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
    Filter inputs
-───────────────────────────────────────── */
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 $filter_type     = isset($_GET['room_type']) ? $_GET['room_type'] : 'any';
 $filter_guests   = isset($_GET['guests'])    ? (int)$_GET['guests']    : 1;
 $filter_checkin  = isset($_GET['checkin'])   ? $_GET['checkin']        : date('Y-m-d');
 $filter_checkout = isset($_GET['checkout'])  ? $_GET['checkout']       : date('Y-m-d', strtotime('+1 day'));
 
-/* ─────────────────────────────────────────
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
    Fetch rooms (with unavailable flag for
    rooms already booked in the date range)
-───────────────────────────────────────── */
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 $where_clauses = [];
 $where_clauses[] = "r.type IN ('beachview_duplex','seaview_duplex','beach_villa','standard_room','standard_king')";
 if ($filter_type !== 'any') {
@@ -54,9 +54,9 @@ $sql = "
 $result = $conn->query($sql);
 $rooms  = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
 
-/* ─────────────────────────────────────────
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
    Calendar bookings for client availability
-───────────────────────────────────────── */
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 $cal_range_start = date('Y-m-d', strtotime('-14 days'));
 $cal_range_end   = date('Y-m-d', strtotime('+120 days'));
 $cal_bookings_res = $conn->query("
@@ -71,9 +71,9 @@ $all_cal_bookings = $cal_bookings_res ? $cal_bookings_res->fetch_all(MYSQLI_ASSO
 $all_rooms_res = $conn->query("SELECT id, room_number, name, type, price_per_night, capacity, status FROM rooms");
 $all_rooms_list = $all_rooms_res ? $all_rooms_res->fetch_all(MYSQLI_ASSOC) : [];
 
-/* ─────────────────────────────────────────
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
    Display helpers
-───────────────────────────────────────── */
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 $type_labels = [
     'beachview_duplex' => 'Beachview Duplex',
     'seaview_duplex'   => 'Seaview Duplex',
@@ -91,11 +91,11 @@ $type_gradients = [
 ];
 
 $type_icons = [
-    'beachview_duplex' => '🌊',
-    'seaview_duplex'   => '🌅',
-    'beach_villa'      => '🏖️',
-    'standard_room'    => '🛏️',
-    'standard_king'    => '👑',
+    'beachview_duplex' => 'ðŸŒŠ',
+    'seaview_duplex'   => 'ðŸŒ…',
+    'beach_villa'      => 'ðŸ–ï¸',
+    'standard_room'    => 'ðŸ›ï¸',
+    'standard_king'    => 'ðŸ‘‘',
 ];
 
 // Fetch custom photos from room_types table
@@ -240,7 +240,7 @@ foreach ($rooms as $room) {
 }
 $rooms = $limited_rooms;
 
-/* Group rooms by type — available vs unavailable */
+/* Group rooms by type â€” available vs unavailable */
 $rooms_by_type = [];
 foreach ($rooms as $room) {
     $rooms_by_type[$room['type']][] = $room;
@@ -322,9 +322,16 @@ $checkout_fmt = date('D, d M Y', strtotime($filter_checkout));
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<?php
+$_sf_scheme = (isset($_SERVER["HTTPS"]) && $_SERVER["HTTPS"] === "on") ? "https" : "http";
+$_sf_host   = $_SERVER["HTTP_HOST"] ?? "localhost";
+$_sf_dir    = rtrim(str_replace("/frontend", "", dirname($_SERVER["SCRIPT_NAME"])), "/");
+$SF_BASE_URL = $_sf_scheme . "://" . $_sf_host . $_sf_dir;
+?>
+<script>var SF_BASE_URL = "<?php echo $SF_BASE_URL; ?>";</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rooms & Accommodations – Santa Fe Beach Club</title>
+    <title>Rooms & Accommodations â€“ Santa Fe Beach Club</title>
     <link rel="icon" type="image/jpeg" href="assets/logo.jpg">
     <link rel="shortcut icon" type="image/jpeg" href="assets/logo.jpg">
     <link rel="apple-touch-icon" href="assets/logo.jpg">
@@ -333,7 +340,7 @@ $checkout_fmt = date('D, d M Y', strtotime($filter_checkout));
 </head>
 <body class="rooms-page">
 
-    <!-- ── Header ── -->
+    <!-- â”€â”€ Header â”€â”€ -->
     <header class="main-header">
         <div class="brand-logo">
             <a href="index" class="logo-link">
@@ -369,7 +376,7 @@ $checkout_fmt = date('D, d M Y', strtotime($filter_checkout));
         </div>
     </section>
 
-    <!-- ── Booking Search Bar ── -->
+    <!-- â”€â”€ Booking Search Bar â”€â”€ -->
     <div class="be-bar-wrapper">
         <form method="GET" action="rooms" class="be-bar-form">
             <div class="be-bar-inner">
@@ -408,11 +415,11 @@ $checkout_fmt = date('D, d M Y', strtotime($filter_checkout));
                 <div class="be-field be-field--guests">
                     <span class="be-field-label">Guests</span>
                     <select name="guests" class="be-select">
-                        <option value="1" <?php if($filter_guests==1) echo 'selected'; ?>>1 adult · 1 room</option>
-                        <option value="2" <?php if($filter_guests==2) echo 'selected'; ?>>2 adults · 1 room</option>
-                        <option value="3" <?php if($filter_guests==3) echo 'selected'; ?>>3 adults · 1 room</option>
-                        <option value="4" <?php if($filter_guests==4) echo 'selected'; ?>>4 adults · 1 room</option>
-                        <option value="5" <?php if($filter_guests>=5) echo 'selected'; ?>>5+ adults · 1 room</option>
+                        <option value="1" <?php if($filter_guests==1) echo 'selected'; ?>>1 adult Â· 1 room</option>
+                        <option value="2" <?php if($filter_guests==2) echo 'selected'; ?>>2 adults Â· 1 room</option>
+                        <option value="3" <?php if($filter_guests==3) echo 'selected'; ?>>3 adults Â· 1 room</option>
+                        <option value="4" <?php if($filter_guests==4) echo 'selected'; ?>>4 adults Â· 1 room</option>
+                        <option value="5" <?php if($filter_guests>=5) echo 'selected'; ?>>5+ adults Â· 1 room</option>
                     </select>
                 </div>
                 <div class="be-divider"></div>
@@ -440,13 +447,13 @@ $checkout_fmt = date('D, d M Y', strtotime($filter_checkout));
         </div>
     </div>
 
-    <!-- ── Interactive Guest Availability Calendar ── -->
+    <!-- â”€â”€ Interactive Guest Availability Calendar â”€â”€ -->
     <div class="rooms-cal-wrapper" style="max-width: 1200px; margin: 0 auto 30px; padding: 0 20px;">
         <div style="background: #FFFFFF; border-radius: 16px; border: 1px solid #E2E8F0; padding: 24px 28px; box-shadow: 0 4px 20px rgba(0,0,0,0.04);">
             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 20px;">
                 <div>
                     <h3 style="font-size: 18px; font-weight: 800; color: #0F172A; margin: 0; display: flex; align-items: center; gap: 8px;">
-                        <span>📅</span> Live Availability & Rates Calendar
+                        <span>ðŸ“…</span> Live Availability & Rates Calendar
                     </h3>
                     <p style="font-size: 13px; color: #64748B; margin: 4px 0 0;">Green dates indicate open availability; red dates are sold out. Click any date to set your check-in!</p>
                 </div>
@@ -500,7 +507,7 @@ $checkout_fmt = date('D, d M Y', strtotime($filter_checkout));
             titleEl.textContent = monthNames[month - 1] + ' ' + year;
             container.innerHTML = '<div style="grid-column: span 7; padding: 20px; color: #94A3B8; font-size: 13px;">Loading availability...</div>';
 
-            fetch('../backend/api/availability.php?action=get_month_matrix&year=' + year + '&month=' + month + '&room_type=' + encodeURIComponent(currentRoomType))
+            fetch(SF_BASE_URL + '/backend/api/availability.php?action=get_month_matrix&year=' + year + '&month=' + month + '&room_type=' + encodeURIComponent(currentRoomType))
                 .then(function(res) { return res.json(); })
                 .then(function(data) {
                     if (!data || !data.success) {
@@ -585,7 +592,7 @@ $checkout_fmt = date('D, d M Y', strtotime($filter_checkout));
     })();
     </script>
 
-    <!-- ── Tab Navigation ── -->
+    <!-- â”€â”€ Tab Navigation â”€â”€ -->
     <div class="room-tabs-bar">
         <div class="room-tabs-inner">
             <button class="room-tab room-tab--active" data-tab="recommended" onclick="switchTab('recommended', this)">
@@ -600,10 +607,10 @@ $checkout_fmt = date('D, d M Y', strtotime($filter_checkout));
         </div>
     </div>
 
-    <!-- ── Main Content + Sidebar ── -->
+    <!-- â”€â”€ Main Content + Sidebar â”€â”€ -->
     <div class="rooms-layout">
 
-        <!-- ══ Rooms Main Column ══ -->
+        <!-- â•â• Rooms Main Column â•â• -->
         <main class="rooms-main">
 
             <!-- RECOMMENDED TAB -->
@@ -615,7 +622,7 @@ $checkout_fmt = date('D, d M Y', strtotime($filter_checkout));
 
                 <?php if (empty($recommended_by_type)): ?>
                 <div class="rooms-empty">
-                    <div class="empty-icon">🏖️</div>
+                    <div class="empty-icon">ðŸ–ï¸</div>
                     <h3>No rooms available for your selection</h3>
                     <p>Try adjusting your dates, guest count, or room type to find available accommodations.</p>
                     <a href="rooms" class="btn-reset">View All Rooms</a>
@@ -667,7 +674,7 @@ $checkout_fmt = date('D, d M Y', strtotime($filter_checkout));
                                     <span class="rate-photo-badge">Signature Stay</span>
                                     <div class="rate-photo-copy">
                                         <span class="rate-photo-kicker"><?php echo htmlspecialchars($label); ?></span>
-                                        <strong class="rate-photo-title"><?php echo $capacity; ?> guests · <?php echo htmlspecialchars($bed); ?></strong>
+                                        <strong class="rate-photo-title"><?php echo $capacity; ?> guests Â· <?php echo htmlspecialchars($bed); ?></strong>
                                     </div>
                                 </div>
                                 <span class="rate-photo-count">
@@ -720,8 +727,8 @@ $checkout_fmt = date('D, d M Y', strtotime($filter_checkout));
                             </div>
                             <div class="rate-pricing">
                                 <div class="rate-from-label">From</div>
-                                <div class="rate-price-main">₱ <?php echo number_format($price, 2); ?></div>
-                                <div class="rate-price-sub">per night · <?php echo max(1,$filter_guests); ?> adult<?php echo $filter_guests > 1 ? 's' : ''; ?></div>
+                                <div class="rate-price-main">â‚± <?php echo number_format($price, 2); ?></div>
+                                <div class="rate-price-sub">per night Â· <?php echo max(1,$filter_guests); ?> adult<?php echo $filter_guests > 1 ? 's' : ''; ?></div>
                                 <div class="rate-price-note">All taxes &amp; fees included</div>
                             </div>
                             <div class="rate-actions-box">
@@ -740,11 +747,11 @@ $checkout_fmt = date('D, d M Y', strtotime($filter_checkout));
                                             $unit_avail = (int)$room_unit['active_bookings'] === 0 && $room_unit['status'] === 'ready';
                                             $unit_label = 'Room ' . $room_unit['room_number'];
                                             if ($room_unit['status'] === 'maintenance') {
-                                                $unit_label .= ' — Under Maintenance';
+                                                $unit_label .= ' â€” Under Maintenance';
                                             } elseif ($room_unit['status'] === 'occupied') {
-                                                $unit_label .= ' — Occupied';
+                                                $unit_label .= ' â€” Occupied';
                                             } elseif (!$unit_avail) {
-                                                $unit_label .= ' — Booked';
+                                                $unit_label .= ' â€” Booked';
                                             }
                                         ?>
                                         <option value="<?php echo $room_unit['id']; ?>"
@@ -790,7 +797,7 @@ $checkout_fmt = date('D, d M Y', strtotime($filter_checkout));
 
                 <?php if (empty($other_available_by_type)): ?>
                 <div class="rooms-empty">
-                    <div class="empty-icon">✨</div>
+                    <div class="empty-icon">âœ¨</div>
                     <h3>No additional rooms right now</h3>
                     <p>Your top room recommendations are already shown above.</p>
                 </div>
@@ -838,7 +845,7 @@ $checkout_fmt = date('D, d M Y', strtotime($filter_checkout));
                                     <span class="rate-photo-badge">Signature Stay</span>
                                     <div class="rate-photo-copy">
                                         <span class="rate-photo-kicker"><?php echo htmlspecialchars($label); ?></span>
-                                        <strong class="rate-photo-title"><?php echo $capacity; ?> guests · <?php echo htmlspecialchars($bed); ?></strong>
+                                        <strong class="rate-photo-title"><?php echo $capacity; ?> guests Â· <?php echo htmlspecialchars($bed); ?></strong>
                                     </div>
                                 </div>
                                 <span class="rate-photo-count">
@@ -890,8 +897,8 @@ $checkout_fmt = date('D, d M Y', strtotime($filter_checkout));
                             </div>
                             <div class="rate-pricing">
                                 <div class="rate-from-label">From</div>
-                                <div class="rate-price-main">₱ <?php echo number_format($price, 2); ?></div>
-                                <div class="rate-price-sub">per night · <?php echo max(1,$filter_guests); ?> adult<?php echo $filter_guests > 1 ? 's' : ''; ?></div>
+                                <div class="rate-price-main">â‚± <?php echo number_format($price, 2); ?></div>
+                                <div class="rate-price-sub">per night Â· <?php echo max(1,$filter_guests); ?> adult<?php echo $filter_guests > 1 ? 's' : ''; ?></div>
                                 <div class="rate-price-note">All taxes &amp; fees included</div>
                             </div>
                             <div class="rate-actions-box">
@@ -910,11 +917,11 @@ $checkout_fmt = date('D, d M Y', strtotime($filter_checkout));
                                             $unit_avail = (int)$room_unit['active_bookings'] === 0 && $room_unit['status'] === 'ready';
                                             $unit_label = 'Room ' . $room_unit['room_number'];
                                             if ($room_unit['status'] === 'maintenance') {
-                                                $unit_label .= ' — Under Maintenance';
+                                                $unit_label .= ' â€” Under Maintenance';
                                             } elseif ($room_unit['status'] === 'occupied') {
-                                                $unit_label .= ' — Occupied';
+                                                $unit_label .= ' â€” Occupied';
                                             } elseif (!$unit_avail) {
-                                                $unit_label .= ' — Booked';
+                                                $unit_label .= ' â€” Booked';
                                             }
                                         ?>
                                         <option value="<?php echo $room_unit['id']; ?>"
@@ -986,7 +993,7 @@ $checkout_fmt = date('D, d M Y', strtotime($filter_checkout));
                                     <span class="rate-photo-badge"><?php echo $unavail_reason; ?></span>
                                     <div class="rate-photo-copy">
                                         <span class="rate-photo-kicker"><?php echo htmlspecialchars($label); ?></span>
-                                        <strong class="rate-photo-title"><?php echo $capacity; ?> guests · <?php echo htmlspecialchars($bed); ?></strong>
+                                        <strong class="rate-photo-title"><?php echo $capacity; ?> guests Â· <?php echo htmlspecialchars($bed); ?></strong>
                                     </div>
                                 </div>
                             </div>
@@ -1001,8 +1008,8 @@ $checkout_fmt = date('D, d M Y', strtotime($filter_checkout));
                         <div class="rate-card-right rate-card-right--unavailable">
                             <h4 class="rate-name"><?php echo htmlspecialchars($label); ?></h4>
                             <div class="rate-pricing">
-                                <div class="rate-price-main" style="color:#776B62;">₱ <?php echo number_format($price, 2); ?></div>
-                                <div class="rate-price-sub">per night · <?php echo max(1, $filter_guests); ?> adult<?php echo $filter_guests > 1 ? 's' : ''; ?></div>
+                                <div class="rate-price-main" style="color:#776B62;">â‚± <?php echo number_format($price, 2); ?></div>
+                                <div class="rate-price-sub">per night Â· <?php echo max(1, $filter_guests); ?> adult<?php echo $filter_guests > 1 ? 's' : ''; ?></div>
                             </div>
 
                             <?php if (!$is_all_maintenance): ?>
@@ -1039,7 +1046,7 @@ $checkout_fmt = date('D, d M Y', strtotime($filter_checkout));
 
         </main>
 
-        <!-- ══ Booking Summary Sidebar ══ -->
+        <!-- â•â• Booking Summary Sidebar â•â• -->
         <aside class="booking-sidebar" id="booking-sidebar">
             <h3 class="bs-title">Booking Summary</h3>
 
@@ -1069,7 +1076,7 @@ $checkout_fmt = date('D, d M Y', strtotime($filter_checkout));
 
             <div class="bs-total-row">
                 <span class="bs-total-label">Total</span>
-                <span class="bs-total-amount" id="bs-total">₱ 0.00</span>
+                <span class="bs-total-amount" id="bs-total">â‚± 0.00</span>
             </div>
             <div class="bs-tax-note">Price includes all taxes and fees</div>
 
@@ -1078,13 +1085,13 @@ $checkout_fmt = date('D, d M Y', strtotime($filter_checkout));
 
     </div><!-- /.rooms-layout -->
 
-    <!-- ── Mobile Sticky Booking Bar ── -->
+    <!-- â”€â”€ Mobile Sticky Booking Bar â”€â”€ -->
     <div class="mobile-book-bar" id="mobile-book-bar">
         <div class="mobile-book-bar-info">
             <div class="mobile-book-bar-count" id="mobile-bar-count">1 room selected</div>
-            <div class="mobile-book-bar-total" id="mobile-bar-total">₱ 0.00</div>
+            <div class="mobile-book-bar-total" id="mobile-bar-total">â‚± 0.00</div>
         </div>
-        <button class="mobile-book-bar-btn" onclick="proceedToBook()">Book Now →</button>
+        <button class="mobile-book-bar-btn" onclick="proceedToBook()">Book Now â†’</button>
     </div>
 
     <div class="room-modal" id="room-modal" aria-hidden="true">
@@ -1118,7 +1125,7 @@ $checkout_fmt = date('D, d M Y', strtotime($filter_checkout));
         </div>
     </div>
 
-    <!-- ══ Availability Calendar Modal ══ -->
+    <!-- â•â• Availability Calendar Modal â•â• -->
     <div class="avail-modal" id="avail-modal" aria-hidden="true" role="dialog">
         <div class="avail-modal-backdrop" onclick="closeAvailabilityCalendar()"></div>
         <div class="avail-modal-dialog">
@@ -1130,7 +1137,7 @@ $checkout_fmt = date('D, d M Y', strtotime($filter_checkout));
                 <div class="avail-modal-header-info">
                     <span class="avail-modal-kicker">Availability Calendar</span>
                     <h3 class="avail-modal-title" id="avail-modal-title">Standard Room</h3>
-                    <div class="avail-modal-price" id="avail-modal-price">From ₱ 2,900.00 / night</div>
+                    <div class="avail-modal-price" id="avail-modal-price">From â‚± 2,900.00 / night</div>
                 </div>
                 <div class="avail-modal-month-nav">
                     <button type="button" class="btn-cal-month" onclick="changeCalMonth(-1)">
@@ -1164,7 +1171,7 @@ $checkout_fmt = date('D, d M Y', strtotime($filter_checkout));
         </div>
     </div>
 
-    <!-- ── Footer ── -->
+    <!-- â”€â”€ Footer â”€â”€ -->
     <footer class="main-footer">
         <div class="footer-container">
             <div class="footer-brand-col">
@@ -1192,7 +1199,7 @@ $checkout_fmt = date('D, d M Y', strtotime($filter_checkout));
     </footer>
 
 <script>
-/* ── Tab switching ── */
+/* â”€â”€ Tab switching â”€â”€ */
 function switchTab(tab, btn) {
     document.querySelectorAll('.room-tab').forEach(b => b.classList.remove('room-tab--active'));
     btn.classList.add('room-tab--active');
@@ -1217,7 +1224,7 @@ function syncRoomTabsOffset() {
     document.documentElement.style.setProperty('--rooms-sticky-tabs-top', headerHeight + 'px');
 }
 
-/* ── Booking summary state ── */
+/* â”€â”€ Booking summary state â”€â”€ */
 var selectedRooms = {};
 var extraPersonsByType = {};
 
@@ -1242,7 +1249,7 @@ function updateSummary() {
             var selectedOpt = sel.options[sel.selectedIndex];
             var roomNum = selectedOpt ? (selectedOpt.dataset.roomNumber || '') : '';
             selectedRooms[key] = {
-                label:    sel.dataset.label + (roomNum ? ' · Room ' + roomNum : ''),
+                label:    sel.dataset.label + (roomNum ? ' Â· Room ' + roomNum : ''),
                 price:    parseFloat(sel.dataset.price),
                 extraPrice: parseFloat(sel.dataset.extraPrice || '0'),
                 nights:   parseInt(sel.dataset.nights),
@@ -1279,7 +1286,7 @@ function renderSummary() {
     if (keys.length === 0) {
         if (placeholder) placeholder.style.display  = 'block';
         if (selectedDiv) selectedDiv.style.display  = 'none';
-        if (totalEl)     totalEl.textContent        = '₱ 0.00';
+        if (totalEl)     totalEl.textContent        = 'â‚± 0.00';
         if (bookBtn)     bookBtn.disabled           = true;
         if (clearLink)   clearLink.style.visibility = 'hidden';
         // Hide mobile bar
@@ -1308,7 +1315,7 @@ function renderSummary() {
         el.className = 'bs-room-line';
         el.innerHTML =
             '<span class="bs-room-name">' + r.qty + 'x ' + r.label + '</span>' +
-            '<span class="bs-room-subtotal">₱ ' + roomSubtotal.toLocaleString('en-PH', {minimumFractionDigits:2, maximumFractionDigits:2}) + '</span>';
+            '<span class="bs-room-subtotal">â‚± ' + roomSubtotal.toLocaleString('en-PH', {minimumFractionDigits:2, maximumFractionDigits:2}) + '</span>';
         selectedDiv.appendChild(el);
 
         if (extraSubtotal > 0) {
@@ -1316,7 +1323,7 @@ function renderSummary() {
             extraEl.className = 'bs-room-line bs-room-line--extra';
             extraEl.innerHTML =
                 '<span class="bs-room-name">Extra adults (' + totalAdults + ')</span>' +
-                '<span class="bs-room-subtotal">₱ ' + extraSubtotal.toLocaleString('en-PH', {minimumFractionDigits:2, maximumFractionDigits:2}) + '</span>';
+                '<span class="bs-room-subtotal">â‚± ' + extraSubtotal.toLocaleString('en-PH', {minimumFractionDigits:2, maximumFractionDigits:2}) + '</span>';
             selectedDiv.appendChild(extraEl);
         }
         if (totalChildren > 0) {
@@ -1329,7 +1336,7 @@ function renderSummary() {
         }
     });
 
-    totalEl.textContent = '₱ ' + grandTotal.toLocaleString('en-PH', {minimumFractionDigits:2, maximumFractionDigits:2});
+    totalEl.textContent = 'â‚± ' + grandTotal.toLocaleString('en-PH', {minimumFractionDigits:2, maximumFractionDigits:2});
     bookBtn.disabled = false;
 
     // Mobile bottom bar
@@ -1340,7 +1347,7 @@ function renderSummary() {
         var totalRooms = keys.reduce(function(sum, k) { return sum + selectedRooms[k].qty; }, 0);
         mobileBar.classList.add('mobile-book-bar--active');
         mobileCount.textContent = totalRooms + ' room' + (totalRooms > 1 ? 's' : '') + ' selected';
-        mobileTotal.textContent = '₱ ' + grandTotal.toLocaleString('en-PH', {minimumFractionDigits:2, maximumFractionDigits:2});
+        mobileTotal.textContent = 'â‚± ' + grandTotal.toLocaleString('en-PH', {minimumFractionDigits:2, maximumFractionDigits:2});
     }
 }
 
@@ -1502,7 +1509,7 @@ function updateExtraPersonsSummary(type) {
                 bRow.className = 'rate-extra-breakdown-row';
                 bRow.innerHTML =
                     '<div class="rate-extra-breakdown-col">' + (index + 1) + '</div>' +
-                    '<div class="rate-extra-breakdown-col">' + (adultCost > 0 ? ('₱ ' + adultCost.toLocaleString('en-PH', {minimumFractionDigits:2, maximumFractionDigits:2})) : '-') + '</div>' +
+                    '<div class="rate-extra-breakdown-col">' + (adultCost > 0 ? ('â‚± ' + adultCost.toLocaleString('en-PH', {minimumFractionDigits:2, maximumFractionDigits:2})) : '-') + '</div>' +
                     '<div class="rate-extra-breakdown-col">-</div>';
                 breakdownEl.appendChild(bRow);
             });
@@ -1512,7 +1519,7 @@ function updateExtraPersonsSummary(type) {
     // Update Total
     if (totalEl) {
         totalEl.textContent = extraCharge > 0
-            ? ('₱ ' + extraCharge.toLocaleString('en-PH', {minimumFractionDigits:2, maximumFractionDigits:2}))
+            ? ('â‚± ' + extraCharge.toLocaleString('en-PH', {minimumFractionDigits:2, maximumFractionDigits:2}))
             : (totalPersons > 0 ? 'Free / Included' : '-');
     }
 
@@ -1748,7 +1755,7 @@ function renderDateStrip(type) {
             (isCurrentCheckin ? ' date-strip-item--active' : '');
 
         var html = '<span class="ds-date">' + dateLabel + '</span>' +
-                   '<span class="ds-price">₱ ' + price.toLocaleString('en-PH', {minimumFractionDigits:2, maximumFractionDigits:2}) + '</span>';
+                   '<span class="ds-price">â‚± ' + price.toLocaleString('en-PH', {minimumFractionDigits:2, maximumFractionDigits:2}) + '</span>';
 
         if (!avail.available) {
             html += '<span class="ds-badge-sold">' + avail.reason + '</span>';
@@ -1794,7 +1801,7 @@ function selectDateAndReload(newCheckin, roomType) {
     window.location.search = params.toString();
 }
 
-/* ── Availability Calendar Modal Logic ── */
+/* â”€â”€ Availability Calendar Modal Logic â”€â”€ */
 function openAvailabilityCalendar(type, label, price) {
     currentCalType = type;
     currentCalLabel = label;
@@ -1806,7 +1813,7 @@ function openAvailabilityCalendar(type, label, price) {
     currentCalMonth = baseDate.getMonth();
 
     document.getElementById('avail-modal-title').textContent = label;
-    document.getElementById('avail-modal-price').textContent = 'From ₱ ' + price.toLocaleString('en-PH', {minimumFractionDigits:2, maximumFractionDigits:2}) + ' / night';
+    document.getElementById('avail-modal-price').textContent = 'From â‚± ' + price.toLocaleString('en-PH', {minimumFractionDigits:2, maximumFractionDigits:2}) + ' / night';
 
     renderCalendarDays();
 
@@ -1877,7 +1884,7 @@ function renderCalendarDays() {
                 cell.classList.add('cal-day-cell--avail');
                 cell.innerHTML = 
                     '<span class="cal-day-num">' + day + '</span>' +
-                    '<span class="cal-day-price">₱ ' + Math.round(currentCalPrice).toLocaleString('en-PH') + '</span>' +
+                    '<span class="cal-day-price">â‚± ' + Math.round(currentCalPrice).toLocaleString('en-PH') + '</span>' +
                     '<span class="cal-day-tag cal-day-tag--avail">Avail</span>';
 
                 (function(targetDate) {
@@ -1897,7 +1904,7 @@ function renderCalendarDays() {
                 }
                 cell.innerHTML = 
                     '<span class="cal-day-num">' + day + '</span>' +
-                    '<span class="cal-day-price" style="color:#A39B94;">₱ ' + Math.round(currentCalPrice).toLocaleString('en-PH') + '</span>' +
+                    '<span class="cal-day-price" style="color:#A39B94;">â‚± ' + Math.round(currentCalPrice).toLocaleString('en-PH') + '</span>' +
                     '<span class="cal-day-tag cal-day-tag--sold">' + avail.reason + '</span>' +
                     soldRange;
             }
