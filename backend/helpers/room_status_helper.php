@@ -77,8 +77,10 @@ function sf_room_status_label(string $status): string
 /**
  * Handles dynamic rate calculations for Santa Fe Beach Club.
  * Computes night-by-night rates factoring in weekend surcharges, seasonal pricing rules, and coupon discounts.
+/**
+ * Calculate dynamic stay pricing with night-by-night breakdown, weekend surcharges, seasonal pricing, extra guest fees, and promotions.
  */
-function calculateStayPricing(mysqli $conn, string $roomType, string $checkIn, string $checkOut, ?string $promoCode = null): array
+function calculateStayPricing(mysqli $conn, string $roomType, string $checkIn, string $checkOut, ?string $promoCode = null, int $guests = 2): array
 {
     $start = new DateTime($checkIn);
     $end = new DateTime($checkOut);
@@ -170,6 +172,20 @@ function calculateStayPricing(mysqli $conn, string $roomType, string $checkIn, s
         $currentDate->modify('+1 day');
     }
 
+    // 3.5 Extra Person / Extra Adult calculation (Base rate covers 1 adult, additional adults incur fee)
+    $extraRates = [
+        'beachview_duplex' => 1000.00,
+        'seaview_duplex'   => 1000.00,
+        'beach_villa'      => 1000.00,
+        'standard_room'    => 700.00,
+        'standard_king'    => 700.00,
+    ];
+    $baseCapacity = 1; // 1 adult included in standard base rate; every additional adult adds fee
+    $extraAdults = max(0, $guests - $baseCapacity);
+    $extraRatePerAdult = $extraRates[$roomType] ?? 700.00;
+    $extraPersonTotal = $extraAdults * $extraRatePerAdult * $nights;
+    $subtotal += $extraPersonTotal;
+
     // 4. Promo Code Validation & Discount Application
     $discountAmount = 0.00;
     $promoDetails = null;
@@ -212,10 +228,14 @@ function calculateStayPricing(mysqli $conn, string $roomType, string $checkIn, s
     return [
         'base_price_per_night' => $basePrice,
         'nights' => $nights,
+        'guests' => $guests,
+        'extra_adults' => $extraAdults,
+        'extra_rate_per_adult' => $extraRatePerAdult,
+        'extra_person_total' => $extraPersonTotal,
         'subtotal' => $subtotal,
         'weekend_surcharge_total' => $weekendSurchargeTotal,
         'seasonal_adjustment_total' => $seasonalAdjustmentTotal,
-        'has_dynamic_pricing' => ($weekendSurchargeTotal > 0 || $seasonalAdjustmentTotal > 0),
+        'has_dynamic_pricing' => ($weekendSurchargeTotal > 0 || $seasonalAdjustmentTotal > 0 || $extraPersonTotal > 0),
         'promo_code' => $promoDetails ? ($promoDetails['code'] ?: $promoDetails['title']) : null,
         'promo_details' => $promoDetails,
         'promo_error' => $promoError,

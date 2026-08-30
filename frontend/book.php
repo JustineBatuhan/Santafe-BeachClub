@@ -4,6 +4,7 @@ require_once __DIR__ . '/../backend/helpers/security_headers.php';
 require_once __DIR__ . '/../backend/helpers/csrf_helper.php';
 require_once __DIR__ . '/../backend/libs/phpqrcode/phpqrcode.php';
 require_once __DIR__ . '/../backend/services/booking_service.php';
+require_once __DIR__ . '/../backend/services/paymongo.php';
 
 // Initialize session if not started
 if (session_status() === PHP_SESSION_NONE) {
@@ -97,8 +98,8 @@ if (isset($_POST['apply_promo'])) {
 }
 $applied_promo = $_SESSION['applied_promo_code'] ?? ($_REQUEST['promo_code'] ?? null);
 
-// Fetch Dynamic Stay Pricing factoring in weekend surcharges, seasonal pricing rules, and coupon discounts
-$pricing = calculateStayPricing($conn, $room_type, $checkin, $checkout, $applied_promo);
+// Fetch Dynamic Stay Pricing factoring in weekend surcharges, seasonal pricing rules, extra adult fees, and coupon discounts
+$pricing = calculateStayPricing($conn, $room_type, $checkin, $checkout, $applied_promo, $guests);
 $room_price = $pricing['base_price_per_night'];
 $nights = $pricing['nights'];
 $subtotal_amount = $pricing['subtotal'];
@@ -371,60 +372,98 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $qr_file = $qr_dir . 'qr_booking_' . $booking_id . '.png';
                         QRcode::png($checkin_url, $qr_file, QR_ECLEVEL_H, 6, 4);
 
-                        // Auto-dispatch booking confirmation / payment pending receipt email
-                        if (!empty($guest_email)) {
-                            @sendBookingConfirmationEmail(
-                                $guest_email,
+                        // If PayMongo Online Checkout is selected, create session and redirect
+                        if ($payment_method === 'PayMongo Online') {
+                            $successUrl = rtrim($base_url, '/') . '/payment_success.php?booking_id=' . $booking_id . '&session_id={CHECKOUT_SESSION_ID}';
+                            $cancelPaymentUrl = rtrim($base_url, '/') . '/book.php?step=3&cancelled=1';
+                            $desc = '50% Booking Deposit for ' . $db_acc_name . ' (' . $booking_ref . ')';
+
+                            $paymongoRes = PayMongoService::createCheckoutSession(
+                                $deposit_amount,
+                                $desc,
+                                $booking_id,
                                 $guest_name,
-                                $booking_ref,
-                                $db_acc_name,
-                                $checkin,
-                                $checkout,
-                                $total_amount,
-                                $cancel_url,
-                                $checkin_url
+                                $guest_email,
+                                $guest_phone,
+                                $successUrl,
+                                $cancelPaymentUrl
                             );
+
+                            if (!empty($paymongoRes['success']) && !empty($paymongoRes['checkout_url'])) {
+                                // Update transaction_id with PayMongo session id
+                                $sessId = $paymongoRes['session_id'] ?? '';
+                                if (!empty($sessId)) {
+                                    $uStmt = $conn->prepare("UPDATE payments SET transaction_id = ? WHERE booking_id = ?");
+                                    $uStmt->bind_param("si", $sessId, $booking_id);
+                                    $uStmt->execute();
+                                    $uStmt->close();
+                                }
+                                unset($_SESSION['applied_promo_code']);
+                                header('Location: ' . $paymongoRes['checkout_url']);
+                                exit;
+                            } else {
+                                $pmErr = $paymongoRes['error'] ?? 'PayMongo service error';
+                                $error = 'Online Payment Error: ' . $pmErr;
+                                $step = 3;
+                            }
                         }
 
-                        // Dashboard notification
-                        $notif_title   = 'New Guest Reservation';
-                        $notif_type    = 'info';
-                        $notif_message = htmlspecialchars($guest_name) . ' booked ' . htmlspecialchars($db_acc_name) . ' (' . $booking_ref . '). ETA: ' . htmlspecialchars($eta);
-                        if ($payment_method === 'GCash QR') {
-                            $notif_title   = 'GCash Payment Pending Verification';
-                            $notif_message = htmlspecialchars($guest_name) . ' paid via GCash for ' . htmlspecialchars($db_acc_name) . ' (' . $booking_ref . '). Please verify the receipt.';
-                            $notif_type    = 'warning';
+                        if (empty($error)) {
+                            // Auto-dispatch booking confirmation / payment pending receipt email
+                            if (!empty($guest_email)) {
+                                @sendBookingConfirmationEmail(
+                                    $guest_email,
+                                    $guest_name,
+                                    $booking_ref,
+                                    $db_acc_name,
+                                    $checkin,
+                                    $checkout,
+                                    $total_amount,
+                                    $cancel_url,
+                                    $checkin_url
+                                );
+                            }
+
+                            // Dashboard notification
+                            $notif_title   = 'New Guest Reservation';
+                            $notif_type    = 'info';
+                            $notif_message = htmlspecialchars($guest_name) . ' booked ' . htmlspecialchars($db_acc_name) . ' (' . $booking_ref . '). ETA: ' . htmlspecialchars($eta);
+                            if ($payment_method === 'GCash QR') {
+                                $notif_title   = 'GCash Payment Pending Verification';
+                                $notif_message = htmlspecialchars($guest_name) . ' paid via GCash for ' . htmlspecialchars($db_acc_name) . ' (' . $booking_ref . '). Please verify the receipt.';
+                                $notif_type    = 'warning';
+                            }
+                            $stmt_notif = $conn->prepare("INSERT INTO notifications (title, message, type, booking_id) VALUES (?, ?, ?, ?)");
+                            $stmt_notif->bind_param("sssi", $notif_title, $notif_message, $notif_type, $booking_id);
+                            $stmt_notif->execute();
+
+                            // PRG: store success data in session
+                            $_SESSION['booking_success'] = [
+                                'booking_id'        => $booking_id,
+                                'booking_ref'       => $booking_ref,
+                                'guest_name'        => $guest_name,
+                                'guest_email'       => $guest_email,
+                                'checkin'           => $checkin,
+                                'checkout'          => $checkout,
+                                'accommodation'     => $db_acc_name,
+                                'nights'            => $nights,
+                                'total_amount'      => $total_amount,
+                                'deposit_amount'    => $deposit_amount,
+                                'remaining_balance' => $total_amount - $deposit_amount,
+                                'discount_amount'   => $discount_amount,
+                                'promo_code'        => $applied_promo_code,
+                                'payment_method'    => $payment_method,
+                                'checkin_token'     => $checkin_token,
+                                'cancel_token'      => $cancel_token,
+                                'guests'            => $guests,
+                                'eta'               => $eta,
+                            ];
+
+                            unset($_SESSION['applied_promo_code']);
+
+                            header('Location: book?success=1&ref=' . urlencode($booking_ref) . '&room_type=' . urlencode($room_type) . '&checkin=' . urlencode($checkin) . '&checkout=' . urlencode($checkout));
+                            exit;
                         }
-                        $stmt_notif = $conn->prepare("INSERT INTO notifications (title, message, type, booking_id) VALUES (?, ?, ?, ?)");
-                        $stmt_notif->bind_param("sssi", $notif_title, $notif_message, $notif_type, $booking_id);
-                        $stmt_notif->execute();
-
-                        // PRG: store success data in session
-                        $_SESSION['booking_success'] = [
-                            'booking_id'        => $booking_id,
-                            'booking_ref'       => $booking_ref,
-                            'guest_name'        => $guest_name,
-                            'guest_email'       => $guest_email,
-                            'checkin'           => $checkin,
-                            'checkout'          => $checkout,
-                            'accommodation'     => $db_acc_name,
-                            'nights'            => $nights,
-                            'total_amount'      => $total_amount,
-                            'deposit_amount'    => $deposit_amount,
-                            'remaining_balance' => $total_amount - $deposit_amount,
-                            'discount_amount'   => $discount_amount,
-                            'promo_code'        => $applied_promo_code,
-                            'payment_method'    => $payment_method,
-                            'checkin_token'     => $checkin_token,
-                            'cancel_token'      => $cancel_token,
-                            'guests'            => $guests,
-                            'eta'               => $eta,
-                        ];
-
-                        unset($_SESSION['applied_promo_code']);
-
-                        header('Location: book?success=1&ref=' . urlencode($booking_ref) . '&room_type=' . urlencode($room_type) . '&checkin=' . urlencode($checkin) . '&checkout=' . urlencode($checkout));
-                        exit;
                     } else {
                         $error = 'Error saving your booking. Please try again.';
                     }
@@ -607,7 +646,12 @@ $full_name = trim(($_SESSION['guest_first_name'] ?? '') . ' ' . ($_SESSION['gues
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                                 </button>
                                 <div class="bk-room-price">₱ <?php echo number_format($total_amount, 2); ?></div>
-                                <div class="bk-room-subtext">1 room, <?php echo $nights; ?> night<?php echo $nights>1?'s':''; ?>, <?php echo $guests; ?> adult<?php echo $guests>1?'s':''; ?> included in price</div>
+                                <div class="bk-room-subtext">
+                                    1 room, <?php echo $nights; ?> night<?php echo $nights>1?'s':''; ?>, <?php echo $guests; ?> adult<?php echo $guests>1?'s':''; ?>
+                                    <?php if (($pricing['extra_person_total'] ?? 0) > 0): ?>
+                                        <span style="color:#0284C7; font-weight:600;">(includes <?php echo $pricing['extra_adults']; ?> extra adult<?php echo $pricing['extra_adults']>1?'s':''; ?>)</span>
+                                    <?php endif; ?>
+                                </div>
                                 <?php if ($discount_amount > 0): ?>
                                     <div style="font-size:11px; color:#15803D; font-weight:700; margin-top:4px;">Coupon applied: -₱<?php echo number_format($discount_amount, 2); ?></div>
                                 <?php endif; ?>
@@ -724,27 +768,53 @@ $full_name = trim(($_SESSION['guest_first_name'] ?? '') . ' ' . ($_SESSION['gues
                         <div class="bk-card-header-flex">
                             <h2 class="bk-card-title" style="margin:0;">Pay 50% Deposit With</h2>
                             <div class="bk-pay-logos">
-                                <span style="font-size:11px; font-weight:700; display:flex; align-items:center; color:#555; letter-spacing:0.5px;">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right:4px;"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-                                    BANK TRANSFER
-                                </span>
-                                <span style="font-size:11px; font-weight:800; display:flex; align-items:center; color:#005CE6; margin-left:14px; letter-spacing:0.5px;">
-                                    <img src="assets/images/gcash_logo.png?v=<?php echo time(); ?>" alt="GCash" style="width:16px; height:16px; margin-right:4px; vertical-align:middle; border-radius:3px; object-fit:contain;">
-                                    GCASH QR
+                                <span style="font-size:10.5px; font-weight:800; display:flex; align-items:center; color:#059669; background:#ECFDF5; padding:3px 8px; border-radius:6px; letter-spacing:0.5px;">
+                                    ⚡ AUTO CONFIRMED
                                 </span>
                             </div>
                         </div>
 
-                        <div class="bk-pay-option bk-pay-option--active" id="opt-bank">
+                        <!-- 1. INSTANT ONLINE PAYMONGO (AUTO CONFIRMED) -->
+                        <div class="bk-pay-option bk-pay-option--active" id="opt-paymongo">
+                            <label class="bk-pay-radio" style="display:flex; justify-content:space-between; align-items:center; width:100%;">
+                                <div style="display:flex; align-items:center;">
+                                    <input type="radio" name="payment_method" value="PayMongo Online" checked>
+                                    <span style="font-size:16px; margin-right:8px;">⚡</span>
+                                    <div>
+                                        <strong style="font-size:14.5px; color:#0F172A;">Instant Online (GCash / Maya / Cards / QR Ph)</strong>
+                                        <div style="font-size:12px; color:#64748B; margin-top:2px;">Fastest confirmation • Powered by PayMongo</div>
+                                    </div>
+                                </div>
+                                <span style="background:#DCFCE7; color:#15803D; font-size:10px; font-weight:800; padding:3px 8px; border-radius:6px; text-transform:uppercase; letter-spacing:0.5px; flex-shrink:0;">
+                                    AUTO CONFIRMED
+                                </span>
+                            </label>
+                            <div id="paymongo-form" class="bk-card-form" style="padding-top:14px;">
+                                <div style="background:#F0FDF4; border:1.5px solid #BBF7D0; border-radius:12px; padding:16px 18px; margin-bottom:12px;">
+                                    <div style="font-size:13.5px; color:#166534; font-weight:600; line-height:1.5;">
+                                        👉 Upon clicking <strong>"Confirm & Pay ₱ <?php echo number_format($deposit_amount, 2); ?>"</strong>, you will be redirected to the secure PayMongo checkout screen.
+                                    </div>
+                                    <div style="font-size:12.5px; color:#15803D; margin-top:8px; display:flex; align-items:center; gap:6px;">
+                                        <span>💳 Visa / Mastercard</span> &bull; <span>📱 GCash</span> &bull; <span>💚 Maya</span> &bull; <span>📲 QR Ph</span>
+                                    </div>
+                                </div>
+                                <p style="font-size:12px; color:#059669; font-weight:600; margin:0;">
+                                    ✓ No need to upload receipt. Your booking is verified instantly upon payment.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- 2. BANK TRANSFER (MANUAL VERIFICATION) -->
+                        <div class="bk-pay-option" id="opt-bank">
                             <label class="bk-pay-radio">
-                                <input type="radio" name="payment_method" value="Bank Deposit" checked>
+                                <input type="radio" name="payment_method" value="Bank Deposit">
                                 <span style="font-size:11px; font-weight:700; display:inline-flex; align-items:center; margin-right:6px; color:#555; letter-spacing:0.5px;">
                                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right:4px;"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
                                     BANK TRANSFER
                                 </span>
-                                <strong style="font-size:15px; color:#0F172A;">Bank Deposit</strong>
+                                <strong style="font-size:14.5px; color:#0F172A;">Bank Deposit (Manual)</strong>
                             </label>
-                            <div id="bank-form" class="bk-card-form" style="padding-top: 16px;">
+                            <div id="bank-form" class="bk-card-form" style="display:none; padding-top: 16px;">
                                 <p style="font-size:13.5px; color:#475569; margin:0 0 16px 0; line-height:1.5;">Please transfer the 50% deposit amount (<strong>₱ <?php echo number_format($deposit_amount, 2); ?></strong>) to our BDO Account.</p>
                                 <div style="background:#F0F8FF; border-radius:12px; padding:16px 20px; margin-bottom:20px; border:1px solid #E0F2FE;">
                                     <div style="font-size:13px; color:#64748B; margin-bottom:6px;">Bank Name: <strong style="color:#0F172A;">BDO (Banco de Oro)</strong></div>
@@ -765,11 +835,12 @@ $full_name = trim(($_SESSION['guest_first_name'] ?? '') . ' ' . ($_SESSION['gues
                             </div>
                         </div>
 
+                        <!-- 3. GCASH QR CODE UPLOAD (MANUAL VERIFICATION) -->
                         <div class="bk-pay-option" id="opt-online">
                             <label class="bk-pay-radio">
                                 <input type="radio" name="payment_method" value="GCash QR">
                                 <img src="assets/images/gcash_logo.png?v=<?php echo time(); ?>" alt="GCash" style="width:24px; height:24px; border-radius:6px; margin-right:8px; object-fit:contain; vertical-align:middle; display:inline-block;">
-                                <strong>GCash (QR Payment)</strong>
+                                <strong>GCash QR Screenshot (Manual)</strong>
                             </label>
                             <div id="online-form" class="bk-card-form" style="display:none; padding-top:20px; flex-direction:column; align-items:center;">
                                 <div style="display:flex; flex-direction:column; align-items:center; width:100%; max-width:400px; background:#ffffff; border:1px solid #E5E7EB; border-radius:16px; padding:24px; box-shadow:0 8px 30px rgba(0,0,0,0.04);">
@@ -780,7 +851,6 @@ $full_name = trim(($_SESSION['guest_first_name'] ?? '') . ' ' . ($_SESSION['gues
                                     <div style="font-size:13px; color:#64748B; text-align:center; margin-bottom:16px;">
                                         Amount: <strong style="color:#0F172A;">₱ <?php echo number_format($deposit_amount, 2); ?></strong>
                                     </div>
-                                    <!-- GCash QR Code — put your real GCash QR image at assets/images/gcash_qr.png -->
                                     <div style="background:#fff; border:2px solid #E2E8F0; border-radius:12px; padding:12px; margin-bottom:16px;">
                                         <img src="assets/images/gcash_qr.png?v=<?php echo time(); ?>"
                                              onerror="this.style.display='none'; document.getElementById('gcash-qr-placeholder').style.display='flex';"
@@ -796,7 +866,6 @@ $full_name = trim(($_SESSION['guest_first_name'] ?? '') . ' ' . ($_SESSION['gues
                                             <span style="font-size:11px; color:#9CA3AF; font-weight:600; text-align:center;">GCash QR placeholder<br><em>Upload your QR to assets/images/gcash_qr.png</em></span>
                                         </div>
                                     </div>
-                                    <!-- GCash Account Details Card -->
                                     <div style="background:#F0F7FF; border:1.5px solid #BAE6FD; border-radius:12px; padding:12px 16px; margin-bottom:16px; text-align:center; width:100%; box-sizing:border-box;">
                                         <div style="font-size:11px; color:#0369A1; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px;">
                                             GCash Account Details
@@ -923,6 +992,13 @@ $full_name = trim(($_SESSION['guest_first_name'] ?? '') . ' ' . ($_SESSION['gues
                         <span>₱ <?php echo number_format($pricing['base_price_per_night'] * $nights, 2); ?></span>
                     </div>
 
+                    <?php if (($pricing['extra_person_total'] ?? 0) > 0): ?>
+                    <div class="bk-sb-room-row" style="color:#0284C7; font-size:12.5px;">
+                        <span>Extra Adult Fee (<?php echo $pricing['extra_adults']; ?> × ₱<?php echo number_format($pricing['extra_rate_per_adult'], 0); ?> × <?php echo $nights; ?>n)</span>
+                        <span>+₱ <?php echo number_format($pricing['extra_person_total'], 2); ?></span>
+                    </div>
+                    <?php endif; ?>
+
                     <?php if ($pricing['weekend_surcharge_total'] > 0): ?>
                     <div class="bk-sb-room-row" style="color:#B45309; font-size:12.5px;">
                         <span>Weekend Rate Adjustment</span>
@@ -973,19 +1049,28 @@ $full_name = trim(($_SESSION['guest_first_name'] ?? '') . ' ' . ($_SESSION['gues
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 <script>
 function bkSelectPayment(method) {
-    var bankForm  = document.getElementById('bank-form');
-    var bankOpt   = document.getElementById('opt-bank');
-    var gcashForm = document.getElementById('online-form');
-    var gcashOpt  = document.getElementById('opt-online');
+    var paymongoForm = document.getElementById('paymongo-form');
+    var paymongoOpt  = document.getElementById('opt-paymongo');
+    var bankForm     = document.getElementById('bank-form');
+    var bankOpt      = document.getElementById('opt-bank');
+    var gcashForm    = document.getElementById('online-form');
+    var gcashOpt     = document.getElementById('opt-online');
 
-    if (method === 'Bank Deposit') {
-        if (bankForm)  bankForm.style.display = 'flex';
+    // Reset all
+    if (paymongoForm) paymongoForm.style.display = 'none';
+    if (paymongoOpt)  paymongoOpt.classList.remove('bk-pay-option--active');
+    if (bankForm)     bankForm.style.display = 'none';
+    if (bankOpt)      bankOpt.classList.remove('bk-pay-option--active');
+    if (gcashForm)    gcashForm.style.display = 'none';
+    if (gcashOpt)     gcashOpt.classList.remove('bk-pay-option--active');
+
+    if (method === 'PayMongo Online') {
+        if (paymongoForm) paymongoForm.style.display = 'block';
+        if (paymongoOpt)  paymongoOpt.classList.add('bk-pay-option--active');
+    } else if (method === 'Bank Deposit') {
+        if (bankForm)  bankForm.style.display = 'block';
         if (bankOpt)   bankOpt.classList.add('bk-pay-option--active');
-        if (gcashForm) gcashForm.style.display = 'none';
-        if (gcashOpt)  gcashOpt.classList.remove('bk-pay-option--active');
     } else if (method === 'GCash QR' || method === 'Online Payment') {
-        if (bankForm)  bankForm.style.display = 'none';
-        if (bankOpt)   bankOpt.classList.remove('bk-pay-option--active');
         if (gcashForm) gcashForm.style.display = 'flex';
         if (gcashOpt)  gcashOpt.classList.add('bk-pay-option--active');
     }
@@ -1244,11 +1329,11 @@ function showFileError(input, errorDiv, message) {
                 <div style="padding:14px 16px; display:flex; gap:12px; align-items:center;">
                     <div style="font-size:13px; font-weight:600; color:#6B7280; flex-shrink:0; width:40px;">Main</div>
                     <select id="editAdults" style="flex:1; padding:10px 14px; border:1.5px solid #E5E7EB; border-radius:8px; font-family:'Outfit',sans-serif; font-size:13px; color:#1A1A2E; background:#fff; outline:none; cursor:pointer; appearance:none; background-image:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%234B5563' stroke-width='2.5' stroke-linecap='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E\"); background-repeat:no-repeat; background-position:calc(100% - 12px) center;">
-                        <option value="1" <?php echo ($guests == 1) ? 'selected' : ''; ?>>1 adult</option>
-                        <option value="2" <?php echo ($guests == 2) ? 'selected' : ''; ?>>2 adults</option>
-                        <option value="3" <?php echo ($guests == 3) ? 'selected' : ''; ?>>3 adults</option>
-                        <option value="4" <?php echo ($guests == 4) ? 'selected' : ''; ?>>4 adults</option>
-                        <option value="5" <?php echo ($guests >= 5) ? 'selected' : ''; ?>>5 adults</option>
+                        <option value="1" <?php echo ($guests == 1) ? 'selected' : ''; ?>>1 adult (Standard)</option>
+                        <option value="2" <?php echo ($guests == 2) ? 'selected' : ''; ?>>2 adults (+₱<?php echo number_format($pricing['extra_rate_per_adult'], 0); ?>/night)</option>
+                        <option value="3" <?php echo ($guests == 3) ? 'selected' : ''; ?>>3 adults (+₱<?php echo number_format($pricing['extra_rate_per_adult'] * 2, 0); ?>/night)</option>
+                        <option value="4" <?php echo ($guests == 4) ? 'selected' : ''; ?>>4 adults (+₱<?php echo number_format($pricing['extra_rate_per_adult'] * 3, 0); ?>/night)</option>
+                        <option value="5" <?php echo ($guests >= 5) ? 'selected' : ''; ?>>5 adults (+₱<?php echo number_format($pricing['extra_rate_per_adult'] * 4, 0); ?>/night)</option>
                     </select>
                     <select id="editChildren" style="flex:1; padding:10px 14px; border:1.5px solid #E5E7EB; border-radius:8px; font-family:'Outfit',sans-serif; font-size:13px; color:#1A1A2E; background:#fff; outline:none; cursor:pointer; appearance:none; background-image:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%234B5563' stroke-width='2.5' stroke-linecap='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E\"); background-repeat:no-repeat; background-position:calc(100% - 12px) center;">
                         <option value="0" selected>0 children</option>

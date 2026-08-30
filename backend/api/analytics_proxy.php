@@ -12,42 +12,48 @@ header('Content-Type: application/json; charset=utf-8');
 
 $action = $_GET['action'] ?? '';
 
-// ── Try Live Render Python service first (or Local Flask if running) ──────────
+// ── Try Python service (local Flask or remote Render) ────────────────────────
 if (function_exists('curl_init')) {
-    // Check if local Flask is active, else use Live Render URL
     $is_local_dev = in_array($_SERVER['HTTP_HOST'] ?? '', ['localhost', '127.0.0.1', '::1']);
-    
-    // Choose Python endpoint
-    $python_url = "https://santafe-beachclub-analytics.onrender.com/api/" . urlencode($action);
+
+    $python_url = null;
+
     if ($is_local_dev) {
-        // For local development testing, try local port 5000 first if reachable
+        // On localhost: ONLY use local Flask if it's actually running on port 5000.
+        // Do NOT fall back to remote Render — it cold-starts in 30+ seconds and blocks the dashboard.
         $local_test = @fsockopen('127.0.0.1', 5000, $errno, $errstr, 0.2);
         if ($local_test) {
             fclose($local_test);
             $python_url = "http://127.0.0.1:5000/api/" . urlencode($action);
         }
+        // If local Flask is not running, $python_url stays null → skip to PHP fallback instantly.
+    } else {
+        // On production / non-local: call Render service.
+        $python_url = "https://santafe-beachclub-analytics.onrender.com/api/" . urlencode($action);
     }
 
-    $ch = curl_init($python_url);
-    curl_setopt_array($ch, [
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_TIMEOUT        => 8,
-        CURLOPT_CONNECTTIMEOUT => 4,
-        CURLOPT_HTTPHEADER     => [
-            'Accept: application/json',
-            'X-API-Key: santafe-super-secret-key-2026'
-        ],
-        CURLOPT_SSL_VERIFYPEER => false,
-        CURLOPT_FAILONERROR    => false,
-    ]);
-    $python_response = curl_exec($ch);
-    $http_code       = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    curl_close($ch);
+    if ($python_url !== null) {
+        $ch = curl_init($python_url);
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT        => 8,
+            CURLOPT_CONNECTTIMEOUT => 4,
+            CURLOPT_HTTPHEADER     => [
+                'Accept: application/json',
+                'X-API-Key: santafe-super-secret-key-2026'
+            ],
+            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_FAILONERROR    => false,
+        ]);
+        $python_response = curl_exec($ch);
+        $http_code       = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
 
-    // If Python responded successfully (200 OK), return Python output directly
-    if ($python_response !== false && $http_code === 200) {
-        echo $python_response;
-        exit;
+        // If Python responded successfully (200 OK), return its output directly
+        if ($python_response !== false && $http_code === 200) {
+            echo $python_response;
+            exit;
+        }
     }
 }
 

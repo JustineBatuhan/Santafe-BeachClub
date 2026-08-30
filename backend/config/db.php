@@ -71,6 +71,7 @@ try {
     $conn->query("ALTER TABLE bookings ADD COLUMN IF NOT EXISTS cancellation_reason VARCHAR(255) DEFAULT NULL");
     $conn->query("ALTER TABLE bookings ADD COLUMN IF NOT EXISTS promo_code VARCHAR(50) DEFAULT NULL");
     $conn->query("ALTER TABLE bookings ADD COLUMN IF NOT EXISTS discount_amount DECIMAL(10,2) DEFAULT 0.00");
+    $conn->query("ALTER TABLE bookings ADD COLUMN IF NOT EXISTS confirmation_email_sent_at DATETIME DEFAULT NULL");
     
     // Guest information columns for View Profile feature
     $conn->query("ALTER TABLE bookings ADD COLUMN IF NOT EXISTS guest_phone VARCHAR(20) DEFAULT NULL");

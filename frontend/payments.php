@@ -134,13 +134,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         header("Location: payments?{$query_key}");
         exit;
     } elseif ($_POST['action'] === 'reject_payment') {
-        $pay_id = intval($_POST['payment_id']);
+        $pay_id       = intval($_POST['payment_id']);
+        $reject_reason = trim($_POST['reject_reason'] ?? '');
 
         $stmt = $conn->prepare("UPDATE payments SET status = 'rejected' WHERE id = ?");
         $stmt->bind_param("i", $pay_id);
         $stmt->execute();
 
-        recordPaymentAction($conn, $pay_id, 'rejected', 'Payment rejected.');
+        $reason_log = $reject_reason !== '' ? $reject_reason : 'No reason provided';
+        recordPaymentAction($conn, $pay_id, 'rejected', 'Payment rejected. Reason: ' . $reason_log);
 
         // Fetch booking details before cancelling, so we have guest info for the email
         $rej_stmt = $conn->prepare(
@@ -158,7 +160,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         $stmt->bind_param("i", $pay_id);
         $stmt->execute();
 
-        // Send emails to guest (non-fatal — failure doesn't block redirect)
+        // Send rejection email to guest with reason (non-fatal — failure doesn't block redirect)
         if ($rej_booking && !empty($rej_booking['guest_email'])) {
             $rej_ref = 'REF-' . str_pad((int)$rej_booking['id'], 3, '0', STR_PAD_LEFT);
             sendPaymentRejectedEmail(
@@ -167,15 +169,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 $rej_ref,
                 $rej_booking['accommodation_name'],
                 $rej_booking['check_in'],
-                $rej_booking['check_out']
-            );
-            sendBookingCancellationEmail(
-                $rej_booking['guest_email'],
-                $rej_booking['guest_name'],
-                $rej_ref,
-                $rej_booking['accommodation_name'],
-                $rej_booking['check_in'],
-                $rej_booking['check_out']
+                $rej_booking['check_out'],
+                $reject_reason
             );
         }
 
@@ -509,19 +504,17 @@ if ($bk_res) {
                                             <input type='hidden' name='action' value='verify_payment'>
                                             <input type='hidden' name='payment_id' value='{$pay_id}'>
                                             <select name='payment_method' style='padding:6px; font-size:12px; border:1px solid #ccc; border-radius:4px; background:white;'>
-                                                <option value='Front Desk Cash' ".($method=='Front Desk Cash'?'selected':'').">Cash</option>
-                                                <option value='Front Desk Card' ".($method=='Front Desk Card'?'selected':'').">POS Card</option>
-                                                <option value='GCash QR' ".($method=='GCash' || $method=='GCash QR'?'selected':'').">GCash</option>
-                                                <option value='Bank Deposit' ".($method=='Bank Deposit'?'selected':'').">Bank Deposit</option>
-                                            </select>
+                                                 <option value='Front Desk Cash' ".($method=='Front Desk Cash'?'selected':'').">Cash</option>
+                                                 <option value='PayMongo (Card)' ".(stripos($method, 'Card')!==false || stripos($method, 'Visa')!==false?'selected':'').">PayMongo (Visa / Card)</option>
+                                                 <option value='PayMongo (GCash)' ".(stripos($method, 'PayMongo')!==false && stripos($method, 'GCash')!==false?'selected':'').">PayMongo (GCash)</option>
+                                                 <option value='PayMongo (Maya)' ".(stripos($method, 'Maya')!==false?'selected':'').">PayMongo (Maya)</option>
+                                                 <option value='GCash QR' ".($method=='GCash' || $method=='GCash QR'?'selected':'').">GCash (Manual QR)</option>
+                                                 <option value='Bank Deposit' ".($method=='Bank Deposit'?'selected':'').">Bank Deposit</option>
+                                                 <option value='Front Desk Card' ".($method=='Front Desk Card'?'selected':'').">POS Card</option>
+                                             </select>
                                             <button type='submit' class='btn-pay' style='padding:6px 12px; font-size:12px;'>Verify</button>
                                         </form>
-                                        <form method='POST' action='payments' style='margin:0;'>
-                                            <input type='hidden' name='csrf_token' value='{$csrf}'>
-                                            <input type='hidden' name='action' value='reject_payment'>
-                                            <input type='hidden' name='payment_id' value='{$pay_id}'>
-                                            <button type='button' class='btn-receipt' style='padding:6px 12px; font-size:12px; color:#d32f2f; border-color:#d32f2f;' onclick='showConfirm({ title: \"Reject Payment\", message: \"Reject this payment and cancel the booking? This cannot be undone.\", icon: \"❌\", iconBg: \"#FEE2E2\", confirmText: \"Reject\", onConfirm: () => this.closest(\"form\").submit() })'>Reject</button>
-                                        </form>
+                                        <button type='button' class='btn-receipt' style='padding:6px 12px; font-size:12px; color:#d32f2f; border-color:#d32f2f;' onclick='openRejectModal({$pay_id}, \"{$name}\", \"INV-100{$pay_id}\")'>Reject</button>
                                     </div>";
 
                                 } elseif ($pay_status_display === 'verified' || $pay_status_display === 'paid') {
@@ -667,6 +660,47 @@ if ($bk_res) {
                 <div style="display:flex; gap:10px;">
                     <button type="button" onclick="closeRefundModal()" class="btn-receipt" style="flex:1; padding:10px;">Cancel</button>
                     <button type="button" onclick="submitRefund()" style="flex:1; padding:10px; background:#6A1B9A; color:#fff; border:none; border-radius:8px; font-size:14px; font-weight:700; cursor:pointer;">Confirm Refund</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Reject Payment Modal -->
+    <div class="gcash-overlay" id="rejectOverlay">
+        <div class="gcash-modal" style="max-width:440px; text-align:left;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                <h3 style="font-size:17px; font-weight:700; margin:0; color:#C62828;">❌ Reject Payment</h3>
+                <button type="button" onclick="closeRejectModal()" style="background:none; border:none; font-size:22px; color:#888; cursor:pointer;">&times;</button>
+            </div>
+            <div id="rejectModalInfo" style="background:#FFEBEE; border-radius:8px; padding:12px 14px; margin-bottom:16px; font-size:14px; color:#B71C1C;"></div>
+            <form method="POST" action="payments" id="rejectForm">
+                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(get_csrf_token(), ENT_QUOTES, 'UTF-8'); ?>">
+                <input type="hidden" name="action" value="reject_payment">
+                <input type="hidden" name="payment_id" id="rejectPaymentId">
+                <div style="margin-bottom:14px;">
+                    <label style="display:block; font-size:12px; font-weight:700; color:#374151; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.5px;">Reason for Rejection <span style="color:#d32f2f;">*</span></label>
+                    <select name="reject_reason" id="rejectReasonSelect" style="width:100%; padding:10px 12px; border:1.5px solid #D1D5DB; border-radius:8px; font-size:14px; font-family:inherit; color:#374151; background:#fff;" onchange="toggleRejectCustomReason(this.value)">
+                        <option value="">— Select a reason —</option>
+                        <option value="Invalid or unclear proof of payment">Invalid or unclear proof of payment</option>
+                        <option value="Payment amount does not match the booking total">Payment amount does not match the booking total</option>
+                        <option value="Duplicate payment submission">Duplicate payment submission</option>
+                        <option value="Expired payment / payment deadline passed">Expired payment / payment deadline passed</option>
+                        <option value="Fraudulent or suspicious transaction">Fraudulent or suspicious transaction</option>
+                        <option value="Wrong payment account / reference number">Wrong payment account / reference number</option>
+                        <option value="Booking no longer available">Booking no longer available</option>
+                        <option value="Other">Other (specify below)</option>
+                    </select>
+                </div>
+                <div id="rejectCustomReasonWrap" style="display:none; margin-bottom:14px;">
+                    <label style="display:block; font-size:12px; font-weight:700; color:#374151; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.5px;">Custom Reason</label>
+                    <input type="text" id="rejectCustomReasonInput" placeholder="Describe the reason..." style="width:100%; padding:10px 12px; border:1.5px solid #D1D5DB; border-radius:8px; font-size:14px; font-family:inherit; box-sizing:border-box;">
+                </div>
+                <div style="background:#FFF3CD; border-radius:8px; padding:10px 14px; margin-bottom:18px; font-size:13px; color:#856404;">
+                    ⚠️ The guest will receive an email notification with the rejection reason. This will <strong>cancel the booking</strong> and cannot be undone.
+                </div>
+                <div style="display:flex; gap:10px;">
+                    <button type="button" onclick="closeRejectModal()" class="btn-receipt" style="flex:1; padding:10px;">Cancel</button>
+                    <button type="button" onclick="submitReject()" style="flex:1; padding:10px; background:#C62828; color:#fff; border:none; border-radius:8px; font-size:14px; font-weight:700; cursor:pointer;">Confirm Reject &amp; Notify Guest</button>
                 </div>
             </form>
         </div>
@@ -964,6 +998,57 @@ if ($bk_res) {
         // Close modals on overlay click
         document.getElementById("refundOverlay").addEventListener("click", function(e) {
             if (e.target === this) closeRefundModal();
+        });
+
+        // ── Reject Modal ──────────────────────────────────────────────────────────
+        function openRejectModal(payId, guestName, invoiceNum) {
+            document.getElementById("rejectPaymentId").value = payId;
+            document.getElementById("rejectModalInfo").innerHTML =
+                "<strong>Guest:</strong> " + guestName + "<br>" +
+                "<strong>Invoice:</strong> " + invoiceNum;
+            document.getElementById("rejectReasonSelect").value = "";
+            document.getElementById("rejectCustomReasonWrap").style.display = "none";
+            document.getElementById("rejectCustomReasonInput").value = "";
+            document.getElementById("rejectOverlay").classList.add("active");
+        }
+
+        function closeRejectModal() {
+            document.getElementById("rejectOverlay").classList.remove("active");
+        }
+
+        function toggleRejectCustomReason(val) {
+            document.getElementById("rejectCustomReasonWrap").style.display = (val === "Other") ? "block" : "none";
+        }
+
+        function submitReject() {
+            const reasonSelect = document.getElementById("rejectReasonSelect");
+            const customInput  = document.getElementById("rejectCustomReasonInput");
+            let reason = reasonSelect.value;
+
+            if (!reason) {
+                alert("Please select a reason for the rejection.");
+                return;
+            }
+            if (reason === "Other") {
+                reason = customInput.value.trim();
+                if (!reason) {
+                    alert("Please describe the reason for the rejection.");
+                    return;
+                }
+                // Inject as hidden field so the select doesn't conflict
+                const hiddenReason = document.createElement("input");
+                hiddenReason.type  = "hidden";
+                hiddenReason.name  = "reject_reason";
+                hiddenReason.value = reason;
+                document.getElementById("rejectForm").appendChild(hiddenReason);
+                reasonSelect.name = ""; // disable original select
+            }
+
+            document.getElementById("rejectForm").submit();
+        }
+
+        document.getElementById("rejectOverlay").addEventListener("click", function(e) {
+            if (e.target === this) closeRejectModal();
         });
     </script>
 <script src="assets/js/sidebar-toggle.js"></script>
