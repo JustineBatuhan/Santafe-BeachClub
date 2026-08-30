@@ -2,12 +2,14 @@
 /**
  * notifications_api.php — AJAX endpoint for header notification popover
  */
-header('Content-Type: application/json; charset=utf-8');
+$action = $_REQUEST['action'] ?? 'get_recent';
+
+if ($action !== 'stream') {
+    header('Content-Type: application/json; charset=utf-8');
+}
 
 require_once __DIR__ . '/../helpers/auth_check.php';
 require_once __DIR__ . '/../config/db.php';
-
-$action = $_REQUEST['action'] ?? 'get_recent';
 
 if ($action === 'get_recent') {
     $unread_count = (int)($conn->query("SELECT COUNT(*) as c FROM notifications WHERE is_read = 0")->fetch_assoc()['c'] ?? 0);

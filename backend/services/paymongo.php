@@ -30,6 +30,17 @@ class PayMongoService
         return base64_decode('cGtfbGl2ZV94RDF5Nmt5MUY1V0NRTW1acTFZanNHQkc=');
     }
 
+    public static function getWebhookSecretKey(): string
+    {
+        if (getenv('PAYMONGO_WEBHOOK_SECRET')) {
+            return getenv('PAYMONGO_WEBHOOK_SECRET');
+        }
+        if (defined('PAYMONGO_WEBHOOK_SECRET')) {
+            return PAYMONGO_WEBHOOK_SECRET;
+        }
+        return 'whsk_dtWu2aG5aQ2t3htE6hnkE1Jd';
+    }
+
     /**
      * Create a PayMongo Checkout Session
      * 
