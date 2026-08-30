@@ -52,6 +52,25 @@ $error = '';
 $success = false;
 $booking_id = 0;
 
+// Handle cancellation from PayMongo checkout screen
+if (isset($_GET['cancelled']) && $_GET['cancelled'] == 1) {
+    if (!empty($_GET['cancel_bk_id'])) {
+        $cbId = (int)$_GET['cancel_bk_id'];
+        // Only remove if it's still unverified / Pending Payment
+        $bkCheck = $conn->query("SELECT status FROM bookings WHERE id = $cbId LIMIT 1");
+        if ($bkCheck && $bRow = $bkCheck->fetch_assoc()) {
+            if ($bRow['status'] === 'Pending Payment') {
+                $conn->query("DELETE FROM payments WHERE booking_id = $cbId AND status = 'pending'");
+                $conn->query("DELETE FROM bookings WHERE id = $cbId AND status = 'Pending Payment'");
+                $qr_f = __DIR__ . '/assets/qrcodes/qr_booking_' . $cbId . '.png';
+                if (file_exists($qr_f)) { @unlink($qr_f); }
+            }
+        }
+    }
+    $error = 'Payment was cancelled or not completed. Please try again or select another payment method.';
+    $step = 3;
+}
+
 // Restore success state on GET redirect to prevent form resubmission and double notifications
 if (isset($_GET['success']) && $_GET['success'] == 1 && isset($_SESSION['booking_success'])) {
     $success = true;
@@ -375,7 +394,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         // If PayMongo Online Checkout is selected, create session and redirect
                         if ($payment_method === 'PayMongo Online') {
                             $successUrl = rtrim($base_url, '/') . '/payment_success.php?booking_id=' . $booking_id . '&session_id={CHECKOUT_SESSION_ID}';
-                            $cancelPaymentUrl = rtrim($base_url, '/') . '/book.php?step=3&cancelled=1';
+                            $cancelPaymentUrl = rtrim($base_url, '/') . '/book.php?step=3&cancelled=1&cancel_bk_id=' . $booking_id;
                             $desc = '50% Booking Deposit for ' . $db_acc_name . ' (' . $booking_ref . ')';
 
                             $paymongoRes = PayMongoService::createCheckoutSession(
