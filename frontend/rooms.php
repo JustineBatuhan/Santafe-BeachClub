@@ -1249,7 +1249,7 @@ function updateSummary() {
             var selectedOpt = sel.options[sel.selectedIndex];
             var roomNum = selectedOpt ? (selectedOpt.dataset.roomNumber || '') : '';
             selectedRooms[key] = {
-                label:    sel.dataset.label + (roomNum ? ' Â· Room ' + roomNum : ''),
+                label:    sel.dataset.label + (roomNum ? ' &middot; Room ' + roomNum : ''),
                 price:    parseFloat(sel.dataset.price),
                 extraPrice: parseFloat(sel.dataset.extraPrice || '0'),
                 nights:   parseInt(sel.dataset.nights),
@@ -1938,4 +1938,5 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 </body>
 </html>
+
 
