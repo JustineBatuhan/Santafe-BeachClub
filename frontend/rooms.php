@@ -1076,7 +1076,7 @@ $SF_BASE_URL = $_sf_scheme . "://" . $_sf_host . $_sf_dir;
 
             <div class="bs-total-row">
                 <span class="bs-total-label">Total</span>
-                <span class="bs-total-amount" id="bs-total">â‚± 0.00</span>
+                <span class="bs-total-amount" id="bs-total">&#8369; 0.00</span>
             </div>
             <div class="bs-tax-note">Price includes all taxes and fees</div>
 
@@ -1089,7 +1089,7 @@ $SF_BASE_URL = $_sf_scheme . "://" . $_sf_host . $_sf_dir;
     <div class="mobile-book-bar" id="mobile-book-bar">
         <div class="mobile-book-bar-info">
             <div class="mobile-book-bar-count" id="mobile-bar-count">1 room selected</div>
-            <div class="mobile-book-bar-total" id="mobile-bar-total">â‚± 0.00</div>
+            <div class="mobile-book-bar-total" id="mobile-bar-total">&#8369; 0.00</div>
         </div>
         <button class="mobile-book-bar-btn" onclick="proceedToBook()">Book Now â†’</button>
     </div>
@@ -1137,7 +1137,7 @@ $SF_BASE_URL = $_sf_scheme . "://" . $_sf_host . $_sf_dir;
                 <div class="avail-modal-header-info">
                     <span class="avail-modal-kicker">Availability Calendar</span>
                     <h3 class="avail-modal-title" id="avail-modal-title">Standard Room</h3>
-                    <div class="avail-modal-price" id="avail-modal-price">From â‚± 2,900.00 / night</div>
+                    <div class="avail-modal-price" id="avail-modal-price">From &#8369; 2,900.00 / night</div>
                 </div>
                 <div class="avail-modal-month-nav">
                     <button type="button" class="btn-cal-month" onclick="changeCalMonth(-1)">
@@ -1286,7 +1286,7 @@ function renderSummary() {
     if (keys.length === 0) {
         if (placeholder) placeholder.style.display  = 'block';
         if (selectedDiv) selectedDiv.style.display  = 'none';
-        if (totalEl)     totalEl.textContent        = 'â‚± 0.00';
+        if (totalEl)     totalEl.innerHTML        = '&#8369; 0.00';
         if (bookBtn)     bookBtn.disabled           = true;
         if (clearLink)   clearLink.style.visibility = 'hidden';
         // Hide mobile bar
@@ -1315,7 +1315,7 @@ function renderSummary() {
         el.className = 'bs-room-line';
         el.innerHTML =
             '<span class="bs-room-name">' + r.qty + 'x ' + r.label + '</span>' +
-            '<span class="bs-room-subtotal">â‚± ' + roomSubtotal.toLocaleString('en-PH', {minimumFractionDigits:2, maximumFractionDigits:2}) + '</span>';
+            '<span class="bs-room-subtotal">&#8369; ' + roomSubtotal.toLocaleString('en-PH', {minimumFractionDigits:2, maximumFractionDigits:2}) + '</span>';
         selectedDiv.appendChild(el);
 
         if (extraSubtotal > 0) {
@@ -1323,7 +1323,7 @@ function renderSummary() {
             extraEl.className = 'bs-room-line bs-room-line--extra';
             extraEl.innerHTML =
                 '<span class="bs-room-name">Extra adults (' + totalAdults + ')</span>' +
-                '<span class="bs-room-subtotal">â‚± ' + extraSubtotal.toLocaleString('en-PH', {minimumFractionDigits:2, maximumFractionDigits:2}) + '</span>';
+                '<span class="bs-room-subtotal">&#8369; ' + extraSubtotal.toLocaleString('en-PH', {minimumFractionDigits:2, maximumFractionDigits:2}) + '</span>';
             selectedDiv.appendChild(extraEl);
         }
         if (totalChildren > 0) {
@@ -1336,7 +1336,7 @@ function renderSummary() {
         }
     });
 
-    totalEl.textContent = 'â‚± ' + grandTotal.toLocaleString('en-PH', {minimumFractionDigits:2, maximumFractionDigits:2});
+    totalEl.innerHTML = '&#8369; ' + grandTotal.toLocaleString('en-PH', {minimumFractionDigits:2, maximumFractionDigits:2});
     bookBtn.disabled = false;
 
     // Mobile bottom bar
@@ -1347,7 +1347,7 @@ function renderSummary() {
         var totalRooms = keys.reduce(function(sum, k) { return sum + selectedRooms[k].qty; }, 0);
         mobileBar.classList.add('mobile-book-bar--active');
         mobileCount.textContent = totalRooms + ' room' + (totalRooms > 1 ? 's' : '') + ' selected';
-        mobileTotal.textContent = 'â‚± ' + grandTotal.toLocaleString('en-PH', {minimumFractionDigits:2, maximumFractionDigits:2});
+        mobileTotal.innerHTML = '&#8369; ' + grandTotal.toLocaleString('en-PH', {minimumFractionDigits:2, maximumFractionDigits:2});
     }
 }
 
@@ -1519,7 +1519,7 @@ function updateExtraPersonsSummary(type) {
     // Update Total
     if (totalEl) {
         totalEl.textContent = extraCharge > 0
-            ? ('â‚± ' + extraCharge.toLocaleString('en-PH', {minimumFractionDigits:2, maximumFractionDigits:2}))
+            ? ('&#8369; ' + extraCharge.toLocaleString('en-PH', {minimumFractionDigits:2, maximumFractionDigits:2}))
             : (totalPersons > 0 ? 'Free / Included' : '-');
     }
 
@@ -1755,7 +1755,7 @@ function renderDateStrip(type) {
             (isCurrentCheckin ? ' date-strip-item--active' : '');
 
         var html = '<span class="ds-date">' + dateLabel + '</span>' +
-                   '<span class="ds-price">â‚± ' + price.toLocaleString('en-PH', {minimumFractionDigits:2, maximumFractionDigits:2}) + '</span>';
+                   '<span class="ds-price">&#8369; ' + price.toLocaleString('en-PH', {minimumFractionDigits:2, maximumFractionDigits:2}) + '</span>';
 
         if (!avail.available) {
             html += '<span class="ds-badge-sold">' + avail.reason + '</span>';
@@ -1884,7 +1884,7 @@ function renderCalendarDays() {
                 cell.classList.add('cal-day-cell--avail');
                 cell.innerHTML = 
                     '<span class="cal-day-num">' + day + '</span>' +
-                    '<span class="cal-day-price">â‚± ' + Math.round(currentCalPrice).toLocaleString('en-PH') + '</span>' +
+                    '<span class="cal-day-price">&#8369; ' + Math.round(currentCalPrice).toLocaleString('en-PH') + '</span>' +
                     '<span class="cal-day-tag cal-day-tag--avail">Avail</span>';
 
                 (function(targetDate) {
@@ -1904,7 +1904,7 @@ function renderCalendarDays() {
                 }
                 cell.innerHTML = 
                     '<span class="cal-day-num">' + day + '</span>' +
-                    '<span class="cal-day-price" style="color:#A39B94;">â‚± ' + Math.round(currentCalPrice).toLocaleString('en-PH') + '</span>' +
+                    '<span class="cal-day-price" style="color:#A39B94;">&#8369; ' + Math.round(currentCalPrice).toLocaleString('en-PH') + '</span>' +
                     '<span class="cal-day-tag cal-day-tag--sold">' + avail.reason + '</span>' +
                     soldRange;
             }
@@ -1938,3 +1938,4 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 </body>
 </html>
+
