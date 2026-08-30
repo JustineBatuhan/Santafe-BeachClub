@@ -629,19 +629,33 @@ if ($bk_res) {
 
     <!-- Refund Confirmation Modal -->
     <div class="gcash-overlay" id="refundOverlay">
-        <div class="gcash-modal" style="max-width:440px; text-align:left;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-                <h3 style="font-size:17px; font-weight:700; margin:0; color:#6A1B9A;">💜 Issue Refund</h3>
-                <button type="button" onclick="closeRefundModal()" style="background:none; border:none; font-size:22px; color:#888; cursor:pointer;">&times;</button>
+        <div class="gcash-modal" style="max-width:480px; text-align:left; border-radius:20px; box-shadow:0 20px 60px rgba(0,0,0,0.25); border:1px solid rgba(0,0,0,0.06); padding:24px 28px; position:relative; overflow:hidden;">
+            <!-- Top Accent Bar -->
+            <div style="position:absolute; top:0; left:0; right:0; height:4px; background:linear-gradient(90deg, #7C3AED, #9333EA);"></div>
+
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;">
+                <div style="display:flex; align-items:center; gap:12px;">
+                    <img src="assets/logo.png" alt="Santa Fe Beach Club" style="height:38px; width:auto; border-radius:8px; object-fit:contain;" onerror="this.src='assets/logo.jpg';">
+                    <div>
+                        <h3 style="font-size:17px; font-weight:800; margin:0; color:#1E293B; letter-spacing:-0.3px; display:flex; align-items:center; gap:6px;">
+                            <span style="display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px; border-radius:50%; background:#F3E8FF; color:#7C3AED; font-size:12px;">↩</span>
+                            Issue Refund
+                        </h3>
+                        <div style="font-size:12px; color:#64748B; margin-top:2px;">Santa Fe Beach Club • Billing Management</div>
+                    </div>
+                </div>
+                <button type="button" onclick="closeRefundModal()" style="background:#F1F5F9; border:none; width:32px; height:32px; border-radius:50%; font-size:18px; color:#64748B; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.2s;" onmouseover="this.style.background='#E2E8F0'; this.style.color='#0F172A';" onmouseout="this.style.background='#F1F5F9'; this.style.color='#64748B';">&times;</button>
             </div>
-            <div id="refundModalInfo" style="background:#F3E5F5; border-radius:8px; padding:12px 14px; margin-bottom:16px; font-size:14px; color:#4A148C;"></div>
+
+            <div id="refundModalInfo" style="background:linear-gradient(135deg, #FAF5FF, #F3E8FF); border:1px solid #E9D5FF; border-radius:12px; padding:14px 16px; margin-bottom:18px; font-size:13.5px; color:#581C87; line-height:1.6;"></div>
+
             <form method="POST" action="payments" id="refundForm">
                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(get_csrf_token(), ENT_QUOTES, 'UTF-8'); ?>">
                 <input type="hidden" name="action" value="refund_payment">
                 <input type="hidden" name="payment_id" id="refundPaymentId">
-                <div style="margin-bottom:14px;">
-                    <label style="display:block; font-size:12px; font-weight:700; color:#374151; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.5px;">Reason for Refund <span style="color:#d32f2f;">*</span></label>
-                    <select name="refund_reason" id="refundReasonSelect" style="width:100%; padding:10px 12px; border:1.5px solid #D1D5DB; border-radius:8px; font-size:14px; font-family:inherit; color:#374151; background:#fff;" onchange="toggleCustomReason(this.value)">
+                <div style="margin-bottom:16px;">
+                    <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:7px; text-transform:uppercase; letter-spacing:0.6px;">Reason for Refund <span style="color:#DC2626;">*</span></label>
+                    <select name="refund_reason" id="refundReasonSelect" style="width:100%; padding:11px 14px; border:1.5px solid #E2E8F0; border-radius:10px; font-size:14px; font-family:inherit; color:#1E293B; background:#F8FAFC; cursor:pointer;" onchange="toggleCustomReason(this.value)">
                         <option value="">— Select a reason —</option>
                         <option value="Guest requested cancellation">Guest requested cancellation</option>
                         <option value="Booking error / duplicate">Booking error / duplicate</option>
@@ -650,16 +664,17 @@ if ($bk_res) {
                         <option value="Other">Other (specify below)</option>
                     </select>
                 </div>
-                <div id="customReasonWrap" style="display:none; margin-bottom:14px;">
-                    <label style="display:block; font-size:12px; font-weight:700; color:#374151; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.5px;">Custom Reason</label>
-                    <input type="text" id="customReasonInput" placeholder="Describe the reason..." style="width:100%; padding:10px 12px; border:1.5px solid #D1D5DB; border-radius:8px; font-size:14px; font-family:inherit; box-sizing:border-box;">
+                <div id="customReasonWrap" style="display:none; margin-bottom:16px;">
+                    <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:7px; text-transform:uppercase; letter-spacing:0.6px;">Custom Reason</label>
+                    <input type="text" id="customReasonInput" placeholder="Describe the reason..." style="width:100%; padding:11px 14px; border:1.5px solid #E2E8F0; border-radius:10px; font-size:14px; font-family:inherit; box-sizing:border-box; background:#fff;">
                 </div>
-                <div style="background:#FFF3E0; border-radius:8px; padding:10px 14px; margin-bottom:18px; font-size:13px; color:#E65100;">
-                    ⚠️ This will mark the payment as <strong>Refunded</strong> and cancel the associated booking. This action cannot be undone.
+                <div style="background:#FFF7ED; border:1px solid #FED7AA; border-radius:12px; padding:12px 14px; margin-bottom:20px; font-size:12.5px; color:#9A3412; display:flex; gap:8px; align-items:flex-start;">
+                    <span style="font-size:16px; line-height:1;">⚠️</span>
+                    <div>This will mark the payment as <strong>Refunded</strong> and cancel the associated booking. This action cannot be undone.</div>
                 </div>
-                <div style="display:flex; gap:10px;">
-                    <button type="button" onclick="closeRefundModal()" class="btn-receipt" style="flex:1; padding:10px;">Cancel</button>
-                    <button type="button" onclick="submitRefund()" style="flex:1; padding:10px; background:#6A1B9A; color:#fff; border:none; border-radius:8px; font-size:14px; font-weight:700; cursor:pointer;">Confirm Refund</button>
+                <div style="display:flex; gap:12px;">
+                    <button type="button" onclick="closeRefundModal()" style="flex:1; padding:12px; background:#F1F5F9; color:#475569; border:none; border-radius:10px; font-size:14px; font-weight:600; cursor:pointer; transition:all 0.2s;" onmouseover="this.style.background='#E2E8F0'; this.style.color='#0F172A';" onmouseout="this.style.background='#F1F5F9'; this.style.color='#475569';">Cancel</button>
+                    <button type="button" onclick="submitRefund()" style="flex:1.4; padding:12px; background:linear-gradient(135deg, #7C3AED, #6D28D9); color:#fff; border:none; border-radius:10px; font-size:14px; font-weight:700; cursor:pointer; box-shadow:0 4px 14px rgba(124,58,237,0.35); transition:all 0.15s;" onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 6px 18px rgba(124,58,237,0.45)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 14px rgba(124,58,237,0.35)';">Confirm Refund</button>
                 </div>
             </form>
         </div>
@@ -667,40 +682,57 @@ if ($bk_res) {
 
     <!-- Reject Payment Modal -->
     <div class="gcash-overlay" id="rejectOverlay">
-        <div class="gcash-modal" style="max-width:440px; text-align:left;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-                <h3 style="font-size:17px; font-weight:700; margin:0; color:#C62828;">❌ Reject Payment</h3>
-                <button type="button" onclick="closeRejectModal()" style="background:none; border:none; font-size:22px; color:#888; cursor:pointer;">&times;</button>
+        <div class="gcash-modal" style="max-width:480px; text-align:left; border-radius:20px; box-shadow:0 20px 60px rgba(0,0,0,0.25); border:1px solid rgba(0,0,0,0.06); padding:24px 28px; position:relative; overflow:hidden;">
+            <!-- Top Accent Bar -->
+            <div style="position:absolute; top:0; left:0; right:0; height:4px; background:linear-gradient(90deg, #DC2626, #EF4444);"></div>
+            
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;">
+                <div style="display:flex; align-items:center; gap:12px;">
+                    <img src="assets/logo.png" alt="Santa Fe Beach Club" style="height:38px; width:auto; border-radius:8px; object-fit:contain;" onerror="this.src='assets/logo.jpg';">
+                    <div>
+                        <h3 style="font-size:17px; font-weight:800; margin:0; color:#1E293B; letter-spacing:-0.3px; display:flex; align-items:center; gap:6px;">
+                            <span style="display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px; border-radius:50%; background:#FEE2E2; color:#DC2626; font-size:12px;">✕</span>
+                            Reject Payment
+                        </h3>
+                        <div style="font-size:12px; color:#64748B; margin-top:2px;">Santa Fe Beach Club • Payment Desk</div>
+                    </div>
+                </div>
+                <button type="button" onclick="closeRejectModal()" style="background:#F1F5F9; border:none; width:32px; height:32px; border-radius:50%; font-size:18px; color:#64748B; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.2s;" onmouseover="this.style.background='#E2E8F0'; this.style.color='#0F172A';" onmouseout="this.style.background='#F1F5F9'; this.style.color='#64748B';">&times;</button>
             </div>
-            <div id="rejectModalInfo" style="background:#FFEBEE; border-radius:8px; padding:12px 14px; margin-bottom:16px; font-size:14px; color:#B71C1C;"></div>
+
+            <div id="rejectModalInfo" style="background:linear-gradient(135deg, #FEF2F2, #FFF5F5); border:1px solid #FECACA; border-radius:12px; padding:14px 16px; margin-bottom:18px; font-size:13.5px; color:#991B1B; line-height:1.6;"></div>
+
             <form method="POST" action="payments" id="rejectForm">
                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(get_csrf_token(), ENT_QUOTES, 'UTF-8'); ?>">
                 <input type="hidden" name="action" value="reject_payment">
                 <input type="hidden" name="payment_id" id="rejectPaymentId">
-                <div style="margin-bottom:14px;">
-                    <label style="display:block; font-size:12px; font-weight:700; color:#374151; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.5px;">Reason for Rejection <span style="color:#d32f2f;">*</span></label>
-                    <select name="reject_reason" id="rejectReasonSelect" style="width:100%; padding:10px 12px; border:1.5px solid #D1D5DB; border-radius:8px; font-size:14px; font-family:inherit; color:#374151; background:#fff;" onchange="toggleRejectCustomReason(this.value)">
-                        <option value="">— Select a reason —</option>
-                        <option value="Invalid or unclear proof of payment">Invalid or unclear proof of payment</option>
-                        <option value="Payment amount does not match the booking total">Payment amount does not match the booking total</option>
-                        <option value="Duplicate payment submission">Duplicate payment submission</option>
-                        <option value="Expired payment / payment deadline passed">Expired payment / payment deadline passed</option>
-                        <option value="Fraudulent or suspicious transaction">Fraudulent or suspicious transaction</option>
-                        <option value="Wrong payment account / reference number">Wrong payment account / reference number</option>
-                        <option value="Booking no longer available">Booking no longer available</option>
-                        <option value="Other">Other (specify below)</option>
-                    </select>
+                <div style="margin-bottom:16px;">
+                    <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:7px; text-transform:uppercase; letter-spacing:0.6px;">Reason for Rejection <span style="color:#DC2626;">*</span></label>
+                    <div style="position:relative;">
+                        <select name="reject_reason" id="rejectReasonSelect" style="width:100%; padding:11px 14px; border:1.5px solid #E2E8F0; border-radius:10px; font-size:14px; font-family:inherit; color:#1E293B; background:#F8FAFC; cursor:pointer; transition:border-color 0.2s, box-shadow 0.2s;" onfocus="this.style.borderColor='#DC2626'; this.style.background='#fff';" onblur="this.style.borderColor='#E2E8F0'; this.style.background='#F8FAFC';" onchange="toggleRejectCustomReason(this.value)">
+                            <option value="">— Select a reason —</option>
+                            <option value="Invalid or unclear proof of payment">Invalid or unclear proof of payment</option>
+                            <option value="Payment amount does not match the booking total">Payment amount does not match the booking total</option>
+                            <option value="Duplicate payment submission">Duplicate payment submission</option>
+                            <option value="Expired payment / payment deadline passed">Expired payment / payment deadline passed</option>
+                            <option value="Fraudulent or suspicious transaction">Fraudulent or suspicious transaction</option>
+                            <option value="Wrong payment account / reference number">Wrong payment account / reference number</option>
+                            <option value="Booking no longer available">Booking no longer available</option>
+                            <option value="Other">Other (specify below)</option>
+                        </select>
+                    </div>
                 </div>
-                <div id="rejectCustomReasonWrap" style="display:none; margin-bottom:14px;">
-                    <label style="display:block; font-size:12px; font-weight:700; color:#374151; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.5px;">Custom Reason</label>
-                    <input type="text" id="rejectCustomReasonInput" placeholder="Describe the reason..." style="width:100%; padding:10px 12px; border:1.5px solid #D1D5DB; border-radius:8px; font-size:14px; font-family:inherit; box-sizing:border-box;">
+                <div id="rejectCustomReasonWrap" style="display:none; margin-bottom:16px;">
+                    <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:7px; text-transform:uppercase; letter-spacing:0.6px;">Custom Reason</label>
+                    <input type="text" id="rejectCustomReasonInput" placeholder="Describe the reason..." style="width:100%; padding:11px 14px; border:1.5px solid #E2E8F0; border-radius:10px; font-size:14px; font-family:inherit; box-sizing:border-box; background:#fff;">
                 </div>
-                <div style="background:#FFF3CD; border-radius:8px; padding:10px 14px; margin-bottom:18px; font-size:13px; color:#856404;">
-                    ⚠️ The guest will receive an email notification with the rejection reason. This will <strong>cancel the booking</strong> and cannot be undone.
+                <div style="background:#FFFBEB; border:1px solid #FDE68A; border-radius:12px; padding:12px 14px; margin-bottom:20px; font-size:12.5px; color:#92400E; display:flex; gap:8px; align-items:flex-start;">
+                    <span style="font-size:16px; line-height:1;">⚠️</span>
+                    <div>The guest will receive an email notification with the rejection reason. This will <strong>cancel the booking</strong> and cannot be undone.</div>
                 </div>
-                <div style="display:flex; gap:10px;">
-                    <button type="button" onclick="closeRejectModal()" class="btn-receipt" style="flex:1; padding:10px;">Cancel</button>
-                    <button type="button" onclick="submitReject()" style="flex:1; padding:10px; background:#C62828; color:#fff; border:none; border-radius:8px; font-size:14px; font-weight:700; cursor:pointer;">Confirm Reject &amp; Notify Guest</button>
+                <div style="display:flex; gap:12px;">
+                    <button type="button" onclick="closeRejectModal()" style="flex:1; padding:12px; background:#F1F5F9; color:#475569; border:none; border-radius:10px; font-size:14px; font-weight:600; cursor:pointer; transition:all 0.2s;" onmouseover="this.style.background='#E2E8F0'; this.style.color='#0F172A';" onmouseout="this.style.background='#F1F5F9'; this.style.color='#475569';">Cancel</button>
+                    <button type="button" onclick="submitReject()" style="flex:1.4; padding:12px; background:linear-gradient(135deg, #DC2626, #B91C1C); color:#fff; border:none; border-radius:10px; font-size:14px; font-weight:700; cursor:pointer; box-shadow:0 4px 14px rgba(220,38,38,0.35); transition:all 0.15s;" onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 6px 18px rgba(220,38,38,0.45)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 14px rgba(220,38,38,0.35)';">Confirm Reject &amp; Notify Guest</button>
                 </div>
             </form>
         </div>
