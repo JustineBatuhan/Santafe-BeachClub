@@ -405,6 +405,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 $pmErr = $paymongoRes['error'] ?? 'PayMongo service error';
                                 $error = 'Online Payment Error: ' . $pmErr;
                                 $step = 3;
+
+                                // Rollback: delete the un-initiated booking and payment so it does not clutter the admin table
+                                $conn->query("DELETE FROM payments WHERE booking_id = " . (int)$booking_id);
+                                $conn->query("DELETE FROM bookings WHERE booking_id = " . (int)$booking_id);
+                                if (!empty($qr_file) && file_exists($qr_file)) {
+                                    @unlink($qr_file);
+                                }
                             }
                         }
 
