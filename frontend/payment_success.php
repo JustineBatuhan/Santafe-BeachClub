@@ -55,6 +55,16 @@ if ($bookingId > 0) {
                     $hStmt->execute();
                     $hStmt->close();
                 }
+
+                // Add notification to admin dashboard
+                $bRef = 'REF-' . str_pad($bookingId, 3, '0', STR_PAD_LEFT);
+                $nTitle = 'Online Payment Verified';
+                $nMsg = 'Payment of ₱' . number_format($sessionInfo['session']['attributes']['line_items'][0]['amount'] / 100 ?? 0, 2) . ' for ' . $bRef . ' was auto-verified via PayMongo (' . $paymentMethodUsed . ').';
+                $nType = 'success';
+                $nStmt = $conn->prepare("INSERT INTO notifications (title, message, type, booking_id) VALUES (?, ?, ?, ?)");
+                $nStmt->bind_param("sssi", $nTitle, $nMsg, $nType, $bookingId);
+                $nStmt->execute();
+                $nStmt->close();
             }
             $histCheck->close();
         }
