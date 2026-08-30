@@ -3,7 +3,7 @@ require_once __DIR__ . '/../helpers/error_handler.php';
 require_once __DIR__ . '/../helpers/business_time_helper.php';
 require_once __DIR__ . '/../helpers/password_helper.php';
 
-// MySQL database connection configuration (Supports Local XAMPP & Live TiDB Cloud)
+// MySQL database connection configuration (Supports Local XAMPP & Live InfinityFree MySQL)
 $is_local_env = in_array($_SERVER['HTTP_HOST'] ?? '127.0.0.1', ['localhost', '127.0.0.1', '::1']);
 
 // Suppress strict reporting during initial connection attempts
@@ -19,7 +19,17 @@ if ($is_local_env) {
     }
 }
 
-// 2. Connect to Live TiDB Cloud if remote or local is offline
+// 2. Connect to Live InfinityFree MySQL Database if hosted online or local is offline
+if (!$conn || $conn->connect_error) {
+    $inf_host = 'sql111.infinityfree.com';
+    $inf_user = 'if0_42717273';
+    $inf_pass = 'ndAuPvlRiQVG';
+    $dbname   = 'if0_42717273_santafebeachclub_db';
+
+    $conn = @new mysqli($inf_host, $inf_user, $inf_pass, $dbname, 3306);
+}
+
+// 3. Fallback to TiDB Cloud if needed
 if (!$conn || $conn->connect_error) {
     $tidb_host = 'gateway01.ap-southeast-1.prod.aws.tidbcloud.com';
     $tidb_port = 4000;
@@ -49,7 +59,7 @@ try {
     // Verify tables exist, else run the schema
     $tableCheck = $conn->query("SHOW TABLES LIKE 'rooms'");
     if ($tableCheck->num_rows == 0) {
-        $schema = file_get_contents(__DIR__ . '/database.sql');
+        $schema = file_get_contents(__DIR__ . '/../database/database.sql');
         $queries = explode(';', $schema);
         foreach ($queries as $q) {
             $q = trim($q);
