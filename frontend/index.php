@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require_once __DIR__ . '/../backend/config/db.php';
 
 // Fetch custom room type primary photos
@@ -325,7 +325,7 @@ if ($photo_q) {
             <div class="stays-header">
                 <p class="section-kicker stays-kicker">Signature Stays</p>
                 <h2 class="stays-heading">Choose Your Escape</h2>
-                <p class="stays-subtitle">From cozy standard rooms to private beach villas — every stay is crafted for comfort and unforgettable memories.</p>
+                <p class="stays-subtitle">From cozy standard rooms to private beach villas â€” every stay is crafted for comfort and unforgettable memories.</p>
             </div>
             <div class="stays-grid">
                 <div class="stay-card">
@@ -334,7 +334,7 @@ if ($photo_q) {
                     </div>
                     <div class="stay-card-body">
                         <h3>Standard Room</h3>
-                        <p>A cozy retreat with all essentials, air conditioning, and garden views — perfect for couples or solo travelers.</p>
+                        <p>A cozy retreat with all essentials, air conditioning, and garden views â€” perfect for couples or solo travelers.</p>
                         <div class="stay-card-footer">
                             <div class="stay-price">
                                 <span class="stay-price-from">From</span>
@@ -417,13 +417,13 @@ if ($photo_q) {
                     <h2 class="testimonials-heading" style="margin-bottom:0;">What Our Guests Say</h2>
                 </div>
                 <button type="button" class="btn btn-primary" onclick="openReviewModal()" style="padding:10px 22px; font-size:14px; font-weight:600; border-radius:30px; cursor:pointer;">
-                    ★ Leave a Review
+                    â˜… Leave a Review
                 </button>
             </div>
 
             <?php if (empty($reviews_list)): ?>
                 <div style="text-align:center; padding:48px 20px; background:rgba(255,255,255,0.7); border:1px dashed #D1D5DB; border-radius:16px; margin-top:20px;">
-                    <div style="font-size:36px; margin-bottom:12px;">🌟</div>
+                    <div style="font-size:36px; margin-bottom:12px;">ðŸŒŸ</div>
                     <h3 style="font-size:18px; color:#4B5563; margin-bottom:6px;">No Guest Reviews Yet</h3>
                     <p style="font-size:14px; color:#6B7280; max-width:440px; margin:0 auto 20px;">Be the first to share your experience staying at Santa Fe Beach Club!</p>
                     <button type="button" class="btn btn-primary" onclick="openReviewModal()" style="padding:10px 24px; font-size:14px; border-radius:30px; cursor:pointer;">
@@ -458,7 +458,6 @@ if ($photo_q) {
             <?php endif; ?>
         </div>
     </section>
-    <?php endif; ?>
 
     <!-- Gallery Strip -->
     <section class="gallery-strip" aria-label="Property photo gallery">
@@ -654,7 +653,7 @@ if ($photo_q) {
         <div style="background:#fff; width:100%; max-width:480px; border-radius:18px; padding:28px; box-shadow:0 20px 40px rgba(0,0,0,0.25); position:relative; animation:slideUp 0.3s ease;">
             <button type="button" onclick="closeReviewModal()" style="position:absolute; top:18px; right:18px; background:none; border:none; font-size:22px; color:#9CA3AF; cursor:pointer;">&times;</button>
             <div style="text-align:center; margin-bottom:20px;">
-                <div style="font-size:32px; margin-bottom:6px;">🌴</div>
+                <div style="font-size:32px; margin-bottom:6px;">ðŸŒ´</div>
                 <h3 style="font-size:20px; font-weight:700; color:#1F2937; margin:0;">Share Your Experience</h3>
                 <p style="font-size:13px; color:#6B7280; margin-top:4px;">We would love to hear how your stay at Santa Fe Beach Club was!</p>
             </div>
@@ -743,3 +742,4 @@ if ($photo_q) {
 
 </body>
 </html>
+
