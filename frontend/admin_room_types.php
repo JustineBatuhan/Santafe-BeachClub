@@ -303,6 +303,38 @@ $default_prices = [
             gap: 8px;
             flex-wrap: wrap;
         }
+        .rp-dropzone {
+            width: 100%;
+            border: 2px dashed #CBD5E1;
+            border-radius: 10px;
+            padding: 14px 12px;
+            text-align: center;
+            background: #F8FAFC;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            margin-bottom: 8px;
+        }
+        .rp-dropzone:hover, .rp-dropzone.drag-over {
+            border-color: #84563C;
+            background: #FDF8F5;
+        }
+        .rp-dropzone svg {
+            color: #84563C;
+        }
+        .rp-dropzone-text {
+            font-size: 12px;
+            font-weight: 600;
+            color: #475569;
+        }
+        .rp-dropzone-sub {
+            font-size: 10.5px;
+            color: #94A3B8;
+        }
         .rp-file-input {
             flex: 1;
             min-width: 0;
@@ -405,12 +437,21 @@ $default_prices = [
         <div class="rp-gallery-section">
             <h4>Change Primary Photo</h4>
             <p style="font-size:11.5px; color:#6B7280; margin:0 0 8px;">Recommended size: <strong>800 × 500 px</strong> (or 1200 × 750 px), Aspect ratio <strong>16:10 / 16:9</strong> landscape, JPG or WebP under 300KB.</p>
-            <form method="POST" enctype="multipart/form-data" class="rp-upload-row">
+            <form method="POST" enctype="multipart/form-data">
                 <?php echo csrf_field(); ?>
                 <input type="hidden" name="action" value="set_primary">
                 <input type="hidden" name="type_slug" value="<?php echo $slug; ?>">
-                <input type="file" name="primary_photo" accept=".jpg,.jpeg,.png,.webp,.gif,image/*" required class="rp-file-input">
-                <button type="submit" class="rp-btn-sm rp-btn-primary rp-upload-btn">Upload</button>
+                
+                <div class="rp-dropzone" onclick="this.parentElement.querySelector('.rp-file-input').click()">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                    <div class="rp-dropzone-text">Drag &amp; drop photo here</div>
+                    <div class="rp-dropzone-sub">or click to browse from computer</div>
+                </div>
+
+                <div class="rp-upload-row">
+                    <input type="file" name="primary_photo" accept=".jpg,.jpeg,.png,.webp,.gif,image/*" required class="rp-file-input">
+                    <button type="submit" class="rp-btn-sm rp-btn-primary rp-upload-btn">Upload Primary</button>
+                </div>
             </form>
         </div>
 
@@ -435,12 +476,21 @@ $default_prices = [
                     <?php endforeach; ?>
                 <?php endif; ?>
             </div>
-            <form method="POST" enctype="multipart/form-data" class="rp-upload-row">
+            <form method="POST" enctype="multipart/form-data">
                 <?php echo csrf_field(); ?>
                 <input type="hidden" name="action" value="add_gallery">
                 <input type="hidden" name="type_slug" value="<?php echo $slug; ?>">
-                <input type="file" name="gallery_photo" accept=".jpg,.jpeg,.png,.webp,.gif,image/*" required class="rp-file-input">
-                <button type="submit" class="rp-btn-sm rp-btn-secondary rp-upload-btn">Add Photo</button>
+                
+                <div class="rp-dropzone" onclick="this.parentElement.querySelector('.rp-file-input').click()">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                    <div class="rp-dropzone-text">Drag &amp; drop gallery photo here</div>
+                    <div class="rp-dropzone-sub">or click to browse</div>
+                </div>
+
+                <div class="rp-upload-row">
+                    <input type="file" name="gallery_photo" accept=".jpg,.jpeg,.png,.webp,.gif,image/*" required class="rp-file-input">
+                    <button type="submit" class="rp-btn-sm rp-btn-secondary rp-upload-btn">Add Photo</button>
+                </div>
             </form>
         </div>
 
@@ -450,5 +500,51 @@ $default_prices = [
 
 </main>
 <script src="assets/js/sidebar-toggle.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const dropzones = document.querySelectorAll('.rp-dropzone');
+    
+    dropzones.forEach(zone => {
+        const form = zone.closest('form');
+        const input = form.querySelector('.rp-file-input');
+        const textEl = zone.querySelector('.rp-dropzone-text');
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            zone.addEventListener(eventName, function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                zone.classList.add('drag-over');
+            }, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            zone.addEventListener(eventName, function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                zone.classList.remove('drag-over');
+            }, false);
+        });
+
+        zone.addEventListener('drop', function(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            if (files && files.length > 0) {
+                input.files = files;
+                if (textEl) {
+                    textEl.textContent = 'Selected: ' + files[0].name;
+                }
+                // Trigger change event for validation & feedback
+                input.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+        });
+
+        input.addEventListener('change', function() {
+            if (this.files && this.files.length > 0 && textEl) {
+                textEl.textContent = 'Selected: ' + this.files[0].name;
+            }
+        });
+    });
+});
+</script>
 </body>
 </html>
