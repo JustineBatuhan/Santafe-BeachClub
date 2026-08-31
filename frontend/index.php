@@ -1,19 +1,25 @@
 <?php
 require_once __DIR__ . '/../backend/config/db.php';
 
-// Fetch custom room type primary photos AND prices from DB
+// Fetch custom room type primary photos from room_types
 $db_photos = [];
-$db_prices = [];
-$photo_q = $conn->query("SELECT name, image_url, price_per_night FROM room_types");
+$photo_q = @$conn->query("SELECT name, image_url FROM room_types");
 if ($photo_q) {
     while ($row = $photo_q->fetch_assoc()) {
-        $key = strtolower(str_replace(' ', '_', $row['name']));
+        $key = strtolower(str_replace(' ', '_', trim($row['name'])));
         if (!empty($row['image_url'])) {
             $db_photos[$key] = $row['image_url'];
         }
-        if (!empty($row['price_per_night'])) {
-            $db_prices[$key] = (float)$row['price_per_night'];
-        }
+    }
+}
+
+// Fetch min price per room type from rooms table
+$db_prices = [];
+$price_q = @$conn->query("SELECT type, MIN(price_per_night) AS min_price FROM rooms WHERE price_per_night > 0 GROUP BY type");
+if ($price_q) {
+    while ($row = $price_q->fetch_assoc()) {
+        $key = strtolower(str_replace(' ', '_', trim($row['type'])));
+        $db_prices[$key] = (float)$row['min_price'];
     }
 }
 ?>
