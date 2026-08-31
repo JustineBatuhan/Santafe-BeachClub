@@ -671,7 +671,15 @@ $SF_BASE_URL = $_sf_scheme . "://" . $_sf_host . $_sf_dir;
                     <div class="rate-card">
                         <!-- LEFT: photo + info -->
                         <div class="rate-card-left">
-                            <div class="rate-photo" style="background: <?php echo $gradient; ?>; background-image: url('<?php echo htmlspecialchars($photo); ?>');">
+                            <div class="rate-photo btn-view-room-info"
+                                 style="background: <?php echo $gradient; ?>; background-image: url('<?php echo htmlspecialchars($photo); ?>'); cursor: pointer;"
+                                 data-room-name="<?php echo htmlspecialchars($label, ENT_QUOTES); ?>"
+                                 data-room-bed="<?php echo htmlspecialchars($bed, ENT_QUOTES); ?>"
+                                 data-room-desc="<?php echo htmlspecialchars($long_desc, ENT_QUOTES); ?>"
+                                 data-room-photos="<?php echo htmlspecialchars(json_encode($modal_photos), ENT_QUOTES); ?>"
+                                 data-room-amenities="<?php echo htmlspecialchars(json_encode($amenities), ENT_QUOTES); ?>"
+                                 onclick="openRoomModal(this)"
+                                 title="Click to view photos & amenities">
                                 <div class="rate-photo-overlay">
                                     <span class="rate-photo-badge">Signature Stay</span>
                                     <div class="rate-photo-copy">
@@ -681,7 +689,7 @@ $SF_BASE_URL = $_sf_scheme . "://" . $_sf_host . $_sf_dir;
                                 </div>
                                 <span class="rate-photo-count">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-                                    <?php echo $avail_count; ?>
+                                    <?php echo count($modal_photos); ?>
                                 </span>
                             </div>
                             <div class="rate-info">
@@ -842,7 +850,15 @@ $SF_BASE_URL = $_sf_scheme . "://" . $_sf_host . $_sf_dir;
 
                     <div class="rate-card">
                         <div class="rate-card-left">
-                            <div class="rate-photo" style="background: <?php echo $gradient; ?>; background-image: url('<?php echo htmlspecialchars($photo); ?>');">
+                            <div class="rate-photo btn-view-room-info"
+                                 style="background: <?php echo $gradient; ?>; background-image: url('<?php echo htmlspecialchars($photo); ?>'); cursor: pointer;"
+                                 data-room-name="<?php echo htmlspecialchars($label, ENT_QUOTES); ?>"
+                                 data-room-bed="<?php echo htmlspecialchars($bed, ENT_QUOTES); ?>"
+                                 data-room-desc="<?php echo htmlspecialchars($long_desc, ENT_QUOTES); ?>"
+                                 data-room-photos="<?php echo htmlspecialchars(json_encode($modal_photos), ENT_QUOTES); ?>"
+                                 data-room-amenities="<?php echo htmlspecialchars(json_encode($amenities), ENT_QUOTES); ?>"
+                                 onclick="openRoomModal(this)"
+                                 title="Click to view photos & amenities">
                                 <div class="rate-photo-overlay">
                                     <span class="rate-photo-badge">Signature Stay</span>
                                     <div class="rate-photo-copy">
@@ -852,7 +868,7 @@ $SF_BASE_URL = $_sf_scheme . "://" . $_sf_host . $_sf_dir;
                                 </div>
                                 <span class="rate-photo-count">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-                                    <?php echo $avail_count; ?>
+                                    <?php echo count($modal_photos); ?>
                                 </span>
                             </div>
                             <div class="rate-info">
