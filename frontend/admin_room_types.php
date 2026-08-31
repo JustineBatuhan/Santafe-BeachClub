@@ -485,7 +485,8 @@ $default_prices = [
                 <?php else: ?>
                     <?php foreach ($gallery as $gpath): ?>
                     <div class="rp-thumb-wrap">
-                        <img src="<?php echo htmlspecialchars($gpath); ?>" alt="Gallery">
+                        <img src="<?php echo htmlspecialchars($gpath); ?>" alt="Gallery"
+                             onclick="openAdminLightbox(this)" style="cursor:zoom-in;">
                         <form method="POST" onsubmit="return false;" data-confirm-title="Remove Photo" data-confirm-msg="Remove this gallery photo? This cannot be undone." data-confirm-icon="🗑️" data-confirm-icon-bg="#FEE2E2" style="margin:0">
                             <?php echo csrf_field(); ?>
                             <input type="hidden" name="action" value="remove_gallery">
@@ -518,6 +519,20 @@ $default_prices = [
     </div><!-- /.rp-card -->
     <?php endforeach; ?>
     </div><!-- /.rp-grid -->
+
+    <!-- ── Admin Photo Lightbox ── -->
+    <div id="admin-lightbox" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.92); align-items:center; justify-content:center;">
+        <!-- Close -->
+        <button onclick="closeAdminLightbox()" style="position:absolute; top:18px; right:18px; background:rgba(255,255,255,0.15); border:none; color:#fff; width:40px; height:40px; border-radius:50%; font-size:22px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.28)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'">&times;</button>
+        <!-- Prev -->
+        <button id="lb-prev" onclick="lightboxNav(-1)" style="position:absolute; left:18px; top:50%; transform:translateY(-50%); background:rgba(255,255,255,0.13); border:none; color:#fff; width:48px; height:48px; border-radius:50%; font-size:26px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.26)'" onmouseout="this.style.background='rgba(255,255,255,0.13)'">&#8249;</button>
+        <!-- Photo -->
+        <img id="lb-img" src="" alt="" style="max-width:min(800px, calc(100vw - 130px)); max-height:calc(100vh - 120px); border-radius:10px; object-fit:contain; display:block; box-shadow:0 20px 60px rgba(0,0,0,0.6);">
+        <!-- Next -->
+        <button id="lb-next" onclick="lightboxNav(1)" style="position:absolute; right:18px; top:50%; transform:translateY(-50%); background:rgba(255,255,255,0.13); border:none; color:#fff; width:48px; height:48px; border-radius:50%; font-size:26px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.26)'" onmouseout="this.style.background='rgba(255,255,255,0.13)'">&#8250;</button>
+        <!-- Caption -->
+        <div id="lb-caption" style="position:absolute; bottom:0; left:0; right:0; text-align:center; padding:18px; color:rgba(255,255,255,0.85); font-size:14px; letter-spacing:0.3px;"></div>
+    </div>
 
 </main>
 <script src="assets/js/sidebar-toggle.js"></script>
@@ -572,6 +587,61 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     });
+});
+
+// ── Admin Lightbox ─────────────────────────────────────
+var lbImages = [];
+var lbIndex  = 0;
+
+function openAdminLightbox(imgEl) {
+    // Collect all gallery images in the same card
+    var card = imgEl.closest('.rp-card');
+    var allImgs = Array.from(card.querySelectorAll('.rp-gallery-thumbs img, .rp-primary-img'));
+    lbImages = allImgs.map(function(i) {
+        return { src: i.src, caption: i.alt || '' };
+    });
+    // Fallback: if not inside a card, just show the clicked image
+    if (!lbImages.length) {
+        lbImages = [{ src: imgEl.src, caption: imgEl.alt || '' }];
+    }
+    lbIndex = lbImages.findIndex(function(i) { return i.src === imgEl.src; });
+    if (lbIndex < 0) lbIndex = 0;
+    renderLightbox();
+    var lb = document.getElementById('admin-lightbox');
+    lb.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    document.addEventListener('keydown', lbKeyHandler);
+}
+
+function closeAdminLightbox() {
+    document.getElementById('admin-lightbox').style.display = 'none';
+    document.body.style.overflow = '';
+    document.removeEventListener('keydown', lbKeyHandler);
+}
+
+function lightboxNav(dir) {
+    lbIndex = (lbIndex + dir + lbImages.length) % lbImages.length;
+    renderLightbox();
+}
+
+function renderLightbox() {
+    var img = lbImages[lbIndex];
+    document.getElementById('lb-img').src = img.src;
+    var total = lbImages.length;
+    document.getElementById('lb-caption').textContent = (lbIndex + 1) + ' / ' + total + (img.caption ? '  •  ' + img.caption : '');
+    document.getElementById('lb-prev').style.display = total > 1 ? 'flex' : 'none';
+    document.getElementById('lb-next').style.display = total > 1 ? 'flex' : 'none';
+}
+
+function lbKeyHandler(e) {
+    if (e.key === 'ArrowRight') lightboxNav(1);
+    if (e.key === 'ArrowLeft')  lightboxNav(-1);
+    if (e.key === 'Escape')     closeAdminLightbox();
+}
+
+// Click backdrop to close
+document.getElementById('admin-lightbox').addEventListener('click', function(e) {
+    if (e.target === this) closeAdminLightbox();
 });
 </script>
 </body>
