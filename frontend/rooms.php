@@ -749,11 +749,11 @@ $SF_BASE_URL = $_sf_scheme . "://" . $_sf_host . $_sf_dir;
                                             $unit_avail = (int)$room_unit['active_bookings'] === 0 && $room_unit['status'] === 'ready';
                                             $unit_label = 'Room ' . $room_unit['room_number'];
                                             if ($room_unit['status'] === 'maintenance') {
-                                                $unit_label .= ' â€” Under Maintenance';
+                                                $unit_label .= ' - Under Maintenance';
                                             } elseif ($room_unit['status'] === 'occupied') {
-                                                $unit_label .= ' â€” Occupied';
+                                                $unit_label .= ' - Occupied';
                                             } elseif (!$unit_avail) {
-                                                $unit_label .= ' â€” Booked';
+                                                $unit_label .= ' - Booked';
                                             }
                                         ?>
                                         <option value="<?php echo $room_unit['id']; ?>"
@@ -919,11 +919,11 @@ $SF_BASE_URL = $_sf_scheme . "://" . $_sf_host . $_sf_dir;
                                             $unit_avail = (int)$room_unit['active_bookings'] === 0 && $room_unit['status'] === 'ready';
                                             $unit_label = 'Room ' . $room_unit['room_number'];
                                             if ($room_unit['status'] === 'maintenance') {
-                                                $unit_label .= ' â€” Under Maintenance';
+                                                $unit_label .= ' - Under Maintenance';
                                             } elseif ($room_unit['status'] === 'occupied') {
-                                                $unit_label .= ' â€” Occupied';
+                                                $unit_label .= ' - Occupied';
                                             } elseif (!$unit_avail) {
-                                                $unit_label .= ' â€” Booked';
+                                                $unit_label .= ' - Booked';
                                             }
                                         ?>
                                         <option value="<?php echo $room_unit['id']; ?>"
