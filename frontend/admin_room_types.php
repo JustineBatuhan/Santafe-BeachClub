@@ -409,7 +409,7 @@ $default_prices = [
                 <?php echo csrf_field(); ?>
                 <input type="hidden" name="action" value="set_primary">
                 <input type="hidden" name="type_slug" value="<?php echo $slug; ?>">
-                <input type="file" name="primary_photo" accept="image/*" required class="rp-file-input">
+                <input type="file" name="primary_photo" accept=".jpg,.jpeg,.png,.webp,.gif,image/*" required class="rp-file-input">
                 <button type="submit" class="rp-btn-sm rp-btn-primary rp-upload-btn">Upload</button>
             </form>
         </div>
@@ -439,7 +439,7 @@ $default_prices = [
                 <?php echo csrf_field(); ?>
                 <input type="hidden" name="action" value="add_gallery">
                 <input type="hidden" name="type_slug" value="<?php echo $slug; ?>">
-                <input type="file" name="gallery_photo" accept="image/*" required class="rp-file-input">
+                <input type="file" name="gallery_photo" accept=".jpg,.jpeg,.png,.webp,.gif,image/*" required class="rp-file-input">
                 <button type="submit" class="rp-btn-sm rp-btn-secondary rp-upload-btn">Add Photo</button>
             </form>
         </div>

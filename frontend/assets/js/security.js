@@ -340,15 +340,29 @@
 
                 // 7. Type Check
                 let typeValid = false;
-                if (allowedMimes.length > 0 && allowedMimes.includes(file.type.toLowerCase())) {
+                if (allowedMimes.length > 0) {
+                    for (const m of allowedMimes) {
+                        if (m === 'image/*' && (file.type.startsWith('image/') || this.config.allowedImageExtensions.includes(extension))) {
+                            typeValid = true;
+                            break;
+                        } else if (file.type && file.type.toLowerCase() === m) {
+                            typeValid = true;
+                            break;
+                        }
+                    }
+                }
+                if (!typeValid && allowedExtensions.length > 0 && allowedExtensions.includes(extension)) {
                     typeValid = true;
                 }
-                if (allowedExtensions.length > 0 && allowedExtensions.includes(extension)) {
-                    typeValid = true;
+                if (!typeValid && allowedMimes.length === 0 && allowedExtensions.length === 0) {
+                    if (this.config.allowedImageExtensions.includes(extension) || this.config.allowedImageTypes.includes(file.type.toLowerCase())) {
+                        typeValid = true;
+                    }
                 }
 
                 if (!typeValid && (allowedMimes.length > 0 || allowedExtensions.length > 0)) {
-                    const msg = `File "${file.name}" has an invalid type. Allowed extensions: ${allowedExtensions.join(', ')}.`;
+                    const displayExts = allowedExtensions.length > 0 ? allowedExtensions.join(', ') : 'jpg, jpeg, png, webp';
+                    const msg = `File "${file.name}" has an invalid type. Allowed extensions: ${displayExts}.`;
                     this.toggleFieldError(input, false, msg);
                     this.showNotification(msg, 'error');
                     input.value = ''; // Reset input
