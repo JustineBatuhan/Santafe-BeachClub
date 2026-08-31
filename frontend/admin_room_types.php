@@ -404,6 +404,7 @@ $default_prices = [
         <!-- Upload new primary -->
         <div class="rp-gallery-section">
             <h4>Change Primary Photo</h4>
+            <p style="font-size:11.5px; color:#6B7280; margin:0 0 8px;">Recommended size: <strong>800 × 500 px</strong> (or 1200 × 750 px), Aspect ratio <strong>16:10 / 16:9</strong> landscape, JPG or WebP under 300KB.</p>
             <form method="POST" enctype="multipart/form-data" class="rp-upload-row">
                 <?php echo csrf_field(); ?>
                 <input type="hidden" name="action" value="set_primary">
