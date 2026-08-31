@@ -420,7 +420,7 @@ body.rooms-page {
 /* ── Rate Card ──────────────────────────────────────── */
 .rate-card {
     display: grid;
-    grid-template-columns: 300px 1fr;
+    grid-template-columns: 360px 1fr;
     background: var(--rooms-card);
 }
 
@@ -433,14 +433,12 @@ body.rooms-page {
 
 .rate-photo {
     width: 100%;
-    aspect-ratio: 16 / 10;
-    min-height: 190px;
-    max-height: 280px;
-    height: auto;
+    aspect-ratio: 16 / 11;
+    min-height: 230px;
     position: relative;
     flex-shrink: 0;
     background-size: cover;
-    background-position: center;
+    background-position: center bottom;
     background-repeat: no-repeat;
     overflow: hidden;
 }
@@ -449,7 +447,7 @@ body.rooms-page {
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(to top, rgba(18,12,8,0.72) 0%, transparent 55%);
+    background: linear-gradient(to top, rgba(18,12,8,0.65) 0%, rgba(18,12,8,0.15) 45%, transparent 75%);
 }
 
 .rate-photo-overlay {
