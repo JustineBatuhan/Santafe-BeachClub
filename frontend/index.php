@@ -646,7 +646,7 @@ if ($photo_q) {
         <div style="background:#fff; width:100%; max-width:480px; border-radius:18px; padding:28px; box-shadow:0 20px 40px rgba(0,0,0,0.25); position:relative; animation:slideUp 0.3s ease;">
             <button type="button" onclick="closeReviewModal()" style="position:absolute; top:18px; right:18px; background:none; border:none; font-size:22px; color:#9CA3AF; cursor:pointer;">&times;</button>
             <div style="text-align:center; margin-bottom:20px;">
-                <div style="font-size:32px; margin-bottom:6px;">ðŸŒ´</div>
+                <img src="assets/logo.jpg" alt="Santa Fe Beach Club Logo" style="width:72px; height:72px; border-radius:50%; object-fit:cover; border:3px solid #7C533C; box-shadow:0 4px 14px rgba(124,83,60,0.25); margin-bottom:10px;">
                 <h3 style="font-size:20px; font-weight:700; color:#1F2937; margin:0;">Share Your Experience</h3>
                 <p style="font-size:13px; color:#6B7280; margin-top:4px;">We would love to hear how your stay at Santa Fe Beach Club was!</p>
             </div>
