@@ -433,12 +433,11 @@ body.rooms-page {
 
 .rate-photo {
     width: 100%;
-    aspect-ratio: 16 / 11;
-    min-height: 230px;
+    height: 200px;
     position: relative;
     flex-shrink: 0;
     background-size: cover;
-    background-position: center bottom;
+    background-position: center;
     background-repeat: no-repeat;
     overflow: hidden;
     cursor: pointer;
