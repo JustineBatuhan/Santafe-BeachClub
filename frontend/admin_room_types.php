@@ -67,25 +67,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
 
     } elseif ($action === 'add_gallery') {
-        // Append a gallery photo
-        if (!empty($_FILES['gallery_photo']['name'])) {
-            $path = upload_room_image($_FILES['gallery_photo'], $type_slug);
-            if ($path === false) {
-                $_SESSION['rt_error'] = "Upload failed. Use JPG/PNG/WEBP/GIF, max 8 MB.";
-            } else {
-                $row = $conn->query("SELECT gallery_images FROM room_types WHERE name='" . $conn->real_escape_string($type_slug) . "'")->fetch_assoc();
-                $existing = !empty($row['gallery_images']) ? $row['gallery_images'] : '';
-                $new_list = $existing ? $existing . ',' . $path : $path;
-
-                $stmt = $conn->prepare("UPDATE room_types SET gallery_images = ? WHERE name = ?");
-                $stmt->bind_param("ss", $new_list, $type_slug);
-                $stmt->execute();
-                $stmt->close();
-                log_activity($conn, $admin, 'Room Gallery Photo Added', "Gallery photo for $type_slug: $path");
-                $_SESSION['rt_success'] = "Gallery photo added to <strong>" . htmlspecialchars($type_labels[$type_slug]) . "</strong>.";
+        // Append one or multiple gallery photos
+        $uploaded_paths = [];
+        if (!empty($_FILES['gallery_photos']['name'][0])) {
+            $count = count($_FILES['gallery_photos']['name']);
+            for ($i = 0; $i < $count; $i++) {
+                if ($_FILES['gallery_photos']['error'][$i] === UPLOAD_ERR_OK) {
+                    $single_file = [
+                        'name'     => $_FILES['gallery_photos']['name'][$i],
+                        'type'     => $_FILES['gallery_photos']['type'][$i],
+                        'tmp_name' => $_FILES['gallery_photos']['tmp_name'][$i],
+                        'error'    => $_FILES['gallery_photos']['error'][$i],
+                        'size'     => $_FILES['gallery_photos']['size'][$i]
+                    ];
+                    $path = upload_room_image($single_file, $type_slug);
+                    if ($path !== false) {
+                        $uploaded_paths[] = $path;
+                    }
+                }
             }
+        } elseif (!empty($_FILES['gallery_photo']['name'])) {
+            $path = upload_room_image($_FILES['gallery_photo'], $type_slug);
+            if ($path !== false) {
+                $uploaded_paths[] = $path;
+            }
+        }
+
+        if (!empty($uploaded_paths)) {
+            $row = $conn->query("SELECT gallery_images FROM room_types WHERE name='" . $conn->real_escape_string($type_slug) . "'")->fetch_assoc();
+            $existing = !empty($row['gallery_images']) ? $row['gallery_images'] : '';
+            $appended = implode(',', $uploaded_paths);
+            $new_list = $existing ? $existing . ',' . $appended : $appended;
+
+            $stmt = $conn->prepare("UPDATE room_types SET gallery_images = ? WHERE name = ?");
+            $stmt->bind_param("ss", $new_list, $type_slug);
+            $stmt->execute();
+            $stmt->close();
+            log_activity($conn, $admin, 'Room Gallery Photos Added', count($uploaded_paths) . " photos added to $type_slug");
+            $_SESSION['rt_success'] = count($uploaded_paths) . " gallery photo(s) added to <strong>" . htmlspecialchars($type_labels[$type_slug]) . "</strong>.";
         } else {
-            $_SESSION['rt_error'] = "Please choose an image file.";
+            $_SESSION['rt_error'] = "Upload failed. Please choose valid image file(s) (JPG/PNG/WEBP/GIF, max 8 MB).";
         }
         header('Location: admin_room_types');
         exit;
@@ -483,13 +504,13 @@ $default_prices = [
                 
                 <div class="rp-dropzone" onclick="this.parentElement.querySelector('.rp-file-input').click()">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                    <div class="rp-dropzone-text">Drag &amp; drop gallery photo here</div>
-                    <div class="rp-dropzone-sub">or click to browse</div>
+                    <div class="rp-dropzone-text">Drag &amp; drop multiple gallery photos here</div>
+                    <div class="rp-dropzone-sub">or click to browse from computer (select multiple files)</div>
                 </div>
 
                 <div class="rp-upload-row">
-                    <input type="file" name="gallery_photo" accept=".jpg,.jpeg,.png,.webp,.gif,image/*" required class="rp-file-input">
-                    <button type="submit" class="rp-btn-sm rp-btn-secondary rp-upload-btn">Add Photo</button>
+                    <input type="file" name="gallery_photos[]" accept=".jpg,.jpeg,.png,.webp,.gif,image/*" multiple required class="rp-file-input">
+                    <button type="submit" class="rp-btn-sm rp-btn-secondary rp-upload-btn">Upload Photos</button>
                 </div>
             </form>
         </div>
@@ -531,16 +552,23 @@ document.addEventListener('DOMContentLoaded', function () {
             if (files && files.length > 0) {
                 input.files = files;
                 if (textEl) {
-                    textEl.textContent = 'Selected: ' + files[0].name;
+                    if (files.length === 1) {
+                        textEl.textContent = 'Selected: ' + files[0].name;
+                    } else {
+                        textEl.textContent = 'Selected ' + files.length + ' photos ready to upload';
+                    }
                 }
-                // Trigger change event for validation & feedback
                 input.dispatchEvent(new Event('change', { bubbles: true }));
             }
         });
 
         input.addEventListener('change', function() {
             if (this.files && this.files.length > 0 && textEl) {
-                textEl.textContent = 'Selected: ' + this.files[0].name;
+                if (this.files.length === 1) {
+                    textEl.textContent = 'Selected: ' + this.files[0].name;
+                } else {
+                    textEl.textContent = 'Selected ' + this.files.length + ' photos ready to upload';
+                }
             }
         });
     });
