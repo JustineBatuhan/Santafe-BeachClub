@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 require_once __DIR__ . '/../backend/config/db.php';
 
 /* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -505,13 +505,15 @@ $SF_BASE_URL = $_sf_scheme . "://" . $_sf_host . $_sf_dir;
             if (!titleEl || !container) return;
 
             titleEl.textContent = monthNames[month - 1] + ' ' + year;
-            container.innerHTML = '<div style="grid-column: span 7; padding: 20px; color: #94A3B8; font-size: 13px;">Loading availability...</div>';
-
-            fetch(SF_BASE_URL + '/backend/api/availability.php?action=get_month_matrix&year=' + year + '&month=' + month + '&room_type=' + encodeURIComponent(currentRoomType))
-                .then(function(res) { return res.json(); })
+            var apiUrl = (typeof SF_BASE_URL !== 'undefined' && SF_BASE_URL ? SF_BASE_URL : '..') + '/backend/api/availability.php?action=get_month_matrix&year=' + year + '&month=' + month + '&room_type=' + encodeURIComponent(currentRoomType);
+            fetch(apiUrl)
+                .then(function(res) {
+                    if (!res.ok) throw new Error('HTTP ' + res.status);
+                    return res.json();
+                })
                 .then(function(data) {
                     if (!data || !data.success) {
-                        container.innerHTML = '<div style="grid-column: span 7; color: #EF4444; font-size: 13px;">Unable to load calendar.</div>';
+                        container.innerHTML = '<div style="grid-column: span 7; color: #EF4444; font-size: 13px;">Unable to load calendar data.</div>';
                         return;
                     }
 

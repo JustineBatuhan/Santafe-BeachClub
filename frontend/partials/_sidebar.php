@@ -5,6 +5,7 @@
 $_role      = $_SESSION['admin_role'] ?? 'receptionist';
 $_user      = $_SESSION['admin_username'] ?? '';
 $_page      = $active_page ?? '';
+$_sidebar_photo = $_SESSION['admin_profile_photo'] ?? null;
 
 // Some pages include this sidebar without loading db.php first.
 // Load the shared mysqli connection here so role and badge counts always work.
@@ -13,7 +14,7 @@ if (!isset($conn)) {
 }
 
 if (!empty($_user) && isset($conn)) {
-    if ($roleStmt = $conn->prepare("SELECT role FROM admins WHERE username = ?")) {
+    if ($roleStmt = $conn->prepare("SELECT role, profile_photo FROM admins WHERE username = ?")) {
         $roleStmt->bind_param("s", $_user);
         $roleStmt->execute();
         $roleResult = $roleStmt->get_result()->fetch_assoc();
@@ -22,6 +23,10 @@ if (!empty($_user) && isset($conn)) {
         if ($roleResult && !empty($roleResult['role'])) {
             $_SESSION['admin_role'] = $roleResult['role'];
             $_role = $roleResult['role'];
+        }
+        if (!empty($roleResult['profile_photo'])) {
+            $_sidebar_photo = $roleResult['profile_photo'];
+            $_SESSION['admin_profile_photo'] = $_sidebar_photo;
         }
     }
 }
@@ -216,7 +221,11 @@ function _sb_badge($count, $type = '') {
 
     <div class="sidebar-bottom">
         <div class="user-pill" title="<?php echo htmlspecialchars($_user !== '' ? $_user : 'Admin'); ?>">
-            <div class="user-avatar"><?php echo strtoupper(substr($_user !== '' ? $_user : 'A', 0, 1)); ?></div>
+            <?php if (!empty($_sidebar_photo) && file_exists(__DIR__ . '/../' . $_sidebar_photo)): ?>
+                <img src="<?php echo htmlspecialchars($_sidebar_photo); ?>" alt="Avatar" class="user-avatar" style="object-fit:cover; border:1px solid var(--border);">
+            <?php else: ?>
+                <div class="user-avatar"><?php echo strtoupper(substr($_user !== '' ? $_user : 'A', 0, 1)); ?></div>
+            <?php endif; ?>
             <div style="min-width:0;">
                 <div class="user-info-text"><?php echo htmlspecialchars($_user !== '' ? $_user : 'Admin'); ?></div>
                 <div class="user-info-role">Administrator</div>
@@ -305,7 +314,11 @@ function _sb_badge($count, $type = '') {
 
     <div class="sidebar-bottom">
         <div class="user-pill" title="<?php echo htmlspecialchars($_user !== '' ? $_user : 'Front Desk'); ?>">
-            <div class="user-avatar"><?php echo strtoupper(substr($_user !== '' ? $_user : 'R', 0, 1)); ?></div>
+            <?php if (!empty($_sidebar_photo) && file_exists(__DIR__ . '/../' . $_sidebar_photo)): ?>
+                <img src="<?php echo htmlspecialchars($_sidebar_photo); ?>" alt="Avatar" class="user-avatar" style="object-fit:cover; border:1px solid var(--border);">
+            <?php else: ?>
+                <div class="user-avatar"><?php echo strtoupper(substr($_user !== '' ? $_user : 'R', 0, 1)); ?></div>
+            <?php endif; ?>
             <div style="min-width:0;">
                 <div class="user-info-text"><?php echo htmlspecialchars($_user !== '' ? $_user : 'Front Desk'); ?></div>
                 <div class="user-info-role">Receptionist</div>

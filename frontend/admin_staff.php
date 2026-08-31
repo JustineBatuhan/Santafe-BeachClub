@@ -18,6 +18,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $email = trim($_POST['email'] ?? '');
         $pw    = $_POST['password'] ?? '';
         $role  = in_array($_POST['role'] ?? '', ['admin','receptionist']) ? $_POST['role'] : 'receptionist';
+        $photoPath = null;
+
+        // Check if avatar was uploaded
+        if (isset($_FILES['profile_photo']) && $_FILES['profile_photo']['error'] === UPLOAD_ERR_OK) {
+            $file = $_FILES['profile_photo'];
+            $fileExt = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+            if (in_array($fileExt, ['jpg', 'jpeg', 'png', 'webp', 'gif']) && $file['size'] <= 5 * 1024 * 1024) {
+                $uploadDir = __DIR__ . '/uploads/avatars/';
+                if (!is_dir($uploadDir)) {
+                    @mkdir($uploadDir, 0755, true);
+                }
+                $filename = 'avatar_' . md5($uname . time() . uniqid()) . '.' . $fileExt;
+                if (move_uploaded_file($file['tmp_name'], $uploadDir . $filename)) {
+                    $photoPath = 'uploads/avatars/' . $filename;
+                }
+            }
+        }
 
         if (strlen($uname) < 3) { 
             $_SESSION['staff_error'] = 'Username must be at least 3 characters.'; 
@@ -38,13 +55,82 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['staff_error'] = 'Username already exists.'; 
             } else {
                 $hash = pw_hash($pw);
-                $stmt = $conn->prepare("INSERT INTO admins (username, email, password, role) VALUES (?,?,?,?)");
-                $stmt->bind_param("ssss", $uname, $email, $hash, $role);
+                $stmt = $conn->prepare("INSERT INTO admins (username, email, password, role, profile_photo) VALUES (?,?,?,?,?)");
+                $stmt->bind_param("sssss", $uname, $email, $hash, $role, $photoPath);
                 $stmt->execute(); 
                 $stmt->close();
                 log_activity($conn, $admin, 'Staff Created', "Added $role account: $uname with OTP email: $email");
                 SecurityLogger::log($conn, 'STAFF_CREATED', "Added {$role} account: {$uname}", SecurityLogger::LEVEL_INFO, $admin);
                 $_SESSION['staff_success'] = "Staff account \"$uname\" ($role) created.";
+            }
+        }
+    }
+
+    if ($action === 'update_staff_photo') {
+        $target_id = (int)($_POST['staff_id'] ?? 0);
+        if (isset($_FILES['profile_photo']) && $_FILES['profile_photo']['error'] === UPLOAD_ERR_OK) {
+            $file = $_FILES['profile_photo'];
+            $fileExt = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+            if (in_array($fileExt, ['jpg', 'jpeg', 'png', 'webp', 'gif']) && $file['size'] <= 5 * 1024 * 1024) {
+                $uploadDir = __DIR__ . '/uploads/avatars/';
+                if (!is_dir($uploadDir)) {
+                    @mkdir($uploadDir, 0755, true);
+                }
+
+                // Delete old photo
+                $oldStmt = $conn->prepare("SELECT profile_photo, username FROM admins WHERE id = ?");
+                $oldStmt->bind_param("i", $target_id);
+                $oldStmt->execute();
+                $staffData = $oldStmt->get_result()->fetch_assoc();
+                $oldStmt->close();
+
+                if ($staffData) {
+                    if (!empty($staffData['profile_photo']) && file_exists(__DIR__ . '/' . $staffData['profile_photo'])) {
+                        @unlink(__DIR__ . '/' . $staffData['profile_photo']);
+                    }
+
+                    $filename = 'avatar_' . md5($staffData['username'] . time() . uniqid()) . '.' . $fileExt;
+                    if (move_uploaded_file($file['tmp_name'], $uploadDir . $filename)) {
+                        $webPath = 'uploads/avatars/' . $filename;
+                        $upd = $conn->prepare("UPDATE admins SET profile_photo = ? WHERE id = ?");
+                        $upd->bind_param("si", $webPath, $target_id);
+                        $upd->execute();
+                        $upd->close();
+
+                        if ($staffData['username'] === $admin) {
+                            $_SESSION['admin_profile_photo'] = $webPath;
+                        }
+
+                        log_activity($conn, $admin, 'Staff Photo Updated', "Updated photo for {$staffData['username']}");
+                        $_SESSION['staff_success'] = "Profile photo updated for {$staffData['username']}.";
+                    } else {
+                        $_SESSION['staff_error'] = 'Failed to upload image file.';
+                    }
+                }
+            } else {
+                $_SESSION['staff_error'] = 'Invalid image format (must be JPG, PNG, WEBP, max 5MB).';
+            }
+        } elseif (isset($_POST['remove_photo']) && $_POST['remove_photo'] === '1') {
+            $oldStmt = $conn->prepare("SELECT profile_photo, username FROM admins WHERE id = ?");
+            $oldStmt->bind_param("i", $target_id);
+            $oldStmt->execute();
+            $staffData = $oldStmt->get_result()->fetch_assoc();
+            $oldStmt->close();
+
+            if ($staffData) {
+                if (!empty($staffData['profile_photo']) && file_exists(__DIR__ . '/' . $staffData['profile_photo'])) {
+                    @unlink(__DIR__ . '/' . $staffData['profile_photo']);
+                }
+                $upd = $conn->prepare("UPDATE admins SET profile_photo = NULL WHERE id = ?");
+                $upd->bind_param("i", $target_id);
+                $upd->execute();
+                $upd->close();
+
+                if ($staffData['username'] === $admin) {
+                    unset($_SESSION['admin_profile_photo']);
+                }
+
+                $_SESSION['staff_success'] = "Photo removed for {$staffData['username']}.";
             }
         }
     }
@@ -161,7 +247,7 @@ if (isset($_SESSION['staff_error'])) {
     unset($_SESSION['staff_error']);
 }
 
-$staff_list = $conn->query("SELECT id, username, email, role, created_at FROM admins ORDER BY role ASC, created_at ASC");
+$staff_list = $conn->query("SELECT id, username, email, role, profile_photo, created_at FROM admins ORDER BY role ASC, created_at ASC");
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -177,7 +263,7 @@ $staff_list = $conn->query("SELECT id, username, email, role, created_at FROM ad
     <main class="main-content">
         <?php
         $page_title = 'Staff Management';
-        $page_subtitle = 'Manage receptionist and admin accounts, roles, and MFA verification emails.';
+        $page_subtitle = 'Manage receptionist and admin accounts, profile photos, roles, and MFA verification emails.';
         include __DIR__ . '/partials/_page_header.php';
         ?>
 
@@ -201,10 +287,21 @@ $staff_list = $conn->query("SELECT id, username, email, role, created_at FROM ad
                     <?php while ($s = $staff_list->fetch_assoc()): ?>
                     <tr>
                         <td>
-                            <div style="display:flex;align-items:center;gap:10px;">
-                                <div class="user-avatar" style="width:30px;height:30px;font-size:12px;"><?php echo strtoupper(substr($s['username'],0,1)); ?></div>
+                            <div style="display:flex;align-items:center;gap:12px;">
+                                <div style="position:relative;">
+                                    <?php if (!empty($s['profile_photo']) && file_exists(__DIR__ . '/' . $s['profile_photo'])): ?>
+                                        <img src="<?php echo htmlspecialchars($s['profile_photo']); ?>" alt="Avatar" style="width:36px;height:36px;border-radius:10px;object-fit:cover;border:1.5px solid var(--border);box-shadow:var(--shadow-xs);">
+                                    <?php else: ?>
+                                        <div class="user-avatar" style="width:36px;height:36px;font-size:13px;border-radius:10px;"><?php echo strtoupper(substr($s['username'],0,1)); ?></div>
+                                    <?php endif; ?>
+                                </div>
                                 <div>
-                                    <div style="font-weight:600;"><?php echo htmlspecialchars($s['username']); ?></div>
+                                    <div style="font-weight:600;display:flex;align-items:center;gap:6px;">
+                                        <?php echo htmlspecialchars($s['username']); ?>
+                                        <button type="button" style="background:none;border:none;cursor:pointer;padding:2px;color:#7C533C;" title="Update Profile Photo" onclick="openEditPhoto(<?php echo $s['id']; ?>, '<?php echo htmlspecialchars($s['username']); ?>', '<?php echo htmlspecialchars($s['profile_photo'] ?? ''); ?>')">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+                                        </button>
+                                    </div>
                                     <?php if ($s['username'] === $admin): ?><span class="badge badge-admin" style="font-size:9px;">You</span><?php endif; ?>
                                 </div>
                             </div>
@@ -293,12 +390,16 @@ $staff_list = $conn->query("SELECT id, username, email, role, created_at FROM ad
         <button class="modal-close" onclick="document.getElementById('addModal').classList.remove('open')">×</button>
         <h3>Add Staff Account</h3>
         <p class="modal-sub">Create a new login for a team member.</p>
-        <form method="POST">
+        <form method="POST" enctype="multipart/form-data">
             <?php echo csrf_field(); ?>
             <input type="hidden" name="action" value="add_staff">
             <div class="admin-form-group"><label>System Username (Login ID)</label><input type="email" name="username" required pattern=".+@beachclub\.com$" title="Must end with @beachclub.com" placeholder="name@beachclub.com"></div>
             <div class="admin-form-group"><label>Personal Email (Receives Login OTPs)</label><input type="email" name="email" required placeholder="personal@gmail.com"></div>
             <div class="admin-form-group"><label>Password</label><input type="password" name="password" required minlength="8" placeholder="Min 8 chars: upper, lower, number, symbol" title="Must be 8+ characters with uppercase, lowercase, number, and special character"></div>
+            <div class="admin-form-group">
+                <label>Profile Photo (Optional)</label>
+                <input type="file" name="profile_photo" accept="image/jpeg,image/png,image/webp,image/gif">
+            </div>
             <div class="admin-form-group">
                 <label>Role</label>
                 <select name="role">
@@ -307,6 +408,32 @@ $staff_list = $conn->query("SELECT id, username, email, role, created_at FROM ad
                 </select>
             </div>
             <button type="submit" class="btn-primary" style="width:100%;justify-content:center;">Create Account</button>
+        </form>
+    </div>
+</div>
+
+<!-- Edit Staff Photo Modal -->
+<div class="modal-overlay" id="editPhotoModal">
+    <div class="modal-box">
+        <button class="modal-close" onclick="document.getElementById('editPhotoModal').classList.remove('open')">×</button>
+        <h3>Update Profile Photo</h3>
+        <p class="modal-sub" id="editPhotoModalSub">Upload a new photo for this staff member.</p>
+        <form method="POST" enctype="multipart/form-data">
+            <?php echo csrf_field(); ?>
+            <input type="hidden" name="action" value="update_staff_photo">
+            <input type="hidden" name="staff_id" id="editPhotoStaffId">
+            <div class="admin-form-group">
+                <label>Select Photo (JPG, PNG, WEBP, max 5MB)</label>
+                <input type="file" name="profile_photo" accept="image/jpeg,image/png,image/webp,image/gif" required>
+            </div>
+            <button type="submit" class="btn-primary" style="width:100%;justify-content:center;margin-bottom:8px;">Upload & Save</button>
+        </form>
+        <form method="POST" id="removePhotoForm">
+            <?php echo csrf_field(); ?>
+            <input type="hidden" name="action" value="update_staff_photo">
+            <input type="hidden" name="staff_id" id="removePhotoStaffId">
+            <input type="hidden" name="remove_photo" value="1">
+            <button type="submit" class="btn-danger" style="width:100%;justify-content:center;background:none;border:1px solid #FCA5A5;color:#DC2626;" id="removePhotoBtn">Remove Existing Photo</button>
         </form>
     </div>
 </div>
@@ -359,7 +486,16 @@ function openEditEmail(id, username, email) {
     document.getElementById('editEmailModalSub').textContent = 'Update OTP delivery email for "' + username + '".';
     document.getElementById('editEmailModal').classList.add('open');
 }
+
+function openEditPhoto(id, username, currentPhoto) {
+    document.getElementById('editPhotoStaffId').value = id;
+    document.getElementById('removePhotoStaffId').value = id;
+    document.getElementById('editPhotoModalSub').textContent = 'Upload or change profile photo for "' + username + '".';
+    document.getElementById('removePhotoBtn').style.display = currentPhoto ? 'flex' : 'none';
+    document.getElementById('editPhotoModal').classList.add('open');
+}
 </script>
 <script src="assets/js/sidebar-toggle.js"></script>
 </body>
 </html>
+

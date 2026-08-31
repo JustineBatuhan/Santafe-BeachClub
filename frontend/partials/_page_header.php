@@ -10,6 +10,20 @@ $_ph_role       = $_SESSION['admin_role'] ?? 'receptionist';
 $_ph_is_admin   = ($_ph_role === 'admin');
 $_ph_notifications_href = $_ph_is_admin ? 'admin_notifications' : 'notifications';
 $_ph_role_label = $_ph_is_admin ? 'Administrator' : 'Receptionist';
+$_ph_photo      = $_SESSION['admin_profile_photo'] ?? null;
+
+if (empty($_ph_photo) && isset($conn) && !empty($_ph_username)) {
+    if ($st = $conn->prepare("SELECT profile_photo FROM admins WHERE username = ? LIMIT 1")) {
+        $st->bind_param("s", $_ph_username);
+        $st->execute();
+        $rowP = $st->get_result()->fetch_assoc();
+        $st->close();
+        if (!empty($rowP['profile_photo'])) {
+            $_ph_photo = $rowP['profile_photo'];
+            $_SESSION['admin_profile_photo'] = $_ph_photo;
+        }
+    }
+}
 
 $_ph_unread = 0;
 if (isset($conn)) {
@@ -607,7 +621,11 @@ if (isset($conn)) {
 
         <div class="header-user-menu" id="pageHeaderUserMenu">
             <button class="header-user-trigger" onclick="toggleUserDropdown(event)">
-                <span class="header-user-avatar"><?php echo strtoupper(substr($_ph_username !== '' ? $_ph_username : 'U', 0, 1)); ?></span>
+                <?php if (!empty($_ph_photo) && file_exists(__DIR__ . '/../' . $_ph_photo)): ?>
+                    <img src="<?php echo htmlspecialchars($_ph_photo); ?>" alt="Avatar" class="header-user-avatar" style="object-fit:cover; border:1px solid var(--border);">
+                <?php else: ?>
+                    <span class="header-user-avatar"><?php echo strtoupper(substr($_ph_username !== '' ? $_ph_username : 'U', 0, 1)); ?></span>
+                <?php endif; ?>
                 <span class="header-user-name"><?php echo htmlspecialchars($_ph_username !== '' ? $_ph_username : $_ph_role_label); ?></span>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
             </button>

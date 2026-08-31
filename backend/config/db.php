@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 require_once __DIR__ . '/../helpers/error_handler.php';
 require_once __DIR__ . '/../helpers/business_time_helper.php';
 require_once __DIR__ . '/../helpers/password_helper.php';
@@ -279,6 +279,8 @@ try {
     $conn->query("ALTER TABLE admins ADD COLUMN IF NOT EXISTS role VARCHAR(20) DEFAULT 'receptionist'");
     // Add email column to admins if not present (needed for MFA OTP delivery)
     $conn->query("ALTER TABLE admins ADD COLUMN IF NOT EXISTS email VARCHAR(150) DEFAULT NULL");
+    // Add profile_photo column to admins
+    $conn->query("ALTER TABLE admins ADD COLUMN IF NOT EXISTS profile_photo VARCHAR(255) DEFAULT NULL");
 
     // -----------------------------------------------------------------------
     // MFA: admin_otps â€” stores hashed OTPs for two-factor admin login
