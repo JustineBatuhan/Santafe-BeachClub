@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 require_once __DIR__ . '/../backend/config/db.php';
 
 // Fetch custom room type primary photos
@@ -221,13 +221,6 @@ if ($photo_q) {
             </ul>
         </nav>
         <div class="header-action" style="display:flex; align-items:center; gap:12px;">
-            <!-- Language Picker -->
-            <?php $curr_lang = sf_get_current_lang(); ?>
-            <div class="lang-picker" style="display:inline-flex; border:1px solid #CBD5E1; border-radius:20px; overflow:hidden; font-size:11px; font-weight:700; background:#FFF;">
-                <a href="?lang=en" style="padding:4px 8px; text-decoration:none; color:<?php echo $curr_lang==='en'?'#FFF':'#475569'; ?>; background:<?php echo $curr_lang==='en'?'#7C533C':'transparent'; ?>;">EN</a>
-                <a href="?lang=fil" style="padding:4px 8px; text-decoration:none; color:<?php echo $curr_lang==='fil'?'#FFF':'#475569'; ?>; background:<?php echo $curr_lang==='fil'?'#7C533C':'transparent'; ?>;">FIL</a>
-                <a href="?lang=ceb" style="padding:4px 8px; text-decoration:none; color:<?php echo $curr_lang==='ceb'?'#FFF':'#475569'; ?>; background:<?php echo $curr_lang==='ceb'?'#7C533C':'transparent'; ?>;">CEB</a>
-            </div>
             <a href="rooms" class="btn-book-header"><?php echo __t('book_now'); ?></a>
         </div>
     </header>
