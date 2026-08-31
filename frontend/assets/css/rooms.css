@@ -432,11 +432,16 @@ body.rooms-page {
 }
 
 .rate-photo {
-    height: 220px;
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    min-height: 190px;
+    max-height: 280px;
+    height: auto;
     position: relative;
     flex-shrink: 0;
     background-size: cover;
     background-position: center;
+    background-repeat: no-repeat;
     overflow: hidden;
 }
 
