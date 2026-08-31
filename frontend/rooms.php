@@ -671,7 +671,7 @@ $SF_BASE_URL = $_sf_scheme . "://" . $_sf_host . $_sf_dir;
                     <div class="rate-card">
                         <!-- LEFT: photo + info -->
                         <div class="rate-card-left">
-                            <div class="rate-photo btn-view-room-info"
+                            <div class="rate-photo rate-photo-clickable"
                                  style="background: <?php echo $gradient; ?>; background-image: url('<?php echo htmlspecialchars($photo); ?>'); cursor: pointer;"
                                  data-room-name="<?php echo htmlspecialchars($label, ENT_QUOTES); ?>"
                                  data-room-bed="<?php echo htmlspecialchars($bed, ENT_QUOTES); ?>"
@@ -850,7 +850,7 @@ $SF_BASE_URL = $_sf_scheme . "://" . $_sf_host . $_sf_dir;
 
                     <div class="rate-card">
                         <div class="rate-card-left">
-                            <div class="rate-photo btn-view-room-info"
+                            <div class="rate-photo rate-photo-clickable"
                                  style="background: <?php echo $gradient; ?>; background-image: url('<?php echo htmlspecialchars($photo); ?>'); cursor: pointer;"
                                  data-room-name="<?php echo htmlspecialchars($label, ENT_QUOTES); ?>"
                                  data-room-bed="<?php echo htmlspecialchars($bed, ENT_QUOTES); ?>"
