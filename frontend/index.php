@@ -1,13 +1,18 @@
 <?php
 require_once __DIR__ . '/../backend/config/db.php';
 
-// Fetch custom room type primary photos
+// Fetch custom room type primary photos AND prices from DB
 $db_photos = [];
-$photo_q = $conn->query("SELECT name, image_url FROM room_types");
+$db_prices = [];
+$photo_q = $conn->query("SELECT name, image_url, price_per_night FROM room_types");
 if ($photo_q) {
     while ($row = $photo_q->fetch_assoc()) {
+        $key = strtolower(str_replace(' ', '_', $row['name']));
         if (!empty($row['image_url'])) {
-            $db_photos[$row['name']] = $row['image_url'];
+            $db_photos[$key] = $row['image_url'];
+        }
+        if (!empty($row['price_per_night'])) {
+            $db_prices[$key] = (float)$row['price_per_night'];
         }
     }
 }
@@ -330,8 +335,10 @@ if ($photo_q) {
                         <p>A cozy retreat with all essentials, air conditioning, and garden views â€” perfect for couples or solo travelers.</p>
                         <div class="stay-card-footer">
                             <div class="stay-price">
+                                <?php if (!empty($db_prices['standard_room'])): ?>
                                 <span class="stay-price-from">From</span>
-                                <strong>&#8369;2,900 <span>/ night</span></strong>
+                                <strong>&#8369;<?php echo number_format($db_prices['standard_room']); ?> <span>/ night</span></strong>
+                                <?php endif; ?>
                             </div>
                             <a href="rooms" class="btn-stay-book">Book Now</a>
                         </div>
@@ -346,8 +353,10 @@ if ($photo_q) {
                         <p>A spacious two-floor unit with sweeping beach views, a private terrace, and room for the whole family.</p>
                         <div class="stay-card-footer">
                             <div class="stay-price">
+                                <?php if (!empty($db_prices['beachview_duplex'])): ?>
                                 <span class="stay-price-from">From</span>
-                                <strong>&#8369;5,500 <span>/ night</span></strong>
+                                <strong>&#8369;<?php echo number_format($db_prices['beachview_duplex']); ?> <span>/ night</span></strong>
+                                <?php endif; ?>
                             </div>
                             <a href="rooms" class="btn-stay-book">Book Now</a>
                         </div>
@@ -362,8 +371,10 @@ if ($photo_q) {
                         <p>Wake up to ocean panoramas. This split-level duplex blends open-air living with cool interior comfort.</p>
                         <div class="stay-card-footer">
                             <div class="stay-price">
+                                <?php if (!empty($db_prices['seaview_duplex'])): ?>
                                 <span class="stay-price-from">From</span>
-                                <strong>&#8369;5,500 <span>/ night</span></strong>
+                                <strong>&#8369;<?php echo number_format($db_prices['seaview_duplex']); ?> <span>/ night</span></strong>
+                                <?php endif; ?>
                             </div>
                             <a href="rooms" class="btn-stay-book">Book Now</a>
                         </div>
@@ -378,8 +389,10 @@ if ($photo_q) {
                         <p>The pinnacle of resort living. A private villa steps from the shoreline, ideal for special occasions.</p>
                         <div class="stay-card-footer">
                             <div class="stay-price">
+                                <?php if (!empty($db_prices['beach_villa'])): ?>
                                 <span class="stay-price-from">From</span>
-                                <strong>&#8369;8,500 <span>/ night</span></strong>
+                                <strong>&#8369;<?php echo number_format($db_prices['beach_villa']); ?> <span>/ night</span></strong>
+                                <?php endif; ?>
                             </div>
                             <a href="rooms" class="btn-stay-book">Book Now</a>
                         </div>
@@ -665,11 +678,11 @@ if ($photo_q) {
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px;">
                     <div>
                         <label style="display:block; font-size:12px; font-weight:700; color:#374151; margin-bottom:4px;">YOUR NAME *</label>
-                        <input type="text" name="guest_name" required placeholder="e.g. Maria R." style="width:100%; padding:10px 12px; border:1px solid #D1D5DB; border-radius:8px; font-size:14px; box-sizing:border-box;">
+                        <input type="text" name="guest_name" required placeholder="e.g. Maria R." autocomplete="off" style="width:100%; padding:10px 12px; border:1px solid #D1D5DB; border-radius:8px; font-size:14px; box-sizing:border-box;">
                     </div>
                     <div>
                         <label style="display:block; font-size:12px; font-weight:700; color:#374151; margin-bottom:4px;">LOCATION</label>
-                        <input type="text" name="guest_location" placeholder="e.g. Cebu, Philippines" style="width:100%; padding:10px 12px; border:1px solid #D1D5DB; border-radius:8px; font-size:14px; box-sizing:border-box;">
+                        <input type="text" name="guest_location" placeholder="e.g. Cebu, Philippines" autocomplete="off" style="width:100%; padding:10px 12px; border:1px solid #D1D5DB; border-radius:8px; font-size:14px; box-sizing:border-box;">
                     </div>
                 </div>
                 <div style="margin-bottom:18px;">
