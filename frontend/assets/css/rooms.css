@@ -420,7 +420,7 @@ body.rooms-page {
 /* ── Rate Card ──────────────────────────────────────── */
 .rate-card {
     display: grid;
-    grid-template-columns: 360px 1fr;
+    grid-template-columns: 380px 1fr;
     background: var(--rooms-card);
 }
 
@@ -433,11 +433,12 @@ body.rooms-page {
 
 .rate-photo {
     width: 100%;
-    height: 250px;
+    aspect-ratio: 3 / 2;
+    height: auto;
     position: relative;
     flex-shrink: 0;
     background-size: cover;
-    background-position: center 35%;
+    background-position: center;
     background-repeat: no-repeat;
     overflow: hidden;
     cursor: pointer;
