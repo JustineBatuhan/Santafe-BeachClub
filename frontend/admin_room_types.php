@@ -470,8 +470,8 @@ $default_prices = [
                 </div>
 
                 <div class="rp-upload-row">
-                    <input type="file" name="primary_photo" accept=".jpg,.jpeg,.png,.webp,.gif,image/*" required class="rp-file-input">
-                    <button type="submit" class="rp-btn-sm rp-btn-primary rp-upload-btn">Upload Primary</button>
+                    <input type="file" name="primary_photo" accept=".jpg,.jpeg,.png,.webp,.gif,image/*" class="rp-file-input">
+                    <button type="submit" class="rp-btn-sm rp-btn-primary rp-upload-btn" onclick="return validateFileInput(this,'primary_photo')">Upload Primary</button>
                 </div>
             </form>
         </div>
@@ -510,8 +510,8 @@ $default_prices = [
                 </div>
 
                 <div class="rp-upload-row">
-                    <input type="file" name="gallery_photos[]" accept=".jpg,.jpeg,.png,.webp,.gif,image/*" multiple required class="rp-file-input">
-                    <button type="submit" class="rp-btn-sm rp-btn-secondary rp-upload-btn">Upload Photos</button>
+                    <input type="file" name="gallery_photos[]" accept=".jpg,.jpeg,.png,.webp,.gif,image/*" multiple class="rp-file-input">
+                    <button type="submit" class="rp-btn-sm rp-btn-secondary rp-upload-btn" onclick="return validateFileInput(this,'gallery_photos')">Upload Photos</button>
                 </div>
             </form>
         </div>
@@ -588,6 +588,27 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 });
+
+// ── File validation (no required attr, friendlier UX) ──
+function validateFileInput(btn, fieldName) {
+    var form = btn.closest('form');
+    var input = form.querySelector('.rp-file-input');
+    if (!input || !input.files || input.files.length === 0) {
+        // Highlight the dropzone
+        var zone = form.querySelector('.rp-dropzone');
+        if (zone) {
+            zone.style.borderColor = '#EF4444';
+            zone.style.background = '#FEF2F2';
+            setTimeout(function() {
+                zone.style.borderColor = '';
+                zone.style.background = '';
+            }, 2500);
+        }
+        alert('Please select or drop a photo first.');
+        return false;
+    }
+    return true;
+}
 
 // ── Admin Lightbox ─────────────────────────────────────
 var lbImages = [];
