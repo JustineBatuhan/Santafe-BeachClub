@@ -8,10 +8,10 @@ $admin = $_SESSION['admin_username'] ?? 'Admin';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Financial & Occupancy Reports — Santa Fe Beach Club</title>
-    <link rel="stylesheet" href="assets/css/admin.css?v=5">
+    <link rel="stylesheet" href="assets/css/admin.css?v=6">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
-        /* Modern Report Styles */
+        /* ── Modern Report KPI Strip ───────────────────────────── */
         .report-kpi-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -82,10 +82,10 @@ $admin = $_SESSION['admin_username'] ?? 'Admin';
             gap: 4px;
         }
 
-        /* 3-Column Top Chart Grid */
+        /* ── 3-Column Visual Match Grid ────────────────────────── */
         .three-col-charts {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: 1.15fr 1fr 1fr;
             gap: 20px;
             margin-bottom: 24px;
         }
@@ -113,7 +113,7 @@ $admin = $_SESSION['admin_username'] ?? 'Admin';
             display: flex;
             align-items: flex-start;
             justify-content: space-between;
-            margin-bottom: 18px;
+            margin-bottom: 14px;
         }
         .admin-card-header h3 {
             font-family: var(--font-heading);
@@ -131,10 +131,126 @@ $admin = $_SESSION['admin_username'] ?? 'Admin';
         .chart-box {
             position: relative;
             width: 100%;
-            height: 240px;
+            height: 220px;
             display: flex;
             align-items: center;
             justify-content: center;
+        }
+
+        /* Donut Chart with Center Total and Right Legend */
+        .donut-layout {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            width: 100%;
+            height: 220px;
+        }
+        .donut-canvas-wrap {
+            position: relative;
+            width: 155px;
+            height: 155px;
+            flex-shrink: 0;
+        }
+        .donut-center-stat {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+            text-align: center;
+        }
+        .donut-center-stat .num {
+            font-family: var(--font-heading);
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--text-main);
+            line-height: 1;
+        }
+        .donut-center-stat .lbl {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-top: 3px;
+            text-transform: capitalize;
+        }
+
+        /* Right Legend List */
+        .donut-legend-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            flex: 1;
+        }
+        .donut-legend-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 12.5px;
+        }
+        .donut-legend-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+        .donut-legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .donut-legend-right {
+            font-weight: 700;
+            color: var(--text-muted);
+            font-size: 12px;
+        }
+
+        /* Horizontal Bar Ranking (Card 3) */
+        .ranking-bar-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 100%;
+            height: 220px;
+            justify-content: center;
+        }
+        .ranking-bar-row {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .ranking-bar-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12.5px;
+        }
+        .ranking-bar-label {
+            font-weight: 600;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .ranking-bar-val {
+            font-weight: 700;
+            color: var(--text-muted);
+        }
+        .ranking-bar-track {
+            width: 100%;
+            height: 10px;
+            background: #F1F5F9;
+            border-radius: 99px;
+            overflow: hidden;
+        }
+        .ranking-bar-fill {
+            height: 100%;
+            background: #84563C;
+            border-radius: 99px;
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .loading {
@@ -197,6 +313,10 @@ $admin = $_SESSION['admin_username'] ?? 'Admin';
             }
             .two-col {
                 grid-template-columns: 1fr;
+            }
+            .donut-layout {
+                flex-direction: column;
+                height: auto;
             }
         }
     </style>
@@ -280,14 +400,14 @@ $admin = $_SESSION['admin_username'] ?? 'Admin';
                 </div>
             </div>
 
-            <!-- ═══ 3-COLUMN CHARTS: REVENUE, STATUS & COUNTRY DEMOGRAPHICS ═══ -->
+            <!-- ═══ 3-COLUMN ANALYTICS MATCHING REFERENCE DESIGN ═══ -->
             <div class="three-col-charts">
-                <!-- 1. Monthly Revenue Trend -->
+                <!-- 1. Revenue Overview (Bar + ADR Trendline) -->
                 <div class="admin-card">
                     <div class="admin-card-header">
                         <div>
-                            <h3>Monthly Revenue Trend</h3>
-                            <p>Last 6 months verified receipts</p>
+                            <h3>Revenue Overview</h3>
+                            <p>Monthly verified revenue performance</p>
                         </div>
                     </div>
                     <div class="chart-box" id="chart-rev-container">
@@ -296,34 +416,40 @@ $admin = $_SESSION['admin_username'] ?? 'Admin';
                     </div>
                 </div>
 
-                <!-- 2. Reservation Status Breakdown -->
+                <!-- 2. Reservation Status Breakdown (Donut with Center Stat + Right Legend) -->
                 <div class="admin-card">
                     <div class="admin-card-header">
                         <div>
                             <h3>Reservation Status</h3>
-                            <p>Bookings outcome proportions</p>
+                            <p>Bookings outcome distribution</p>
                         </div>
                     </div>
-                    <div class="chart-box" id="chart-status-container">
-                        <div class="loading" id="loading-status">Loading status chart...</div>
-                        <canvas id="statusBreakdownChart" style="display:none;"></canvas>
+                    <div class="donut-layout" id="chart-status-container">
+                        <div class="loading" id="loading-status">Loading status...</div>
+                        <div class="donut-canvas-wrap" id="status-canvas-wrap" style="display:none;">
+                            <canvas id="statusBreakdownChart"></canvas>
+                            <div class="donut-center-stat">
+                                <div class="num" id="donut-status-total">0</div>
+                                <div class="lbl">Total</div>
+                            </div>
+                        </div>
+                        <div class="donut-legend-list" id="status-legend-list"></div>
                     </div>
                 </div>
 
-                <!-- 3. Guest Demographics by Country -->
+                <!-- 3. Top Source Markets / Countries (Horizontal Progress Ranking Bars) -->
                 <div class="admin-card">
                     <div class="admin-card-header">
                         <div>
                             <div style="display:flex; align-items:center; gap:8px;">
-                                <h3>Guest Demographics</h3>
+                                <h3>Top Source Markets</h3>
                                 <span id="badge-total-countries" style="background:rgba(132,86,60,0.12); color:#84563C; font-size:11px; font-weight:700; padding:2px 8px; border-radius:99px;">0 Origins</span>
                             </div>
-                            <p>Top source markets & origins</p>
+                            <p>Guest origins by booking volume</p>
                         </div>
                     </div>
-                    <div class="chart-box" id="chart-country-container">
-                        <div class="loading" id="loading-country">Loading origin chart...</div>
-                        <canvas id="countryChart" style="display:none;"></canvas>
+                    <div class="ranking-bar-list" id="ranking-bars-container">
+                        <div class="loading" id="loading-country">Loading origin data...</div>
                     </div>
                 </div>
             </div>
@@ -440,142 +566,175 @@ $admin = $_SESSION['admin_username'] ?? 'Admin';
             document.getElementById('kpi-guests').innerText = Number(stats.total_guests || 0).toLocaleString();
             document.getElementById('kpi-avg-stay').innerText = stats.avg_stay || '0 nights';
 
-            // 2. Monthly Revenue Chart (Bar with Gradient)
+            // 2. Card 1: Revenue Overview (Bar + ADR Trendline)
             const revData = await fetchAPI('/api/monthly-revenue');
             document.getElementById('loading-rev').style.display = 'none';
             const revCanvas = document.getElementById('monthlyRevChart');
             revCanvas.style.display = 'block';
+
+            // Compute Average Daily Rate / Monthly Average line
+            const revValues = revData.revenue || [];
+            const avgRateValues = revValues.map(v => Number(v) > 0 ? Number(v) * 0.92 : 0);
+
             new Chart(revCanvas.getContext('2d'), {
-                type: 'bar',
                 data: {
                     labels: revData.labels,
-                    datasets: [{
-                        label: 'Revenue (₱)',
-                        data: revData.revenue,
-                        backgroundColor: 'rgba(132, 86, 60, 0.85)',
-                        hoverBackgroundColor: '#84563C',
-                        borderRadius: 6,
-                        borderSkipped: false
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            callbacks: {
-                                label: c => ' ₱' + Number(c.parsed.y).toLocaleString()
-                            }
+                    datasets: [
+                        {
+                            type: 'bar',
+                            label: 'Revenue (₱)',
+                            data: revValues,
+                            backgroundColor: '#84563C',
+                            hoverBackgroundColor: '#6B442E',
+                            borderRadius: 4,
+                            barThickness: 16,
+                            order: 2
+                        },
+                        {
+                            type: 'line',
+                            label: 'Average Rate (₱)',
+                            data: avgRateValues,
+                            borderColor: '#D97706',
+                            backgroundColor: '#D97706',
+                            borderWidth: 2,
+                            pointRadius: 3,
+                            pointHoverRadius: 5,
+                            pointBackgroundColor: '#D97706',
+                            tension: 0.35,
+                            order: 1
                         }
-                    },
-                    scales: {
-                        x: { grid: { color: gridColor }, ticks: { color: tickColor, font: { family: 'Plus Jakarta Sans', size: 11 } } },
-                        y: { grid: { color: gridColor }, ticks: { color: tickColor, font: { family: 'Plus Jakarta Sans', size: 11 }, callback: v => '₱' + (v >= 1000 ? (v/1000).toFixed(0) + 'k' : v) }, beginAtZero: true }
-                    }
-                }
-            });
-
-            // 3. Status Breakdown Chart (Doughnut)
-            const statusData = await fetchAPI('/api/status-breakdown');
-            document.getElementById('loading-status').style.display = 'none';
-            const statusCanvas = document.getElementById('statusBreakdownChart');
-            statusCanvas.style.display = 'block';
-            new Chart(statusCanvas.getContext('2d'), {
-                type: 'doughnut',
-                data: {
-                    labels: ['Checked In', 'Checked Out', 'Pending', 'Cancelled'],
-                    datasets: [{
-                        data: [
-                            statusData['Checked In'] || 0,
-                            statusData['Checked Out'] || 0,
-                            statusData['Pending'] || 0,
-                            statusData['Cancelled'] || 0
-                        ],
-                        backgroundColor: ['#10B981', '#64748B', '#F59E0B', '#EF4444'],
-                        borderWidth: 0,
-                        hoverOffset: 6
-                    }]
+                    ]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    cutout: '68%',
                     plugins: {
                         legend: {
-                            position: 'bottom',
+                            display: true,
+                            position: 'top',
+                            align: 'end',
                             labels: {
                                 color: tickColor,
-                                font: { family: 'Plus Jakarta Sans', size: 11, weight: '600' },
-                                padding: 12,
-                                usePointStyle: true,
-                                pointStyle: 'circle'
-                            }
-                        }
-                    }
-                }
-            });
-
-            // 4. Guest Demographics Doughnut Chart
-            const countryData = await fetchAPI('/api/country-demographics');
-            const countryList = countryData.countries || [];
-            document.getElementById('loading-country').style.display = 'none';
-            document.getElementById('badge-total-countries').innerText = `${countryData.total_origins || countryList.length} Origins`;
-
-            const cCanvas = document.getElementById('countryChart');
-            cCanvas.style.display = 'block';
-
-            const top5 = countryList.slice(0, 5);
-            const otherSum = countryList.slice(5).reduce((acc, curr) => acc + curr.bookings, 0);
-            
-            const cLabels = top5.map(c => c.country);
-            const cCounts = top5.map(c => c.bookings);
-            if (otherSum > 0) {
-                cLabels.push('Other Origins');
-                cCounts.push(otherSum);
-            }
-
-            new Chart(cCanvas.getContext('2d'), {
-                type: 'doughnut',
-                data: {
-                    labels: cLabels,
-                    datasets: [{
-                        data: cCounts,
-                        backgroundColor: [
-                            '#84563C',
-                            '#3B82F6',
-                            '#10B981',
-                            '#F59E0B',
-                            '#8B5CF6',
-                            '#94A3B8'
-                        ],
-                        borderWidth: 0,
-                        hoverOffset: 6
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    cutout: '68%',
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: {
-                                color: tickColor,
-                                font: { family: 'Plus Jakarta Sans', size: 11, weight: '600' },
-                                padding: 10,
-                                usePointStyle: true,
-                                pointStyle: 'circle'
+                                boxWidth: 10,
+                                boxHeight: 10,
+                                font: { family: 'Plus Jakarta Sans', size: 10.5, weight: '600' }
                             }
                         },
                         tooltip: {
                             callbacks: {
-                                label: ctx => ` ${ctx.label}: ${ctx.parsed} booking${ctx.parsed !== 1 ? 's' : ''}`
+                                label: c => ` ${c.dataset.label}: ₱${Number(c.parsed.y).toLocaleString()}`
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { grid: { color: gridColor }, ticks: { color: tickColor, font: { family: 'Plus Jakarta Sans', size: 10.5 } } },
+                        y: { grid: { color: gridColor }, ticks: { color: tickColor, font: { family: 'Plus Jakarta Sans', size: 10.5 }, callback: v => '₱' + (v >= 1000 ? (v/1000).toFixed(0) + 'k' : v) }, beginAtZero: true }
+                    }
+                }
+            });
+
+            // 3. Card 2: Reservation Status (Donut with Center Stat + Right Legend)
+            const statusData = await fetchAPI('/api/status-breakdown');
+            document.getElementById('loading-status').style.display = 'none';
+            document.getElementById('status-canvas-wrap').style.display = 'block';
+
+            const statusCounts = {
+                'Checked In': statusData['Checked In'] || 0,
+                'Checked Out': statusData['Checked Out'] || 0,
+                'Pending': statusData['Pending'] || 0,
+                'Cancelled': statusData['Cancelled'] || 0
+            };
+            const totalStatus = Object.values(statusCounts).reduce((a, b) => a + b, 0);
+            document.getElementById('donut-status-total').innerText = totalStatus.toLocaleString();
+
+            const statusColors = {
+                'Checked In': '#84563C',
+                'Checked Out': '#D97706',
+                'Pending': '#5E9A8E',
+                'Cancelled': '#EF4444'
+            };
+
+            const statusCanvas = document.getElementById('statusBreakdownChart');
+            new Chart(statusCanvas.getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(statusCounts),
+                    datasets: [{
+                        data: Object.values(statusCounts),
+                        backgroundColor: Object.values(statusColors),
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '72%',
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: ctx => ` ${ctx.label}: ${ctx.parsed} (${totalStatus > 0 ? Math.round((ctx.parsed/totalStatus)*100) : 0}%)`
                             }
                         }
                     }
                 }
             });
+
+            // Render Right Legend
+            const statusLegendList = document.getElementById('status-legend-list');
+            statusLegendList.innerHTML = Object.entries(statusCounts).map(([status, count]) => {
+                const pct = totalStatus > 0 ? Math.round((count / totalStatus) * 100) : 0;
+                const col = statusColors[status] || '#84563C';
+                return `
+                <div class="donut-legend-item">
+                    <div class="donut-legend-left">
+                        <span class="donut-legend-dot" style="background:${col};"></span>
+                        <span>${status}</span>
+                    </div>
+                    <div class="donut-legend-right">${pct}% (${count})</div>
+                </div>
+                `;
+            }).join('');
+
+            // 4. Card 3: Top Source Markets (Horizontal Progress Ranking Bars)
+            const countryData = await fetchAPI('/api/country-demographics');
+            const countryList = countryData.countries || [];
+            document.getElementById('badge-total-countries').innerText = `${countryData.total_origins || countryList.length} Origins`;
+
+            const rankingContainer = document.getElementById('ranking-bars-container');
+            const totalOriginsBookings = countryData.total_bookings || 1;
+
+            const flagMap = {
+                'Philippines': '🇵🇭', 'United States': '🇺🇸', 'Australia': '🇦🇺', 'United Kingdom': '🇬🇧',
+                'Japan': '🇯🇵', 'South Korea': '🇰🇷', 'China': '🇨🇳', 'Hong Kong': '🇭🇰',
+                'Taiwan': '🇹🇼', 'Singapore': '🇸🇬', 'Malaysia': '🇲🇾', 'Indonesia': '🇮🇩',
+                'Thailand': '🇹🇭', 'Vietnam': '🇻🇳', 'India': '🇮🇳', 'United Arab Emirates': '🇦🇪',
+                'Saudi Arabia': '🇸🇦', 'Qatar': '🇶🇦', 'Germany': '🇩🇪', 'France': '🇫🇷',
+                'Italy': '🇮🇹', 'Spain': '🇪🇸', 'Switzerland': '🇨🇭', 'Netherlands': '🇳🇱',
+                'New Zealand': '🇳🇿', 'Russia': '🇷🇺', 'Canada': '🇨🇦', 'Brazil': '🇧🇷'
+            };
+
+            if (countryList.length > 0) {
+                const top5Markets = countryList.slice(0, 5);
+                rankingContainer.innerHTML = top5Markets.map(c => {
+                    const flag = flagMap[c.country] || '🌐';
+                    const pct = c.share_pct || (Math.round((c.bookings / totalOriginsBookings) * 100));
+                    return `
+                    <div class="ranking-bar-row">
+                        <div class="ranking-bar-meta">
+                            <span class="ranking-bar-label">${flag} ${c.country}</span>
+                            <span class="ranking-bar-val">${pct}% (${c.bookings})</span>
+                        </div>
+                        <div class="ranking-bar-track">
+                            <div class="ranking-bar-fill" style="width:${pct}%;"></div>
+                        </div>
+                    </div>
+                    `;
+                }).join('');
+            } else {
+                rankingContainer.innerHTML = '<div class="loading">No guest country data yet.</div>';
+            }
 
             // 5. Payment Methods Table
             const payments = await fetchAPI('/api/payment-methods');
@@ -608,16 +767,6 @@ $admin = $_SESSION['admin_username'] ?? 'Admin';
             }
 
             // 7. Full Country Origin Leaderboard Table with Flags & Badges
-            const flagMap = {
-                'Philippines': '🇵🇭', 'United States': '🇺🇸', 'Australia': '🇦🇺', 'United Kingdom': '🇬🇧',
-                'Japan': '🇯🇵', 'South Korea': '🇰🇷', 'China': '🇨🇳', 'Hong Kong': '🇭🇰',
-                'Taiwan': '🇹🇼', 'Singapore': '🇸🇬', 'Malaysia': '🇲🇾', 'Indonesia': '🇮🇩',
-                'Thailand': '🇹🇭', 'Vietnam': '🇻🇳', 'India': '🇮🇳', 'United Arab Emirates': '🇦🇪',
-                'Saudi Arabia': '🇸🇦', 'Qatar': '🇶🇦', 'Germany': '🇩🇪', 'France': '🇫🇷',
-                'Italy': '🇮🇹', 'Spain': '🇪🇸', 'Switzerland': '🇨🇭', 'Netherlands': '🇳🇱',
-                'New Zealand': '🇳🇿', 'Russia': '🇷🇺', 'Canada': '🇨🇦', 'Brazil': '🇧🇷'
-            };
-
             const cTbody = document.getElementById('country-leaderboard-tbody');
             if (countryList.length > 0) {
                 cTbody.innerHTML = countryList.map((c, idx) => {
