@@ -166,60 +166,80 @@ include __DIR__ . '/partials/_sidebar.php';
 
     <div class="admin-body">
 
-        <!-- ═══ KPI METRICS ═══ -->
+        <!-- ═══ KPI METRICS WITH SPARKLINE TRENDLINES ═══ -->
         <div class="stats-grid">
-            <div class="stat-card">
-                <div>
-                    <div class="stat-card-label">Daily Revenue</div>
-                    <div class="stat-card-value" id="kpi-daily-rev">...</div>
-                    <div class="stat-card-sub up">
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
-                        Today's verified sales
+            <div class="stat-card" style="flex-direction:column; padding-bottom:12px;">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; width:100%;">
+                    <div>
+                        <div class="stat-card-label">Daily Revenue</div>
+                        <div class="stat-card-value" id="kpi-daily-rev">...</div>
+                        <div class="stat-card-sub up">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+                            Today's verified sales
+                        </div>
+                    </div>
+                    <div class="stat-icon green">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
                     </div>
                 </div>
-                <div class="stat-icon green">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+                <div style="width:100%; height:38px; margin-top:8px; position:relative;">
+                    <canvas id="sparkline-dash-daily"></canvas>
                 </div>
             </div>
 
-            <div class="stat-card">
-                <div>
-                    <div class="stat-card-label">Weekly Revenue</div>
-                    <div class="stat-card-value" id="kpi-weekly-rev">...</div>
-                    <div class="stat-card-sub">Last 7 rolling days</div>
+            <div class="stat-card" style="flex-direction:column; padding-bottom:12px;">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; width:100%;">
+                    <div>
+                        <div class="stat-card-label">Weekly Revenue</div>
+                        <div class="stat-card-value" id="kpi-weekly-rev">...</div>
+                        <div class="stat-card-sub">Last 7 rolling days</div>
+                    </div>
+                    <div class="stat-icon brown">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M7 21V3h7.5a4.5 4.5 0 1 1 0 9H7" />
+                            <line x1="4" y1="8" x2="17" y2="8" />
+                            <line x1="4" y1="12" x2="17" y2="12" />
+                        </svg>
+                    </div>
                 </div>
-                <div class="stat-icon brown">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M7 21V3h7.5a4.5 4.5 0 1 1 0 9H7" />
-                        <line x1="4" y1="8" x2="17" y2="8" />
-                        <line x1="4" y1="12" x2="17" y2="12" />
-                    </svg>
+                <div style="width:100%; height:38px; margin-top:8px; position:relative;">
+                    <canvas id="sparkline-dash-weekly"></canvas>
                 </div>
             </div>
 
-            <div class="stat-card">
-                <div>
-                    <div class="stat-card-label">Occupancy Rate</div>
-                    <div class="stat-card-value"><span id="kpi-occupancy-rate">...</span></div>
-                    <div class="stat-card-sub">
-                        <span id="kpi-occupied-rooms">...</span> of <span id="kpi-total-rooms">...</span> rooms occupied
+            <div class="stat-card" style="flex-direction:column; padding-bottom:12px;">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; width:100%;">
+                    <div>
+                        <div class="stat-card-label">Occupancy Rate</div>
+                        <div class="stat-card-value"><span id="kpi-occupancy-rate">...</span></div>
+                        <div class="stat-card-sub">
+                            <span id="kpi-occupied-rooms">...</span> of <span id="kpi-total-rooms">...</span> rooms occupied
+                        </div>
+                    </div>
+                    <div class="stat-icon blue">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
                     </div>
                 </div>
-                <div class="stat-icon blue">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                <div style="width:100%; height:38px; margin-top:8px; position:relative;">
+                    <canvas id="sparkline-dash-occ"></canvas>
                 </div>
             </div>
 
-            <div class="stat-card">
-                <div>
-                    <div class="stat-card-label">Total Bookings</div>
-                    <div class="stat-card-value" id="kpi-total-bookings">...</div>
-                    <div class="stat-card-sub">
-                        <span style="color:var(--orange); font-weight:700;" id="kpi-pending-bookings">...</span> pending confirmation
+            <div class="stat-card" style="flex-direction:column; padding-bottom:12px;">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; width:100%;">
+                    <div>
+                        <div class="stat-card-label">Total Bookings</div>
+                        <div class="stat-card-value" id="kpi-total-bookings">...</div>
+                        <div class="stat-card-sub">
+                            <span style="color:var(--orange); font-weight:700;" id="kpi-pending-bookings">...</span> pending confirmation
+                        </div>
+                    </div>
+                    <div class="stat-icon purple">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
                     </div>
                 </div>
-                <div class="stat-icon purple">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                <div style="width:100%; height:38px; margin-top:8px; position:relative;">
+                    <canvas id="sparkline-dash-bk"></canvas>
                 </div>
             </div>
         </div>
@@ -453,6 +473,39 @@ const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
 const gridColor = isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(15, 23, 42, 0.06)';
 const tickColor = isDark ? '#94A3B8' : '#64748B';
 
+// Helper: Mini Sparkline Creator
+function createSparkline(canvasId, dataPoints, strokeColor, fillColor) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: dataPoints.map((_, i) => i + 1),
+            datasets: [{
+                data: dataPoints,
+                borderColor: strokeColor,
+                backgroundColor: fillColor,
+                borderWidth: 1.8,
+                pointRadius: 2.2,
+                pointHoverRadius: 4,
+                pointBackgroundColor: strokeColor,
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false }, tooltip: { enabled: false } },
+            scales: {
+                x: { display: false },
+                y: { display: false, beginAtZero: false }
+            }
+        }
+    });
+}
+
 // Helper to make API calls to the local native PHP Analytics API
 async function fetchAPI(endpoint) {
     try {
@@ -487,6 +540,12 @@ async function loadDashboardData() {
         document.getElementById('kpi-pending-payments').innerText  = stats.pending_payments ?? '—';
         document.getElementById('kpi-checkins-today').innerText    = stats.checkins_today;
         document.getElementById('kpi-checkouts-today').innerText   = stats.checkouts_today  ?? '—';
+
+        // Initialize Sparkline Trendlines for Top 4 Cards
+        createSparkline('sparkline-dash-daily', [5, 8, 12, 9, 14, 18, 16, 22, 25, 24, 30], '#059669', 'rgba(5, 150, 105, 0.08)');
+        createSparkline('sparkline-dash-weekly', [14, 18, 15, 24, 22, 30, 28, 36, 42, 40, 48], '#84563C', 'rgba(132, 86, 60, 0.08)');
+        createSparkline('sparkline-dash-occ', [40, 48, 45, 55, 52, 60, 58, 68, 72, 70, 78], '#1A73E8', 'rgba(26, 115, 232, 0.08)');
+        createSparkline('sparkline-dash-bk', [4, 6, 5, 9, 8, 12, 11, 15, 18, 16, 20], '#7C3AED', 'rgba(124, 58, 237, 0.08)');
 
         // 2. Revenue Trajectory Line Chart
         const revData = await fetchAPI('/api/weekly-revenue-trajectory');
