@@ -56,6 +56,7 @@ if ($rt_q && $rt_q->num_rows > 0) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reception Cockpit — Santa Fe Beach Club</title>
+    <link rel="icon" type="image/jpeg" href="assets/logo.jpg">
     <link rel="stylesheet" href="assets/css/dashboard.css?v=4">
 </head>
 <body>

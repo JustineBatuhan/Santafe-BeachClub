@@ -237,6 +237,7 @@ $bookings_query = $conn->query("
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="icon" type="image/jpeg" href="assets/logo.jpg">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="assets/css/admin.css?v=4">
@@ -1108,6 +1109,7 @@ window.onload = function() {
     const printWin = window.open('', '', 'width=420,height=700');
     printWin.document.write(`<html>
     <head>
+    <link rel="icon" type="image/jpeg" href="assets/logo.jpg">
         <title>Receipt - <?php echo $rcpt; ?></title>
         <style>
             @page { size: 80mm auto; margin: 0; }

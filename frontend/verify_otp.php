@@ -152,6 +152,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (!isset($_POST['action']) || $_POST
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="icon" type="image/jpeg" href="assets/logo.jpg">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Two-Factor Authentication - Santa Fe Beach Club</title>

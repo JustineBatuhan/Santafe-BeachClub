@@ -8,6 +8,7 @@ $admin = $_SESSION['admin_username'] ?? 'Admin';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Command Dashboard — Santa Fe Beach Club</title>
+    <link rel="icon" type="image/jpeg" href="assets/logo.jpg">
     <link rel="stylesheet" href="assets/css/admin.css?v=4">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
