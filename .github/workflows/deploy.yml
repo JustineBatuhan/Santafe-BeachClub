@@ -1,4 +1,4 @@
-﻿name: Deploy to InfinityFree
+name: Deploy to InfinityFree
 
 on:
   push:
@@ -16,13 +16,13 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: 📡 Sync Files to santafebeachclub.42web.io via FTP
+      - name: 📡 Sync Files to santafebeachclub.wuaze.com via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          server-dir: /santafebeachclub.42web.io/htdocs/
+          server-dir: /santafebeachclub.wuaze.com/htdocs/
           exclude: |
             **/.git*
             **/.git*/**

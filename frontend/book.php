@@ -747,8 +747,44 @@ $full_name = trim(($_SESSION['guest_first_name'] ?? '') . ' ' . ($_SESSION['gues
                                 <label>Contact phone <span class="req">*</span></label>
                                 <div class="bk-input-combo">
                                     <select name="phone_code" class="bk-select-phone" aria-label="Country Code">
-                                        <option value="+63" <?php echo (($_SESSION['guest_phone_code'] ?? '+63') === '+63') ? 'selected' : ''; ?>>🇵🇭 +63</option>
-                                        <option value="+1" <?php echo (($_SESSION['guest_phone_code'] ?? '') === '+1') ? 'selected' : ''; ?>>🇺🇸 +1</option>
+                                        <?php
+                                        $phone_codes = [
+                                            ['code' => '+63', 'flag' => '🇵🇭', 'name' => 'PH (+63)'],
+                                            ['code' => '+1',  'flag' => '🇺🇸', 'name' => 'US/CA (+1)'],
+                                            ['code' => '+61', 'flag' => '🇦🇺', 'name' => 'AU (+61)'],
+                                            ['code' => '+44', 'flag' => '🇬🇧', 'name' => 'UK (+44)'],
+                                            ['code' => '+81', 'flag' => '🇯🇵', 'name' => 'JP (+81)'],
+                                            ['code' => '+82', 'flag' => '🇰🇷', 'name' => 'KR (+82)'],
+                                            ['code' => '+86', 'flag' => '🇨🇳', 'name' => 'CN (+86)'],
+                                            ['code' => '+852','flag' => '🇭🇰', 'name' => 'HK (+852)'],
+                                            ['code' => '+886','flag' => '🇹🇼', 'name' => 'TW (+886)'],
+                                            ['code' => '+65', 'flag' => '🇸🇬', 'name' => 'SG (+65)'],
+                                            ['code' => '+60', 'flag' => '🇲🇾', 'name' => 'MY (+60)'],
+                                            ['code' => '+62', 'flag' => '🇮🇩', 'name' => 'ID (+62)'],
+                                            ['code' => '+66', 'flag' => '🇹🇭', 'name' => 'TH (+66)'],
+                                            ['code' => '+84', 'flag' => '🇻🇳', 'name' => 'VN (+84)'],
+                                            ['code' => '+91', 'flag' => '🇮🇳', 'name' => 'IN (+91)'],
+                                            ['code' => '+971','flag' => '🇦🇪', 'name' => 'AE (+971)'],
+                                            ['code' => '+966','flag' => '🇸🇦', 'name' => 'SA (+966)'],
+                                            ['code' => '+974','flag' => '🇶🇦', 'name' => 'QA (+974)'],
+                                            ['code' => '+49', 'flag' => '🇩🇪', 'name' => 'DE (+49)'],
+                                            ['code' => '+33', 'flag' => '🇫🇷', 'name' => 'FR (+33)'],
+                                            ['code' => '+39', 'flag' => '🇮🇹', 'name' => 'IT (+39)'],
+                                            ['code' => '+34', 'flag' => '🇪🇸', 'name' => 'ES (+34)'],
+                                            ['code' => '+41', 'flag' => '🇨🇭', 'name' => 'CH (+41)'],
+                                            ['code' => '+31', 'flag' => '🇳🇱', 'name' => 'NL (+31)'],
+                                            ['code' => '+64', 'flag' => '🇳🇿', 'name' => 'NZ (+64)'],
+                                            ['code' => '+7',  'flag' => '🇷🇺', 'name' => 'RU (+7)'],
+                                            ['code' => '+55', 'flag' => '🇧🇷', 'name' => 'BR (+55)'],
+                                            ['code' => '+52', 'flag' => '🇲🇽', 'name' => 'MX (+52)'],
+                                            ['code' => '+27', 'flag' => '🇿🇦', 'name' => 'ZA (+27)'],
+                                        ];
+                                        $selected_phone_code = $_SESSION['guest_phone_code'] ?? '+63';
+                                        foreach ($phone_codes as $item):
+                                            $sel = ($selected_phone_code === $item['code']) ? 'selected' : '';
+                                            echo "<option value=\"" . htmlspecialchars($item['code']) . "\" {$sel}>" . $item['flag'] . " " . htmlspecialchars($item['code']) . "</option>\n";
+                                        endforeach;
+                                        ?>
                                     </select>
                                     <input type="tel" name="phone" placeholder="09171234567" required data-validate="phone" data-label="Phone number" value="<?php echo htmlspecialchars($_SESSION['guest_phone'] ?? ''); ?>">
                                 </div>
