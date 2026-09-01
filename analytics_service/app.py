@@ -263,6 +263,48 @@ def top_accommodations():
     return jsonify(rows)
 
 
+# ── 12. Country Demographics (Guest Origins) ────────────────────────────────
+@app.route('/api/country-demographics')
+def country_demographics():
+    conn = get_db()
+    cursor = conn.cursor(dictionary=True)
+    sql = """
+        SELECT 
+            COALESCE(NULLIF(TRIM(b.guest_country), ''), 'Philippines') AS country,
+            COUNT(DISTINCT b.id) AS bookings,
+            COUNT(DISTINCT b.guest_email) AS guests,
+            COALESCE(SUM(CASE WHEN p.status = 'verified' THEN p.amount ELSE 0 END), 0) AS revenue
+        FROM bookings b
+        LEFT JOIN payments p ON b.id = p.booking_id
+        GROUP BY country
+        ORDER BY bookings DESC, revenue DESC
+    """
+    cursor.execute(sql)
+    rows = cursor.fetchall()
+    cursor.close(); conn.close()
+
+    total_bookings = sum(r['bookings'] for r in rows) if rows else 0
+    total_revenue = sum(float(r['revenue']) for r in rows) if rows else 0.0
+
+    countries = []
+    for r in rows:
+        b_cnt = int(r['bookings'])
+        countries.append({
+            'country': r['country'],
+            'bookings': b_cnt,
+            'guests': int(r['guests']),
+            'revenue': float(r['revenue']),
+            'share_pct': round((b_cnt / total_bookings) * 100, 1) if total_bookings > 0 else 0
+        })
+
+    return jsonify({
+        'countries': countries,
+        'total_bookings': total_bookings,
+        'total_revenue': total_revenue,
+        'total_origins': len(countries)
+    })
+
+
 if __name__ == '__main__':
     print("=" * 55)
     print("  Santa Fe Beach Club - Python Analytics Service")

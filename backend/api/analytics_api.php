@@ -332,6 +332,53 @@ switch ($action) {
         echo json_encode($data);
         break;
 
+    // ── 13. Country Demographics & Guest Origins ──────────────────────────────
+    case 'country-demographics':
+        $sql = "
+            SELECT 
+                COALESCE(NULLIF(TRIM(b.guest_country), ''), 'Philippines') AS country,
+                COUNT(DISTINCT b.id) AS total_bookings,
+                COUNT(DISTINCT b.guest_email) AS unique_guests,
+                COALESCE(SUM(CASE WHEN p.status = 'verified' THEN p.amount ELSE 0 END), 0) AS total_revenue
+            FROM bookings b
+            LEFT JOIN payments p ON b.id = p.booking_id
+            GROUP BY country
+            ORDER BY total_bookings DESC, total_revenue DESC
+        ";
+        $res = $conn->query($sql);
+        $countries = [];
+        $totalBookingsAll = 0;
+        $totalRevenueAll = 0;
+
+        if ($res) {
+            while ($row = $res->fetch_assoc()) {
+                $bCount = (int)$row['total_bookings'];
+                $rSum   = (float)$row['total_revenue'];
+                $totalBookingsAll += $bCount;
+                $totalRevenueAll  += $rSum;
+                $countries[] = [
+                    'country'       => $row['country'],
+                    'bookings'      => $bCount,
+                    'guests'        => (int)$row['unique_guests'],
+                    'revenue'       => $rSum,
+                ];
+            }
+        }
+
+        // Calculate percentages
+        foreach ($countries as &$c) {
+            $c['share_pct'] = $totalBookingsAll > 0 ? round(($c['bookings'] / $totalBookingsAll) * 100, 1) : 0;
+        }
+        unset($c);
+
+        echo json_encode([
+            'countries'      => $countries,
+            'total_bookings' => $totalBookingsAll,
+            'total_revenue'  => $totalRevenueAll,
+            'total_origins'  => count($countries),
+        ]);
+        break;
+
     default:
         http_response_code(400);
         echo json_encode(['error' => 'Invalid action endpoint']);

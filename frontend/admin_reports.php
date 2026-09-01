@@ -162,6 +162,51 @@ $admin = $_SESSION['admin_username'] ?? 'Admin';
                     </div>
                 </div>
             </div>
+
+            <!-- ═══ GUEST DEMOGRAPHICS / COUNTRY ORIGINS ═══ -->
+            <div class="two-col" style="margin-top:24px;">
+                <!-- Country Demographics Chart -->
+                <div class="admin-card">
+                    <div class="admin-card-header">
+                        <div>
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <h3>Guest Demographics by Country</h3>
+                                <span id="badge-total-countries" style="background:rgba(132,86,60,0.12); color:#84563C; font-size:11px; font-weight:700; padding:2px 8px; border-radius:99px;">0 Origins</span>
+                            </div>
+                            <p style="font-size:12px; color:var(--text-muted); margin-top:2px;">Top source markets & guest reservation distribution</p>
+                        </div>
+                    </div>
+                    <div class="chart-container" style="height:260px;">
+                        <div class="loading" id="loading-country">Fetching country data...</div>
+                        <canvas id="countryChart" style="display:none;"></canvas>
+                    </div>
+                </div>
+
+                <!-- Country Leaderboard Table -->
+                <div class="admin-card">
+                    <div class="admin-card-header">
+                        <div>
+                            <h3>Country Origin Leaderboard</h3>
+                            <p style="font-size:12px; color:var(--text-muted); margin-top:2px;">Booking volume, guest count & verified revenue</p>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Country</th>
+                                    <th>Bookings</th>
+                                    <th>Share</th>
+                                    <th style="text-align:right;">Total Revenue</th>
+                                </tr>
+                            </thead>
+                            <tbody id="country-leaderboard-tbody">
+                                <tr><td colspan="4" class="loading">Fetching data...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
     </main>
 
@@ -283,6 +328,115 @@ $admin = $_SESSION['admin_username'] ?? 'Admin';
                 `).join('');
             } else {
                 rTbody.innerHTML = '<tr><td colspan="3" class="loading">No room booking records.</td></tr>';
+            }
+
+            // 6. Country Demographics & Leaderboard
+            const countryData = await fetchAPI('/api/country-demographics');
+            const countryList = countryData.countries || [];
+            document.getElementById('loading-country').style.display = 'none';
+            document.getElementById('badge-total-countries').innerText = `${countryData.total_origins || countryList.length} Origins`;
+
+            const cCanvas = document.getElementById('countryChart');
+            cCanvas.style.display = 'block';
+
+            // Top 6 countries for the horizontal bar chart
+            const topCountries = countryList.slice(0, 6);
+            const countryLabels = topCountries.map(c => c.country);
+            const countryCounts = topCountries.map(c => c.bookings);
+
+            new Chart(cCanvas.getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: countryLabels,
+                    datasets: [{
+                        label: 'Bookings',
+                        data: countryCounts,
+                        backgroundColor: [
+                            'rgba(132, 86, 60, 0.85)',
+                            'rgba(16, 185, 129, 0.85)',
+                            'rgba(59, 130, 246, 0.85)',
+                            'rgba(245, 158, 11, 0.85)',
+                            'rgba(139, 92, 246, 0.85)',
+                            'rgba(100, 116, 139, 0.85)'
+                        ],
+                        borderRadius: 6,
+                        borderSkipped: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: ctx => ` ${ctx.parsed.x} booking${ctx.parsed.x !== 1 ? 's' : ''}`
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { color: gridColor },
+                            ticks: {
+                                color: tickColor,
+                                font: { family: 'Plus Jakarta Sans', size: 11 },
+                                precision: 0
+                            },
+                            beginAtZero: true
+                        },
+                        y: {
+                            grid: { display: false },
+                            ticks: {
+                                color: tickColor,
+                                font: { family: 'Plus Jakarta Sans', size: 11.5, weight: '600' }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Populate Country Leaderboard Table with Flags
+            const flagMap = {
+                'Philippines': '🇵🇭', 'United States': '🇺🇸', 'Australia': '🇦🇺', 'United Kingdom': '🇬🇧',
+                'Japan': '🇯🇵', 'South Korea': '🇰🇷', 'China': '🇨🇳', 'Hong Kong': '🇭🇰',
+                'Taiwan': '🇹🇼', 'Singapore': '🇸🇬', 'Malaysia': '🇲🇾', 'Indonesia': '🇮🇩',
+                'Thailand': '🇹🇭', 'Vietnam': '🇻🇳', 'India': '🇮🇳', 'United Arab Emirates': '🇦🇪',
+                'Saudi Arabia': '🇸🇦', 'Qatar': '🇶🇦', 'Germany': '🇩🇪', 'France': '🇫🇷',
+                'Italy': '🇮🇹', 'Spain': '🇪🇸', 'Switzerland': '🇨🇭', 'Netherlands': '🇳🇱',
+                'New Zealand': '🇳🇿', 'Russia': '🇷🇺', 'Canada': '🇨🇦', 'Brazil': '🇧🇷'
+            };
+
+            const cTbody = document.getElementById('country-leaderboard-tbody');
+            if (countryList.length > 0) {
+                cTbody.innerHTML = countryList.map((c, idx) => {
+                    const flag = flagMap[c.country] || '🌐';
+                    const rankBadge = idx === 0 
+                        ? `<span style="display:inline-block; width:18px; height:18px; line-height:18px; text-align:center; background:#FEF3C7; color:#B45309; border-radius:50%; font-size:10px; font-weight:800; margin-right:6px;">1</span>`
+                        : `<span style="display:inline-block; width:18px; height:18px; line-height:18px; text-align:center; background:rgba(0,0,0,0.04); color:var(--text-muted); border-radius:50%; font-size:10px; font-weight:700; margin-right:6px;">${idx + 1}</span>`;
+
+                    return `
+                    <tr>
+                        <td style="font-weight:600; display:flex; align-items:center;">
+                            ${rankBadge}
+                            <span style="font-size:16px; margin-right:8px;">${flag}</span>
+                            <span>${c.country}</span>
+                        </td>
+                        <td style="color:var(--text-muted); font-weight:600;">${c.bookings} <span style="font-size:11px; font-weight:400;">(${c.guests} guest${c.guests !== 1 ? 's' : ''})</span></td>
+                        <td>
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <div style="flex:1; max-width:60px; height:6px; background:rgba(132,86,60,0.12); border-radius:99px; overflow:hidden;">
+                                    <div style="width:${c.share_pct}%; height:100%; background:#84563C; border-radius:99px;"></div>
+                                </div>
+                                <span style="font-size:11.5px; font-weight:600; color:var(--text-muted);">${c.share_pct}%</span>
+                            </div>
+                        </td>
+                        <td style="text-align:right; font-weight:700; color:var(--text-main);">₱${Number(c.revenue).toLocaleString()}</td>
+                    </tr>
+                    `;
+                }).join('');
+            } else {
+                cTbody.innerHTML = '<tr><td colspan="4" class="loading">No guest country data recorded yet.</td></tr>';
             }
 
         } catch (e) {
