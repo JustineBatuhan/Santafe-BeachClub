@@ -235,12 +235,22 @@ switch ($action) {
         $avg_res = $conn->query("SELECT ROUND(AVG(DATEDIFF(check_out, check_in)), 1) AS avg_stay FROM bookings WHERE status != 'Cancelled'");
         $avg_stay = (float)($avg_res ? ($avg_res->fetch_assoc()['avg_stay'] ?? 0) : 0);
 
+        // Occupancy Rate
+        $total_rooms_res = $conn->query("SELECT COUNT(*) AS c FROM rooms");
+        $total_rooms = (int)($total_rooms_res ? $total_rooms_res->fetch_assoc()['c'] : 0);
+        $checked_in_ids = sf_get_checked_in_room_ids($conn);
+        $occupied_rooms = count($checked_in_ids);
+        $occupancy_rate = ($total_rooms > 0) ? round(($occupied_rooms / $total_rooms) * 100, 1) : 0.0;
+
         echo json_encode([
             'total_revenue'    => $total_revenue,
             'total_bookings'   => $total_bookings,
             'pending_bookings' => $pending_bookings,
             'total_guests'     => $total_guests,
             'avg_stay'         => $avg_stay,
+            'occupancy_rate'   => $occupancy_rate,
+            'occupied_rooms'   => $occupied_rooms,
+            'total_rooms'      => $total_rooms,
         ]);
         break;
 

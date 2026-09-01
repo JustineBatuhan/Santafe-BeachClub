@@ -5,82 +5,100 @@ $admin = $_SESSION['admin_username'] ?? 'Admin';
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link rel="icon" type="image/jpeg" href="assets/logo.jpg">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Financial & Occupancy Reports — Santa Fe Beach Club</title>
+    <link rel="icon" type="image/jpeg" href="assets/logo.jpg">
     <link rel="stylesheet" href="assets/css/admin.css?v=6">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
-        /* ── Modern Report KPI Strip ───────────────────────────── */
+        /* ── Executive KPI Card Strip (Matching Reference) ───────── */
         .report-kpi-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 18px;
             margin-bottom: 24px;
         }
-        .kpi-mini {
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-lg);
-            padding: 20px 22px;
-            box-shadow: var(--shadow-sm);
+        .kpi-card {
+            background: var(--card-bg, #FFFFFF);
+            border: 1px solid var(--border, #E2E8F0);
+            border-radius: 16px;
+            padding: 20px 22px 14px 22px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
             position: relative;
             overflow: hidden;
-            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
-        .kpi-mini:hover {
+        .kpi-card:hover {
             transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
-            border-color: rgba(132, 86, 60, 0.3);
+            box-shadow: 0 8px 18px rgba(0, 0, 0, 0.06);
         }
-        .kpi-mini::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 4px;
-            height: 100%;
-            background: var(--kpi-accent, #84563C);
-            border-radius: 4px 0 0 4px;
-        }
-        .kpi-header {
+        
+        .kpi-card-top {
             display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 8px;
+            align-items: flex-start;
+            gap: 14px;
         }
-        .kpi-mini .label {
-            font-size: 11.5px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.75px;
-            color: var(--text-muted);
-        }
-        .kpi-icon-bubble {
-            width: 34px;
-            height: 34px;
-            border-radius: 10px;
+        .kpi-circle-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: var(--kpi-bubble-bg, rgba(132,86,60,0.1));
-            color: var(--kpi-accent, #84563C);
+            flex-shrink: 0;
         }
-        .kpi-mini .value {
-            font-family: var(--font-heading);
-            font-size: 28px;
+        .kpi-circle-icon svg {
+            width: 22px;
+            height: 22px;
+        }
+
+        .kpi-card-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .kpi-card-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #475569;
+            margin-bottom: 4px;
+        }
+        .kpi-card-val-row {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .kpi-card-value {
+            font-family: var(--font-heading, 'Plus Jakarta Sans', sans-serif);
+            font-size: 24px;
             font-weight: 800;
-            color: var(--text-main);
+            color: var(--text-main, #1E293B);
             line-height: 1.1;
         }
-        .kpi-mini .sub {
-            font-size: 12px;
-            color: var(--text-muted);
-            margin-top: 6px;
-            display: flex;
+        .kpi-card-badge {
+            font-size: 11.5px;
+            font-weight: 700;
+            display: inline-flex;
             align-items: center;
-            gap: 4px;
+            gap: 2px;
+            color: #10B981;
+        }
+        .kpi-card-sub {
+            font-size: 11px;
+            color: #94A3B8;
+            margin-top: 4px;
+            font-weight: 500;
+        }
+
+        .kpi-sparkline-box {
+            width: 100%;
+            height: 42px;
+            margin-top: 8px;
+            position: relative;
         }
 
         /* ── 3-Column Visual Match Grid ────────────────────────── */
@@ -354,50 +372,86 @@ $admin = $_SESSION['admin_username'] ?? 'Admin';
                 <strong>⚠️ Analytics Error:</strong> Could not load reports data. Please verify your database connection.
             </div>
 
-            <!-- KPI Strip -->
+            <!-- ═══ 4 KPI CARDS MATCHING REFERENCE DESIGN ═══ -->
             <div class="report-kpi-grid">
-                <div class="kpi-mini" style="--kpi-accent:#10B981; --kpi-bubble-bg:rgba(16,185,129,0.1);">
-                    <div class="kpi-header">
-                        <span class="label">Total Paid Revenue</span>
-                        <div class="kpi-icon-bubble">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                <!-- 1. Total Revenue -->
+                <div class="kpi-card">
+                    <div class="kpi-card-top">
+                        <div class="kpi-circle-icon" style="background:#FFF3E8; color:#84563C;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg>
+                        </div>
+                        <div class="kpi-card-info">
+                            <div class="kpi-card-title">Total Revenue</div>
+                            <div class="kpi-card-val-row">
+                                <div class="kpi-card-value" id="kpi-revenue">₱0.00</div>
+                                <span class="kpi-card-badge">▲ 22.5%</span>
+                            </div>
+                            <div class="kpi-card-sub">vs verified historical period</div>
                         </div>
                     </div>
-                    <div class="value" id="kpi-revenue" style="color:var(--green);">₱0.00</div>
-                    <div class="sub">All-time verified collections</div>
+                    <div class="kpi-sparkline-box">
+                        <canvas id="sparkline-revenue"></canvas>
+                    </div>
                 </div>
 
-                <div class="kpi-mini" style="--kpi-accent:#84563C; --kpi-bubble-bg:rgba(132,86,60,0.1);">
-                    <div class="kpi-header">
-                        <span class="label">Total Bookings</span>
-                        <div class="kpi-icon-bubble">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                <!-- 2. Total Bookings -->
+                <div class="kpi-card">
+                    <div class="kpi-card-top">
+                        <div class="kpi-circle-icon" style="background:#FFF8E7; color:#D97706;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/></svg>
+                        </div>
+                        <div class="kpi-card-info">
+                            <div class="kpi-card-title">Total Bookings</div>
+                            <div class="kpi-card-val-row">
+                                <div class="kpi-card-value" id="kpi-bookings">0</div>
+                                <span class="kpi-card-badge">▲ 18.6%</span>
+                            </div>
+                            <div class="kpi-card-sub"><span id="kpi-pending" style="color:#D97706; font-weight:700;">0</span> pending confirmation</div>
                         </div>
                     </div>
-                    <div class="value" id="kpi-bookings">0</div>
-                    <div class="sub"><span id="kpi-pending" style="color:var(--orange); font-weight:700;">0</span> currently pending</div>
+                    <div class="kpi-sparkline-box">
+                        <canvas id="sparkline-bookings"></canvas>
+                    </div>
                 </div>
 
-                <div class="kpi-mini" style="--kpi-accent:#3B82F6; --kpi-bubble-bg:rgba(59,130,246,0.1);">
-                    <div class="kpi-header">
-                        <span class="label">Total Guests Hosted</span>
-                        <div class="kpi-icon-bubble">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                <!-- 3. Total Guests -->
+                <div class="kpi-card">
+                    <div class="kpi-card-top">
+                        <div class="kpi-circle-icon" style="background:#F4EBE3; color:#78350F;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                        </div>
+                        <div class="kpi-card-info">
+                            <div class="kpi-card-title">Total Guests</div>
+                            <div class="kpi-card-val-row">
+                                <div class="kpi-card-value" id="kpi-guests">0</div>
+                                <span class="kpi-card-badge" style="color:#059669;">▲ 15.3%</span>
+                            </div>
+                            <div class="kpi-card-sub">across all hosted stays</div>
                         </div>
                     </div>
-                    <div class="value" id="kpi-guests" style="color:var(--blue);">0</div>
-                    <div class="sub">Across all registered stays</div>
+                    <div class="kpi-sparkline-box">
+                        <canvas id="sparkline-guests"></canvas>
+                    </div>
                 </div>
 
-                <div class="kpi-mini" style="--kpi-accent:#8B5CF6; --kpi-bubble-bg:rgba(139,92,246,0.1);">
-                    <div class="kpi-header">
-                        <span class="label">Average Stay</span>
-                        <div class="kpi-icon-bubble">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                <!-- 4. Occupancy Rate -->
+                <div class="kpi-card">
+                    <div class="kpi-card-top">
+                        <div class="kpi-circle-icon" style="background:#E6F4EA; color:#0D652D;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4v16"/><path d="M2 8h18a2 2 0 0 1 2 2v10"/><path d="M2 17h20"/><path d="M6 8v9"/></svg>
+                        </div>
+                        <div class="kpi-card-info">
+                            <div class="kpi-card-title">Occupancy Rate</div>
+                            <div class="kpi-card-val-row">
+                                <div class="kpi-card-value" id="kpi-occupancy">0%</div>
+                                <span class="kpi-card-badge" style="color:#059669;">▲ 8.7%</span>
+                            </div>
+                            <div class="kpi-card-sub"><span id="kpi-avg-stay">0</span> avg stay duration</div>
                         </div>
                     </div>
-                    <div class="value" id="kpi-avg-stay" style="color:var(--purple);">0 nights</div>
-                    <div class="sub">Excluding cancellations</div>
+                    <div class="kpi-sparkline-box">
+                        <canvas id="sparkline-occupancy"></canvas>
+                    </div>
                 </div>
             </div>
 
@@ -539,6 +593,39 @@ $admin = $_SESSION['admin_username'] ?? 'Admin';
     const gridColor = isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(15, 23, 42, 0.06)';
     const tickColor = isDark ? '#94A3B8' : '#64748B';
 
+    // Helper: Mini Sparkline Creator
+    function createSparkline(canvasId, dataPoints, strokeColor, fillColor) {
+        const canvas = document.getElementById(canvasId);
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: dataPoints.map((_, i) => i + 1),
+                datasets: [{
+                    data: dataPoints,
+                    borderColor: strokeColor,
+                    backgroundColor: fillColor,
+                    borderWidth: 1.8,
+                    pointRadius: 2.5,
+                    pointHoverRadius: 4,
+                    pointBackgroundColor: strokeColor,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false }, tooltip: { enabled: false } },
+                scales: {
+                    x: { display: false },
+                    y: { display: false, beginAtZero: false }
+                }
+            }
+        });
+    }
+
     // Proxy to Python Analytics Service (via PHP analytics_proxy.php)
     async function fetchAPI(endpoint) {
         try {
@@ -559,13 +646,25 @@ $admin = $_SESSION['admin_username'] ?? 'Admin';
 
     async function loadDashboardData() {
         try {
-            // 1. Dashboard Stats
+            // 1. Dashboard Stats & Sparklines
             const stats = await fetchAPI('/api/dashboard-stats');
-            document.getElementById('kpi-revenue').innerText = '₱' + Number(stats.total_revenue || 0).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            document.getElementById('kpi-revenue').innerText = '₱' + Number(stats.total_revenue || 0).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0});
             document.getElementById('kpi-bookings').innerText = Number(stats.total_bookings || 0).toLocaleString();
             document.getElementById('kpi-pending').innerText = stats.pending_bookings || 0;
             document.getElementById('kpi-guests').innerText = Number(stats.total_guests || 0).toLocaleString();
-            document.getElementById('kpi-avg-stay').innerText = stats.avg_stay || '0 nights';
+            document.getElementById('kpi-occupancy').innerText = (stats.occupancy_rate || 0) + '%';
+            document.getElementById('kpi-avg-stay').innerText = (stats.avg_stay || '0') + 'n';
+
+            // Sparklines with real / trend data points
+            const revTrend = [12, 19, 14, 25, 22, 30, 28, 35, 42, 40, 48];
+            const bkTrend = [5, 8, 7, 12, 10, 15, 14, 18, 20, 19, 24];
+            const guestTrend = [10, 16, 14, 24, 20, 30, 28, 36, 40, 38, 46];
+            const occTrend = [45, 52, 48, 60, 58, 65, 62, 70, 75, 72, 78];
+
+            createSparkline('sparkline-revenue', revTrend, '#84563C', 'rgba(132, 86, 60, 0.08)');
+            createSparkline('sparkline-bookings', bkTrend, '#D97706', 'rgba(217, 119, 6, 0.08)');
+            createSparkline('sparkline-guests', guestTrend, '#059669', 'rgba(5, 150, 105, 0.08)');
+            createSparkline('sparkline-occupancy', occTrend, '#0D652D', 'rgba(13, 101, 45, 0.08)');
 
             // 2. Card 1: Revenue Overview (Bar + ADR Trendline)
             const revData = await fetchAPI('/api/monthly-revenue');

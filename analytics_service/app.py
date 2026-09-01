@@ -223,6 +223,12 @@ def dashboard_stats():
     guests     = fetchone(cursor, "SELECT COUNT(DISTINCT guest_email) FROM bookings WHERE guest_email IS NOT NULL")[0]
     avg_row    = fetchone(cursor, "SELECT AVG(DATEDIFF(check_out, check_in)) FROM bookings WHERE status IN ('Checked In','Checked Out')")
     avg_stay   = f"{round(float(avg_row[0] or 0), 1)} nights"
+    
+    # Occupancy
+    total_rooms = fetchone(cursor, "SELECT COUNT(*) FROM rooms")[0] or 1
+    checked_in = get_checked_in_count(cursor) or 0
+    occ_rate = round((checked_in / total_rooms) * 100, 1)
+
     cursor.close(); conn.close()
     return jsonify({
         'total_revenue': float(total_rev),
@@ -230,6 +236,9 @@ def dashboard_stats():
         'pending_bookings': pending,
         'total_guests': guests,
         'avg_stay': avg_stay,
+        'occupancy_rate': occ_rate,
+        'occupied_rooms': checked_in,
+        'total_rooms': total_rooms,
     })
 
 
