@@ -127,30 +127,42 @@ function booking_room_type(array $booking): string {
         /* ── Stat cards ──────────────────────────────────────── */
         .guest-stats-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(5, 1fr);
             gap: 16px;
             margin-bottom: 20px;
         }
+        @media (max-width: 1200px) {
+            .guest-stats-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+        @media (max-width: 768px) {
+            .guest-stats-grid { grid-template-columns: repeat(2, 1fr); }
+        }
         .guest-stat-card {
-            background: #fff;
-            border-radius: 12px;
-            padding: 20px 22px;
-            border: 1px solid #eee;
+            background: var(--card-bg, #FFFFFF);
+            border-radius: 16px;
+            padding: 18px 20px;
+            border: 1px solid var(--border, #E2E8F0);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
             display: flex;
             align-items: center;
-            gap: 16px;
+            gap: 14px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .guest-stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 18px rgba(0, 0, 0, 0.06);
         }
         .guest-stat-icon {
-            width: 46px;
-            height: 46px;
-            border-radius: 12px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
         }
-        .guest-stat-label { font-size: 12px; color: #888; font-weight: 600; text-transform: uppercase; }
-        .guest-stat-value { font-size: 26px; font-weight: 700; color: #222; line-height: 1.1; }
+        .guest-stat-label { font-size: 11.5px; color: var(--text-muted, #888); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+        .guest-stat-value { font-size: 24px; font-weight: 800; color: var(--text-main, #222); line-height: 1.1; font-family: var(--font-heading); }
 
         /* ── Filter tabs ─────────────────────────────────────── */
         .filter-tabs {
@@ -164,9 +176,9 @@ function booking_room_type(array $booking): string {
             font-size: 13px;
             font-weight: 600;
             cursor: pointer;
-            border: 1px solid #e5e7eb;
-            background: #fff;
-            color: #555;
+            border: 1px solid var(--border, #e5e7eb);
+            background: var(--input-bg, #FFFFFF);
+            color: var(--text-muted, #555);
             transition: all .15s;
         }
         .filter-tab:hover { border-color: var(--color-primary); color: var(--color-primary); }
@@ -177,24 +189,24 @@ function booking_room_type(array $booking): string {
         .reservations-table th, .reservations-table td {
             padding: 14px 16px;
             text-align: left;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid var(--border-light, #eee);
         }
         .reservations-table tbody tr:last-child td { border-bottom: none; }
         .reservations-table th {
-            color: #888;
-            font-weight: 600;
+            color: var(--text-muted, #888);
+            font-weight: 700;
             text-transform: uppercase;
             font-size: 11px;
             letter-spacing: .5px;
         }
-        .reservations-table tbody tr:hover { background: #fafafa; }
+        .reservations-table tbody tr:hover td { background: var(--sidebar-hover, #fafafa); }
         .guest-profile-small { display: flex; align-items: center; gap: 10px; }
         .avatar-small {
             width: 36px; height: 36px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
             font-weight: 700; font-size: 13px; flex-shrink: 0;
         }
-        .guest-name-main { font-weight: 600; font-size: 14px; color: #222; }
+        .guest-name-main { font-weight: 600; font-size: 14px; color: var(--text-main, #222); }
         .btn-view {
             background: transparent;
             color: var(--color-primary);
@@ -206,22 +218,24 @@ function booking_room_type(array $booking): string {
             font-size: 13px;
             transition: all .15s;
         }
-        .btn-view:hover { background: #FDF4EC; }
+        .btn-view:hover { background: var(--primary-light, #FDF4EC); }
         .booking-count-badge {
-            background: #f0f0f0;
+            background: var(--input-bg, #f0f0f0);
+            border: 1px solid var(--border, #e2e8f0);
             padding: 3px 10px;
             border-radius: 20px;
             font-weight: 700;
             font-size: 13px;
-            color: #333;
+            color: var(--text-main, #333);
         }
-        .no-results { text-align: center; color: #999; padding: 40px 0; font-size: 15px; }
+        .no-results { text-align: center; color: var(--text-muted, #999); padding: 40px 0; font-size: 15px; }
 
         /* ── Modal ───────────────────────────────────────────── */
         .modal-overlay {
             display: none;
             position: fixed; inset: 0;
-            background: rgba(0,0,0,.45);
+            background: rgba(0,0,0,.55);
+            backdrop-filter: blur(2px);
             z-index: 1000;
             align-items: center;
             justify-content: center;
@@ -229,13 +243,14 @@ function booking_room_type(array $booking): string {
         }
         .modal-overlay.open { display: flex; }
         .modal-box {
-            background: #fff;
+            background: var(--card-bg, #fff);
+            border: 1px solid var(--border, #e2e8f0);
             border-radius: 16px;
             width: 100%;
             max-width: 740px;
             max-height: 90vh;
             overflow-y: auto;
-            box-shadow: 0 20px 60px rgba(0,0,0,.2);
+            box-shadow: 0 20px 60px rgba(0,0,0,.3);
             animation: modalIn .2s ease;
         }
         @keyframes modalIn {
@@ -244,13 +259,13 @@ function booking_room_type(array $booking): string {
         }
         .modal-header {
             padding: 28px 28px 20px;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid var(--border, #eee);
             display: flex;
             align-items: flex-start;
             gap: 18px;
             position: sticky;
             top: 0;
-            background: #fff;
+            background: var(--card-bg, #fff);
             border-radius: 16px 16px 0 0;
             z-index: 1;
         }
@@ -259,8 +274,8 @@ function booking_room_type(array $booking): string {
             display: flex; align-items: center; justify-content: center;
             font-size: 22px; font-weight: 700; flex-shrink: 0;
         }
-        .modal-guest-name { font-size: 20px; font-weight: 700; color: #222; margin-bottom: 4px; }
-        .modal-guest-email { font-size: 14px; color: #888; margin-bottom: 8px; }
+        .modal-guest-name { font-size: 20px; font-weight: 700; color: var(--text-main, #222); margin-bottom: 4px; }
+        .modal-guest-email { font-size: 14px; color: var(--text-muted, #888); margin-bottom: 8px; }
         .modal-header-actions {
             margin-left: auto;
             display: flex;
@@ -288,10 +303,10 @@ function booking_room_type(array $booking): string {
         }
         .modal-close {
             background: none; border: none;
-            cursor: pointer; color: #aaa; padding: 4px;
+            cursor: pointer; color: var(--text-muted, #aaa); padding: 4px;
             border-radius: 6px; flex-shrink: 0;
         }
-        .modal-close:hover { color: #444; background: #f3f4f6; }
+        .modal-close:hover { color: var(--text-main, #444); background: var(--sidebar-hover, #f3f4f6); }
         .modal-body { padding: 24px 28px; }
         .modal-stats-row {
             display: grid;
@@ -300,17 +315,18 @@ function booking_room_type(array $booking): string {
             margin-bottom: 28px;
         }
         .modal-stat {
-            background: #f9fafb;
+            background: var(--input-bg, #f9fafb);
+            border: 1px solid var(--border, #eee);
             border-radius: 10px;
             padding: 14px 16px;
             text-align: center;
         }
-        .modal-stat-val { font-size: 22px; font-weight: 700; color: #222; }
-        .modal-stat-lbl { font-size: 11px; color: #888; font-weight: 600; text-transform: uppercase; margin-top: 2px; }
+        .modal-stat-val { font-size: 22px; font-weight: 700; color: var(--text-main, #222); }
+        .modal-stat-lbl { font-size: 11px; color: var(--text-muted, #888); font-weight: 600; text-transform: uppercase; margin-top: 2px; }
         .modal-section-title {
             font-size: 14px;
             font-weight: 700;
-            color: #444;
+            color: var(--text-main, #444);
             text-transform: uppercase;
             letter-spacing: .5px;
             margin-bottom: 12px;
@@ -318,21 +334,21 @@ function booking_room_type(array $booking): string {
         .booking-history-table { width: 100%; border-collapse: collapse; font-size: 13px; }
         .booking-history-table th {
             padding: 9px 12px; text-align: left;
-            background: #f9fafb; color: #888; font-weight: 600;
+            background: var(--sidebar-hover, #f9fafb); color: var(--text-muted, #888); font-weight: 600;
             text-transform: uppercase; font-size: 11px; letter-spacing: .4px;
         }
         .booking-history-table th:first-child { border-radius: 8px 0 0 8px; }
         .booking-history-table th:last-child  { border-radius: 0 8px 8px 0; }
-        .booking-history-table td { padding: 11px 12px; border-bottom: 1px solid #f0f0f0; }
+        .booking-history-table td { padding: 11px 12px; border-bottom: 1px solid var(--border-light, #f0f0f0); color: var(--text-main); }
         .booking-history-table tbody tr:last-child td { border-bottom: none; }
         .status-pill {
             padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;
         }
-        .status-pill.pending    { background:#FFF8E1; color:#F59E0B; }
-        .status-pill.checked-in { background:#E8F5E9; color:#2E7D32; }
-        .status-pill.checked-out{ background:#E3F2FD; color:#1565C0; }
-        .status-pill.cancelled  { background:#FFEBEE; color:#C62828; }
-        .empty-history { text-align: center; color: #aaa; padding: 30px 0; font-size: 14px; }
+        .status-pill.pending    { background: rgba(245, 158, 11, 0.15); color: #F59E0B; }
+        .status-pill.checked-in { background: rgba(16, 185, 129, 0.15); color: #10B981; }
+        .status-pill.checked-out{ background: rgba(59, 130, 246, 0.15); color: #3B82F6; }
+        .status-pill.cancelled  { background: rgba(239, 68, 68, 0.15); color: #EF4444; }
+        .empty-history { text-align: center; color: var(--text-muted, #aaa); padding: 30px 0; font-size: 14px; }
 
         /* ── Card header row with filter + actions ────────────── */
         .card-toolbar {
@@ -367,7 +383,7 @@ include __DIR__ . '/partials/_page_header.php';
     <!-- ── Summary stat cards ─────────────────────────────────────────── -->
     <div class="guest-stats-grid">
         <div class="guest-stat-card">
-            <div class="guest-stat-icon" style="background:#EFF6FF;">
+            <div class="guest-stat-icon" style="background:rgba(59,130,246,0.12);">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
             </div>
             <div>
@@ -376,8 +392,8 @@ include __DIR__ . '/partials/_page_header.php';
             </div>
         </div>
         <div class="guest-stat-card">
-            <div class="guest-stat-icon" style="background:#FDF4EC;">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7C533C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <div class="guest-stat-icon" style="background:rgba(132,86,60,0.12);">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#84563C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
             </div>
             <div>
                 <div class="guest-stat-label">VIP Members</div>
@@ -385,7 +401,7 @@ include __DIR__ . '/partials/_page_header.php';
             </div>
         </div>
         <div class="guest-stat-card">
-            <div class="guest-stat-icon" style="background:#E3F2FD;">
+            <div class="guest-stat-icon" style="background:rgba(21,101,192,0.12);">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1565C0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
             </div>
             <div>
@@ -394,7 +410,7 @@ include __DIR__ . '/partials/_page_header.php';
             </div>
         </div>
         <div class="guest-stat-card">
-            <div class="guest-stat-icon" style="background:#F0FDF4;">
+            <div class="guest-stat-icon" style="background:rgba(22,163,74,0.12);">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
             </div>
             <div>
@@ -403,7 +419,7 @@ include __DIR__ . '/partials/_page_header.php';
             </div>
         </div>
         <div class="guest-stat-card">
-            <div class="guest-stat-icon" style="background:#F3E8FF;">
+            <div class="guest-stat-icon" style="background:rgba(124,58,237,0.12);">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
             </div>
             <div>
@@ -417,8 +433,8 @@ include __DIR__ . '/partials/_page_header.php';
     <div class="card" style="padding:0; overflow:hidden;">
         <div class="card-toolbar">
             <div>
-                <h2 style="font-size:17px;font-weight:700;color:#222;">Guest Directory</h2>
-                <p style="font-size:13px;color:#888;margin-top:2px;">
+                <h2 style="font-size:17px;font-weight:700;color:var(--text-main);">Guest Directory</h2>
+                <p style="font-size:13px;color:var(--text-muted);margin-top:2px;">
                     <span id="visibleCount"><?= $total_guests ?></span> guest<?= $total_guests !== 1 ? 's' : '' ?> total
                 </p>
             </div>
