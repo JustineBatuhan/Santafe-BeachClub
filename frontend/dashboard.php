@@ -4,14 +4,20 @@ require_once __DIR__ . '/../backend/config/db.php';
 require_once __DIR__ . '/../backend/helpers/room_status_helper.php';
 
 // Calculate live dashboard metrics
-$checkins_today = $conn->query("SELECT COUNT(*) as count FROM bookings WHERE DATE(check_in) = CURDATE()")->fetch_assoc()['count'] ?? 0;
-$checkouts_today = $conn->query("SELECT COUNT(*) as count FROM bookings WHERE DATE(check_out) = CURDATE()")->fetch_assoc()['count'] ?? 0;
+$checkins_today = $conn->query("SELECT COUNT(*) as count FROM bookings WHERE DATE(check_in) = CURDATE() AND status != 'Cancelled'")->fetch_assoc()['count'] ?? 0;
+$checkouts_today = $conn->query("SELECT COUNT(*) as count FROM bookings WHERE DATE(check_out) = CURDATE() AND status != 'Cancelled'")->fetch_assoc()['count'] ?? 0;
 $pending_rsvps = $conn->query("SELECT COUNT(*) as count FROM bookings WHERE status = 'Pending'")->fetch_assoc()['count'] ?? 0;
 $total_guests = $conn->query("SELECT SUM(guests_count) as count FROM bookings WHERE status = 'Checked In'")->fetch_assoc()['count'] ?? 0;
 $total_guests = (int)($total_guests ?? 0);
 
 // Fetch current arrivals list
-$bookings_query = $conn->query("SELECT id, guest_name, guest_type, accommodation_name, eta, status FROM bookings WHERE status = 'Pending' AND DATE(check_in) = CURDATE() ORDER BY id DESC");
+$bookings_query = $conn->query("
+    SELECT b.id, b.guest_name, b.guest_phone, b.guest_email, b.guest_type, b.accommodation_name, b.eta, b.status, b.room_id, b.check_in, b.check_out, r.room_number 
+    FROM bookings b
+    LEFT JOIN rooms r ON r.id = b.room_id
+    WHERE b.status = 'Pending' AND DATE(b.check_in) = CURDATE() 
+    ORDER BY b.id DESC
+");
 
 $checked_in_room_ids = sf_get_checked_in_room_ids($conn);
 $reserved_room_ids = sf_get_reserved_room_ids($conn);
@@ -19,7 +25,15 @@ $room_status_rows = [];
 $occupied_rooms = 0;
 $available_rooms = 0;
 
-$rooms_query = $conn->query("SELECT id, room_number, status FROM rooms ORDER BY room_number ASC");
+// Fetch full details of each room including who is currently staying or reserved
+$rooms_query = $conn->query("
+    SELECT r.id, r.room_number, r.status, r.type,
+           b.id AS booking_id, b.guest_name, b.guest_phone, b.guest_email, b.guest_type, b.check_in, b.check_out, b.status AS booking_status
+    FROM rooms r
+    LEFT JOIN bookings b ON b.room_id = r.id AND b.status IN ('Checked In', 'Pending', 'Confirmed') AND b.check_in <= CURDATE() AND b.check_out >= CURDATE()
+    ORDER BY r.room_number ASC
+");
+
 if ($rooms_query && $rooms_query->num_rows > 0) {
     while ($room = $rooms_query->fetch_assoc()) {
         $room['resolved_status'] = sf_resolve_room_display_status($room, $checked_in_room_ids, $reserved_room_ids);
@@ -35,18 +49,18 @@ if ($rooms_query && $rooms_query->num_rows > 0) {
 
 // Fetch room types for the booking form dropdown
 $room_types = [];
-$rt_q = $conn->query("SELECT id, name FROM room_types ORDER BY id ASC");
+$rt_q = $conn->query("SELECT id, name, base_price FROM room_types ORDER BY id ASC");
 if ($rt_q && $rt_q->num_rows > 0) {
     while ($row = $rt_q->fetch_assoc()) {
         $room_types[] = $row;
     }
 } else {
     $room_types = [
-        ['id' => 1, 'name' => 'beachview_duplex'],
-        ['id' => 2, 'name' => 'seaview_duplex'],
-        ['id' => 3, 'name' => 'beach_villa'],
-        ['id' => 4, 'name' => 'standard_room'],
-        ['id' => 5, 'name' => 'standard_king']
+        ['id' => 1, 'name' => 'beachview_duplex', 'base_price' => 3500],
+        ['id' => 2, 'name' => 'seaview_duplex', 'base_price' => 4200],
+        ['id' => 3, 'name' => 'beach_villa', 'base_price' => 5500],
+        ['id' => 4, 'name' => 'standard_room', 'base_price' => 2800],
+        ['id' => 5, 'name' => 'standard_king', 'base_price' => 3200]
     ];
 }
 ?>
@@ -57,7 +71,51 @@ if ($rt_q && $rt_q->num_rows > 0) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reception Cockpit — Santa Fe Beach Club</title>
     <link rel="icon" type="image/jpeg" href="assets/logo.jpg">
-    <link rel="stylesheet" href="assets/css/dashboard.css?v=4">
+    <link rel="stylesheet" href="assets/css/dashboard.css?v=5">
+    <style>
+        /* Room Quick Action Modal & Interactive Elements */
+        .room-block {
+            cursor: pointer;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+        .room-block:hover {
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
+        
+        .stay-pill-btn {
+            background: var(--input-bg, #F8FAFC);
+            border: 1px solid var(--border, #E2E8F0);
+            padding: 5px 12px;
+            border-radius: 99px;
+            font-size: 11.5px;
+            font-weight: 600;
+            color: var(--text-main, #334155);
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .stay-pill-btn:hover {
+            background: var(--primary, #84563C);
+            color: #FFFFFF;
+            border-color: var(--primary, #84563C);
+        }
+
+        .room-detail-modal-box {
+            background: var(--card-bg, #FFFFFF);
+            border-radius: 18px;
+            padding: 26px;
+            width: 100%;
+            max-width: 440px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            position: relative;
+            animation: modalFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: scale(0.96) translateY(8px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+    </style>
 </head>
 <body>
 
@@ -68,9 +126,9 @@ if ($rt_q && $rt_q->num_rows > 0) {
         $page_title = 'Reception Console';
         $page_subtitle = "Real-time front desk operations • " . date('l, F j, Y');
         $header_extra_html = '
-            <div class="search-wrapper">
+            <div class="search-wrapper" style="position:relative;">
                 <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                <input type="text" placeholder="Search arrivals..." class="search-input" id="dashboardSearch" onkeyup="filterArrivalsTable()">
+                <input type="text" placeholder="Search by name, room, phone, or Ref ID..." class="search-input" id="dashboardSearch" onkeyup="filterArrivalsTable()">
             </div>
             <button class="btn-new-res-top" onclick="openReservationModal()">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -187,6 +245,10 @@ if ($rt_q && $rt_q->num_rows > 0) {
                                         $name = htmlspecialchars($name_raw);
                                         $type = htmlspecialchars($type_raw);
                                         $accommodation = htmlspecialchars($accommodation_raw);
+                                        $phone = htmlspecialchars($row['guest_phone'] ?? '');
+                                        $email = htmlspecialchars($row['guest_email'] ?? '');
+                                        $ref_id = 'REF-' . str_pad($row['id'], 4, '0', STR_PAD_LEFT);
+                                        $room_no = htmlspecialchars($row['room_number'] ?? '');
                                         
                                         $initials = '';
                                         $parts = explode(' ', $name_raw);
@@ -198,17 +260,19 @@ if ($rt_q && $rt_q->num_rows > 0) {
                                         $btnClass = ($idx === 0) ? 'primary' : 'secondary';
                                         $idx++;
                                         
-                                        echo "<tr id='{$row_id}' data-guest-type='" . htmlspecialchars($type_raw, ENT_QUOTES) . "'>";
+                                        echo "<tr id='{$row_id}' data-guest-type='" . htmlspecialchars($type_raw, ENT_QUOTES) . "' data-search-text='" . strtolower(htmlspecialchars("{$name_raw} {$phone} {$email} {$ref_id} {$accommodation_raw} {$room_no}", ENT_QUOTES)) . "'>";
                                         echo "<td>
                                                 <div class='guest-profile'>
                                                     <div class='avatar-letter'>{$initials}</div>
                                                     <div class='guest-info'>
                                                         <h4>{$name}</h4>
-                                                        <p>{$type}</p>
+                                                        <p>{$type} &bull; <span style='font-family:monospace; color:var(--primary);'>{$ref_id}</span></p>
                                                     </div>
                                                 </div>
                                               </td>";
-                                        echo "<td style='color:var(--text-muted); font-size:13px;'>{$accommodation}</td>";
+                                        echo "<td style='color:var(--text-muted); font-size:13px;'>
+                                                <strong>{$accommodation}</strong>" . ($room_no ? " <span style='color:var(--text-main); font-weight:700;'>(Room {$room_no})</span>" : "") . "
+                                              </td>";
                                         echo "<td class='eta-cell' style='font-weight:600; color:var(--text-main);'>{$eta}</td>";
                                         echo "<td style='text-align: right;'>
                                                 <button class='btn-table-action {$btnClass}' onclick='checkInGuest(" . json_encode($row_id) . ", " . json_encode($name_raw) . ", " . json_encode($accommodation_raw) . ")'>
@@ -235,7 +299,7 @@ if ($rt_q && $rt_q->num_rows > 0) {
                     <div class="card-header">
                         <div>
                             <h2>Live Unit Availability</h2>
-                            <p style="font-size:12px; color:var(--text-muted); margin-top:2px;">Real-time room status matrix</p>
+                            <p style="font-size:12px; color:var(--text-muted); margin-top:2px;">Click any room for quick actions</p>
                         </div>
                         <a href="admin_calendar" class="btn-view-all">Full Matrix &rarr;</a>
                     </div>
@@ -246,7 +310,8 @@ if ($rt_q && $rt_q->num_rows > 0) {
                             foreach ($room_status_rows as $room) {
                                 $num = htmlspecialchars($room['room_number']);
                                 $status = htmlspecialchars($room['resolved_status']);
-                                echo "<div class='room-block {$status}' data-room='{$num}' data-status='{$status}' title='Room {$num} • " . ucfirst($status) . "'>{$num}</div>";
+                                $roomJson = htmlspecialchars(json_encode($room), ENT_QUOTES, 'UTF-8');
+                                echo "<div class='room-block {$status}' data-room='{$num}' data-status='{$status}' onclick='openRoomDetailModal({$roomJson})' title='Room {$num} • " . ucfirst($status) . "'>{$num}</div>";
                             }
                         }
                         ?>
@@ -275,26 +340,44 @@ if ($rt_q && $rt_q->num_rows > 0) {
         </div>
     </main>
 
-    <!-- Quick Reservation Modal -->
-    <div class="modal-overlay" id="newReservationModal">
-        <div class="modal-box">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+    <!-- ═══ MODAL 1: INTERACTIVE ROOM QUICK-DETAIL ═══ -->
+    <div class="modal-overlay" id="roomDetailModal" onclick="if(event.target===this) closeRoomDetailModal();">
+        <div class="room-detail-modal-box">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:16px;">
                 <div>
-                    <h3>Express Reservation</h3>
-                    <p class="modal-sub">Create and immediately confirm front-desk bookings</p>
+                    <h2 id="rm-modal-title" style="font-family:var(--font-heading); font-size:20px; font-weight:800; color:var(--text-main); margin:0;">Room 101</h2>
+                    <p id="rm-modal-type" style="font-size:13px; color:var(--text-muted); margin:3px 0 0;">Standard Room</p>
                 </div>
+                <span id="rm-modal-badge" style="padding:4px 10px; border-radius:99px; font-size:11.5px; font-weight:700; text-transform:uppercase;">Ready</span>
+            </div>
+
+            <div id="rm-modal-body" style="background:var(--input-bg, #F8FAFC); border:1px solid var(--border); border-radius:12px; padding:16px; margin-bottom:20px; font-size:13.5px;">
+                <!-- Filled dynamically via JS -->
+            </div>
+
+            <div id="rm-modal-actions" style="display:flex; gap:10px; justify-content:flex-end;">
+                <button type="button" class="btn-secondary" onclick="closeRoomDetailModal()" style="height:38px; padding:0 16px; font-size:13px;">Close</button>
+                <div id="rm-modal-btn-slot"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ MODAL 2: QUICK RESERVATION MODAL ═══ -->
+    <div class="modal-overlay" id="newReservationModal" onclick="if(event.target===this) closeReservationModal();">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h2>New Walk-in Reservation</h2>
                 <button class="modal-close" onclick="closeReservationModal()">&times;</button>
             </div>
-            
-            <form onsubmit="handleNewReservationSubmit(event)">
+            <form id="newReservationForm" onsubmit="event.preventDefault();">
                 <div class="admin-form-group">
-                    <label for="newGuestName">Guest Full Name</label>
+                    <label for="newGuestName">Full Guest Name <span class="req">*</span></label>
                     <input type="text" id="newGuestName" required placeholder="e.g. Maria Santos">
                 </div>
-                
+
                 <div class="admin-form-row">
                     <div class="admin-form-group">
-                        <label for="newGuestEmail">Email (Optional)</label>
+                        <label for="newGuestEmail">Email Address</label>
                         <input type="email" id="newGuestEmail" placeholder="guest@example.com">
                     </div>
                     <div class="admin-form-group">
@@ -313,16 +396,27 @@ if ($rt_q && $rt_q->num_rows > 0) {
                     <select id="newRoomType">
                         <?php foreach ($room_types as $rt): ?>
                             <option value="<?php echo $rt['id']; ?>">
-                                <?php echo ucwords(str_replace('_', ' ', $rt['name'])); ?>
+                                <?php echo ucwords(str_replace('_', ' ', $rt['name'])); ?> (₱<?php echo number_format($rt['base_price'] ?? 3000, 0); ?>/night)
                             </option>
                         <?php endforeach; ?>
                     </select>
                 </div>
 
+                <!-- Stay Duration Quick Pick -->
+                <div class="admin-form-group">
+                    <label>Stay Duration Quick-Set</label>
+                    <div style="display:flex; gap:8px; margin-bottom:6px;">
+                        <button type="button" class="stay-pill-btn" onclick="setStayDuration(1)">+ 1 Night</button>
+                        <button type="button" class="stay-pill-btn" onclick="setStayDuration(2)">+ 2 Nights</button>
+                        <button type="button" class="stay-pill-btn" onclick="setStayDuration(3)">+ 3 Nights</button>
+                        <button type="button" class="stay-pill-btn" onclick="setStayDuration(7)">+ 1 Week</button>
+                    </div>
+                </div>
+
                 <div class="admin-form-row">
                     <div class="admin-form-group">
                         <label for="newCheckin">Check-in Date</label>
-                        <input type="date" id="newCheckin" required value="<?php echo date('Y-m-d'); ?>">
+                        <input type="date" id="newCheckin" required value="<?php echo date('Y-m-d'); ?>" onchange="updateStayFromDates()">
                     </div>
                     <div class="admin-form-group">
                         <label for="newCheckout">Check-out Date</label>
@@ -355,6 +449,90 @@ if ($rt_q && $rt_q->num_rows > 0) {
 
     <!-- Scripts -->
     <script>
+        // ── Room Matrix Quick-Detail Popup ──────────────────────────
+        function openRoomDetailModal(room) {
+            const modal = document.getElementById('roomDetailModal');
+            document.getElementById('rm-modal-title').innerText = `Room ${room.room_number}`;
+            document.getElementById('rm-modal-type').innerText = (room.type || 'Standard Accommodation').replace(/_/g, ' ').toUpperCase();
+            
+            const badge = document.getElementById('rm-modal-badge');
+            const body = document.getElementById('rm-modal-body');
+            const btnSlot = document.getElementById('rm-modal-btn-slot');
+            
+            const status = room.resolved_status;
+            badge.innerText = status;
+            
+            if (status === 'ready') {
+                badge.style.background = '#ECFDF5';
+                badge.style.color = '#059669';
+                body.innerHTML = `
+                    <div style="color:#059669; font-weight:700; margin-bottom:6px;">✓ Unit Cleaned & Available</div>
+                    <p style="margin:0; color:var(--text-muted); font-size:12.5px;">This room is ready for immediate walk-in guest check-in or allocation.</p>
+                `;
+                btnSlot.innerHTML = `
+                    <button type="button" class="btn-primary" onclick="closeRoomDetailModal(); openReservationModal();" style="height:38px; padding:0 16px; font-size:13px;">
+                        Walk-in Check-in &rarr;
+                    </button>
+                `;
+            } else if (status === 'occupied') {
+                badge.style.background = '#EFF6FF';
+                badge.style.color = '#2563EB';
+                body.innerHTML = `
+                    <div style="font-weight:700; color:var(--text-main); margin-bottom:4px;">Guest: ${room.guest_name || 'In-House Guest'}</div>
+                    <div style="font-size:12.5px; color:var(--text-muted); margin-bottom:3px;">Tier: <strong>${room.guest_type || 'Standard'}</strong></div>
+                    <div style="font-size:12.5px; color:var(--text-muted); margin-bottom:3px;">Check-in: ${room.check_in || 'Active'}</div>
+                    <div style="font-size:12.5px; color:var(--text-muted);">Scheduled Check-out: <strong>${room.check_out || 'Today'}</strong></div>
+                `;
+                btnSlot.innerHTML = `
+                    <a href="checkout" class="btn-primary" style="height:38px; padding:0 16px; font-size:13px; text-decoration:none; display:inline-flex; align-items:center;">
+                        Go to Check-out &rarr;
+                    </a>
+                `;
+            } else if (status === 'reserved') {
+                badge.style.background = '#FFFBEB';
+                badge.style.color = '#D97706';
+                body.innerHTML = `
+                    <div style="font-weight:700; color:#D97706; margin-bottom:4px;">Reserved: ${room.guest_name || 'Upcoming Arrival'}</div>
+                    <div style="font-size:12.5px; color:var(--text-muted); margin-bottom:3px;">Expected: ${room.check_in || 'Today'}</div>
+                    <div style="font-size:12.5px; color:var(--text-muted);">Stay until: ${room.check_out || '—'}</div>
+                `;
+                btnSlot.innerHTML = `
+                    <a href="admin_reservations" class="btn-primary" style="height:38px; padding:0 16px; font-size:13px; text-decoration:none; display:inline-flex; align-items:center;">
+                        View Reservation &rarr;
+                    </a>
+                `;
+            } else {
+                badge.style.background = '#FEF2F2';
+                badge.style.color = '#EF4444';
+                body.innerHTML = `
+                    <div style="color:#EF4444; font-weight:700; margin-bottom:4px;">⚠️ Room in Turnover / Maintenance</div>
+                    <p style="margin:0; color:var(--text-muted); font-size:12.5px;">Under cleaning inspection or scheduled repairs.</p>
+                `;
+                btnSlot.innerHTML = `
+                    <a href="settings" class="btn-secondary" style="height:38px; padding:0 16px; font-size:13px; text-decoration:none; display:inline-flex; align-items:center;">
+                        Manage Rooms
+                    </a>
+                `;
+            }
+            
+            modal.classList.add('open');
+        }
+
+        function closeRoomDetailModal() {
+            document.getElementById('roomDetailModal').classList.remove('open');
+        }
+
+        // ── Reservation Modal & Duration Helpers ────────────────────
+        function setStayDuration(nights) {
+            const checkinVal = document.getElementById('newCheckin').value || new Date().toISOString().split('T')[0];
+            const start = new Date(checkinVal);
+            start.setDate(start.getDate() + nights);
+            const yyyy = start.getFullYear();
+            const mm = String(start.getMonth() + 1).padStart(2, '0');
+            const dd = String(start.getDate()).padStart(2, '0');
+            document.getElementById('newCheckout').value = `${yyyy}-${mm}-${dd}`;
+        }
+
         function openReservationModal() {
             document.getElementById('newReservationModal').classList.add('open');
         }
@@ -364,7 +542,10 @@ if ($rt_q && $rt_q->num_rows > 0) {
         }
 
         document.addEventListener('keydown', e => {
-            if (e.key === 'Escape') closeReservationModal();
+            if (e.key === 'Escape') {
+                closeReservationModal();
+                closeRoomDetailModal();
+            }
         });
 
         function submitReservation(status) {
@@ -437,19 +618,19 @@ if ($rt_q && $rt_q->num_rows > 0) {
             });
         }
 
+        // ── Search Across Everything (Guest, Phone, Ref ID, Room) ───
         function filterArrivalsTable() {
-            const query = (document.getElementById('dashboardSearch')?.value || '').toLowerCase();
+            const query = (document.getElementById('dashboardSearch')?.value || '').toLowerCase().trim();
             const selectedType = document.getElementById('arrivalTypeFilter').value;
             const rows = document.querySelectorAll('#arrivalsTable tbody tr');
             
             rows.forEach(row => {
-                const guestNameEl = row.querySelector('.guest-info h4');
-                if (!guestNameEl) return;
-                const guestName = guestNameEl.innerText.toLowerCase();
-                const guestType = row.getAttribute('data-guest-type') || '';
+                const searchText = (row.getAttribute('data-search-text') || '');
+                const guestType = (row.getAttribute('data-guest-type') || '');
                 const matchesType = !selectedType || guestType === selectedType;
+                const matchesQuery = !query || searchText.includes(query);
                  
-                if (guestName.includes(query) && matchesType) {
+                if (matchesQuery && matchesType) {
                     row.style.display = '';
                 } else {
                     row.style.display = 'none';
