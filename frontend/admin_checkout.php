@@ -168,7 +168,7 @@ $overdue_guest_names = [];
         $header_extra_html = '
             <div class="search-wrapper">
                 <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                <input type="text" placeholder="Search guests..." class="search-input" id="checkoutSearch">
+                <input type="text" placeholder="Search guests..." class="search-input" id="checkoutSearch" oninput="filterCheckoutTable()">
             </div>
         ';
         include __DIR__ . '/partials/_page_header.php';
@@ -314,6 +314,13 @@ $overdue_guest_names = [];
                 return '<li>' + name + '</li>';
             }).join('');
             document.getElementById('overdueModal').style.display = 'flex';
+        }
+
+        function filterCheckoutTable() {
+            const q = document.getElementById('checkoutSearch').value.toLowerCase();
+            document.querySelectorAll('table tbody tr').forEach(row => {
+                row.style.display = row.innerText.toLowerCase().includes(q) ? '' : 'none';
+            });
         }
     </script>
 <script src="assets/js/sidebar-toggle.js"></script>
