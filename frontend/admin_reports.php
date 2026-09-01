@@ -8,22 +8,196 @@ $admin = $_SESSION['admin_username'] ?? 'Admin';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Financial & Occupancy Reports — Santa Fe Beach Club</title>
-    <link rel="stylesheet" href="assets/css/admin.css?v=4">
+    <link rel="stylesheet" href="assets/css/admin.css?v=5">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
-        .report-kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px; }
-        .kpi-mini { background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 18px 20px; box-shadow: var(--shadow-sm); }
-        .kpi-mini .label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); margin-bottom: 6px; }
-        .kpi-mini .value { font-family: var(--font-heading); font-size: 26px; font-weight: 700; color: var(--text-main); }
-        .kpi-mini .sub   { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
-        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 28px; }
-        
-        .loading { text-align: center; padding: 20px; color: var(--text-muted); font-size: 14px; }
-        .error { color: #EF4444; text-align: center; padding: 20px; }
+        /* Modern Report Styles */
+        .report-kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+            margin-bottom: 24px;
+        }
+        .kpi-mini {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 20px 22px;
+            box-shadow: var(--shadow-sm);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+        }
+        .kpi-mini:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            border-color: rgba(132, 86, 60, 0.3);
+        }
+        .kpi-mini::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--kpi-accent, #84563C);
+            border-radius: 4px 0 0 4px;
+        }
+        .kpi-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        .kpi-mini .label {
+            font-size: 11.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.75px;
+            color: var(--text-muted);
+        }
+        .kpi-icon-bubble {
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--kpi-bubble-bg, rgba(132,86,60,0.1));
+            color: var(--kpi-accent, #84563C);
+        }
+        .kpi-mini .value {
+            font-family: var(--font-heading);
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--text-main);
+            line-height: 1.1;
+        }
+        .kpi-mini .sub {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 6px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
 
-        @media (max-width: 992px) {
-            .report-kpi-grid { grid-template-columns: repeat(2, 1fr); }
-            .two-col { grid-template-columns: 1fr; }
+        /* 3-Column Top Chart Grid */
+        .three-col-charts {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .admin-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 22px 24px;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            flex-direction: column;
+            transition: box-shadow 0.2s ease, border-color 0.2s ease;
+        }
+        .admin-card:hover {
+            box-shadow: var(--shadow-md);
+        }
+        .admin-card-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 18px;
+        }
+        .admin-card-header h3 {
+            font-family: var(--font-heading);
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin: 0;
+        }
+        .admin-card-header p {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin: 3px 0 0;
+        }
+        
+        .chart-box {
+            position: relative;
+            width: 100%;
+            height: 240px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 30px;
+            color: var(--text-muted);
+            font-size: 13px;
+            font-weight: 500;
+        }
+        .error {
+            color: #EF4444;
+            text-align: center;
+            padding: 20px;
+            font-size: 13px;
+        }
+
+        /* Country table styling */
+        .rank-pill {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+            height: 20px;
+            border-radius: 6px;
+            font-size: 10.5px;
+            font-weight: 800;
+            margin-right: 8px;
+        }
+        .rank-1 { background: #FEF3C7; color: #B45309; }
+        .rank-2 { background: #E2E8F0; color: #475569; }
+        .rank-3 { background: #FFEDD5; color: #C2410C; }
+        .rank-other { background: var(--border-light); color: var(--text-muted); }
+
+        .progress-bar-bg {
+            flex: 1;
+            max-width: 70px;
+            height: 6px;
+            background: var(--border);
+            border-radius: 99px;
+            overflow: hidden;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #84563C, #A37152);
+            border-radius: 99px;
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @media (max-width: 1200px) {
+            .three-col-charts {
+                grid-template-columns: 1fr;
+            }
+            .report-kpi-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        @media (max-width: 768px) {
+            .report-kpi-grid {
+                grid-template-columns: 1fr;
+            }
+            .two-col {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -55,71 +229,113 @@ $admin = $_SESSION['admin_username'] ?? 'Admin';
 
         <div class="admin-body">
             
-            <div id="api-connection-error" style="display: none; background: #FEF2F2; color: #991B1B; padding: 15px; border-radius: 6px; margin-bottom: 20px; border: 1px solid #F87171;">
+            <div id="api-connection-error" style="display: none; background: #FEF2F2; color: #991B1B; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #F87171;">
                 <strong>⚠️ Analytics Error:</strong> Could not load reports data. Please verify your database connection.
             </div>
 
             <!-- KPI Strip -->
             <div class="report-kpi-grid">
-                <div class="kpi-mini">
-                    <div class="label">Total Paid Revenue</div>
-                    <div class="value" id="kpi-revenue" style="color:var(--green);">...</div>
-                    <div class="sub">All-time verified payments</div>
+                <div class="kpi-mini" style="--kpi-accent:#10B981; --kpi-bubble-bg:rgba(16,185,129,0.1);">
+                    <div class="kpi-header">
+                        <span class="label">Total Paid Revenue</span>
+                        <div class="kpi-icon-bubble">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                        </div>
+                    </div>
+                    <div class="value" id="kpi-revenue" style="color:var(--green);">₱0.00</div>
+                    <div class="sub">All-time verified collections</div>
                 </div>
-                <div class="kpi-mini">
-                    <div class="label">Total Bookings</div>
-                    <div class="value" id="kpi-bookings">...</div>
-                    <div class="sub"><span id="kpi-pending" style="color:var(--orange); font-weight:600;">...</span> currently pending</div>
+
+                <div class="kpi-mini" style="--kpi-accent:#84563C; --kpi-bubble-bg:rgba(132,86,60,0.1);">
+                    <div class="kpi-header">
+                        <span class="label">Total Bookings</span>
+                        <div class="kpi-icon-bubble">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                        </div>
+                    </div>
+                    <div class="value" id="kpi-bookings">0</div>
+                    <div class="sub"><span id="kpi-pending" style="color:var(--orange); font-weight:700;">0</span> currently pending</div>
                 </div>
-                <div class="kpi-mini">
-                    <div class="label">Total Guests Hosted</div>
-                    <div class="value" id="kpi-guests" style="color:var(--blue);">...</div>
-                    <div class="sub">Across all stays</div>
+
+                <div class="kpi-mini" style="--kpi-accent:#3B82F6; --kpi-bubble-bg:rgba(59,130,246,0.1);">
+                    <div class="kpi-header">
+                        <span class="label">Total Guests Hosted</span>
+                        <div class="kpi-icon-bubble">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                        </div>
+                    </div>
+                    <div class="value" id="kpi-guests" style="color:var(--blue);">0</div>
+                    <div class="sub">Across all registered stays</div>
                 </div>
-                <div class="kpi-mini">
-                    <div class="label">Average Stay</div>
-                    <div class="value" style="color:var(--primary);"><span id="kpi-avg-stay">...</span></div>
+
+                <div class="kpi-mini" style="--kpi-accent:#8B5CF6; --kpi-bubble-bg:rgba(139,92,246,0.1);">
+                    <div class="kpi-header">
+                        <span class="label">Average Stay</span>
+                        <div class="kpi-icon-bubble">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        </div>
+                    </div>
+                    <div class="value" id="kpi-avg-stay" style="color:var(--purple);">0 nights</div>
                     <div class="sub">Excluding cancellations</div>
                 </div>
             </div>
 
-            <!-- Monthly Revenue & Status Breakdown -->
-            <div class="two-col">
+            <!-- ═══ 3-COLUMN CHARTS: REVENUE, STATUS & COUNTRY DEMOGRAPHICS ═══ -->
+            <div class="three-col-charts">
+                <!-- 1. Monthly Revenue Trend -->
                 <div class="admin-card">
                     <div class="admin-card-header">
                         <div>
-                            <h3>Monthly Revenue Trend (Last 6 Months)</h3>
-                            <p style="font-size:12px; color:var(--text-muted); margin-top:2px;">Verified revenue grouped by billing month</p>
+                            <h3>Monthly Revenue Trend</h3>
+                            <p>Last 6 months verified receipts</p>
                         </div>
                     </div>
-                    <div id="chart-rev-container" style="height:230px; position:relative;">
-                        <div class="loading" id="loading-rev">Loading chart data...</div>
+                    <div class="chart-box" id="chart-rev-container">
+                        <div class="loading" id="loading-rev">Loading revenue chart...</div>
                         <canvas id="monthlyRevChart" style="display:none;"></canvas>
                     </div>
                 </div>
 
+                <!-- 2. Reservation Status Breakdown -->
                 <div class="admin-card">
                     <div class="admin-card-header">
                         <div>
-                            <h3>Reservation Status Breakdown</h3>
-                            <p style="font-size:12px; color:var(--text-muted); margin-top:2px;">Overall bookings outcome distribution</p>
+                            <h3>Reservation Status</h3>
+                            <p>Bookings outcome proportions</p>
                         </div>
                     </div>
-                    <div id="chart-status-container" style="height:230px; display:flex; align-items:center; justify-content:center;">
-                        <div class="loading" id="loading-status">Loading chart data...</div>
+                    <div class="chart-box" id="chart-status-container">
+                        <div class="loading" id="loading-status">Loading status chart...</div>
                         <canvas id="statusBreakdownChart" style="display:none;"></canvas>
+                    </div>
+                </div>
+
+                <!-- 3. Guest Demographics by Country -->
+                <div class="admin-card">
+                    <div class="admin-card-header">
+                        <div>
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <h3>Guest Demographics</h3>
+                                <span id="badge-total-countries" style="background:rgba(132,86,60,0.12); color:#84563C; font-size:11px; font-weight:700; padding:2px 8px; border-radius:99px;">0 Origins</span>
+                            </div>
+                            <p>Top source markets & origins</p>
+                        </div>
+                    </div>
+                    <div class="chart-box" id="chart-country-container">
+                        <div class="loading" id="loading-country">Loading origin chart...</div>
+                        <canvas id="countryChart" style="display:none;"></canvas>
                     </div>
                 </div>
             </div>
 
-            <!-- Revenue by Payment Channel & Top Accommodations -->
+            <!-- ═══ LOWER SECTION: LEADERBOARDS & TABLES ═══ -->
             <div class="two-col">
-                <!-- Payment Channels Table -->
+                <!-- Payment Methods Table -->
                 <div class="admin-card">
                     <div class="admin-card-header">
                         <div>
                             <h3>Payment Methods</h3>
-                            <p style="font-size:12px; color:var(--text-muted); margin-top:2px;">Settlement volume by gateway/method</p>
+                            <p>Settlement volume by gateway / method</p>
                         </div>
                     </div>
                     <div class="table-responsive">
@@ -142,8 +358,8 @@ $admin = $_SESSION['admin_username'] ?? 'Admin';
                 <div class="admin-card">
                     <div class="admin-card-header">
                         <div>
-                            <h3>Top Performing Accommodations</h3>
-                            <p style="font-size:12px; color:var(--text-muted); margin-top:2px;">Most booked units by volume</p>
+                            <h3>Top Accommodations</h3>
+                            <p>Most booked units by guest volume</p>
                         </div>
                     </div>
                     <div class="table-responsive">
@@ -163,50 +379,31 @@ $admin = $_SESSION['admin_username'] ?? 'Admin';
                 </div>
             </div>
 
-            <!-- ═══ GUEST DEMOGRAPHICS / COUNTRY ORIGINS ═══ -->
-            <div class="two-col" style="margin-top:24px;">
-                <!-- Country Demographics Chart -->
-                <div class="admin-card">
-                    <div class="admin-card-header">
-                        <div>
-                            <div style="display:flex; align-items:center; gap:8px;">
-                                <h3>Guest Demographics by Country</h3>
-                                <span id="badge-total-countries" style="background:rgba(132,86,60,0.12); color:#84563C; font-size:11px; font-weight:700; padding:2px 8px; border-radius:99px;">0 Origins</span>
-                            </div>
-                            <p style="font-size:12px; color:var(--text-muted); margin-top:2px;">Top source markets & guest reservation distribution</p>
-                        </div>
-                    </div>
-                    <div class="chart-container" style="height:260px;">
-                        <div class="loading" id="loading-country">Fetching country data...</div>
-                        <canvas id="countryChart" style="display:none;"></canvas>
+            <!-- Country Origin Leaderboard Full Width Table -->
+            <div class="admin-card" style="margin-bottom:28px;">
+                <div class="admin-card-header">
+                    <div>
+                        <h3>Guest Origin & Nationality Leaderboard</h3>
+                        <p>Complete breakdown of guest source countries, booking volume, and verified revenue contribution</p>
                     </div>
                 </div>
-
-                <!-- Country Leaderboard Table -->
-                <div class="admin-card">
-                    <div class="admin-card-header">
-                        <div>
-                            <h3>Country Origin Leaderboard</h3>
-                            <p style="font-size:12px; color:var(--text-muted); margin-top:2px;">Booking volume, guest count & verified revenue</p>
-                        </div>
-                    </div>
-                    <div class="table-responsive">
-                        <table class="admin-table">
-                            <thead>
-                                <tr>
-                                    <th>Country</th>
-                                    <th>Bookings</th>
-                                    <th>Share</th>
-                                    <th style="text-align:right;">Total Revenue</th>
-                                </tr>
-                            </thead>
-                            <tbody id="country-leaderboard-tbody">
-                                <tr><td colspan="4" class="loading">Fetching data...</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
+                <div class="table-responsive">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Country / Nationality</th>
+                                <th>Bookings</th>
+                                <th>Share (%)</th>
+                                <th style="text-align:right;">Total Revenue</th>
+                            </tr>
+                        </thead>
+                        <tbody id="country-leaderboard-tbody">
+                            <tr><td colspan="4" class="loading">Fetching country data...</td></tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
+
         </div>
     </main>
 
@@ -233,18 +430,17 @@ $admin = $_SESSION['admin_username'] ?? 'Admin';
         }
     }
 
-
     async function loadDashboardData() {
         try {
             // 1. Dashboard Stats
             const stats = await fetchAPI('/api/dashboard-stats');
-            document.getElementById('kpi-revenue').innerText = '₱' + Number(stats.total_revenue).toLocaleString();
-            document.getElementById('kpi-bookings').innerText = Number(stats.total_bookings).toLocaleString();
-            document.getElementById('kpi-pending').innerText = stats.pending_bookings;
-            document.getElementById('kpi-guests').innerText = Number(stats.total_guests).toLocaleString();
-            document.getElementById('kpi-avg-stay').innerText = stats.avg_stay;
+            document.getElementById('kpi-revenue').innerText = '₱' + Number(stats.total_revenue || 0).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            document.getElementById('kpi-bookings').innerText = Number(stats.total_bookings || 0).toLocaleString();
+            document.getElementById('kpi-pending').innerText = stats.pending_bookings || 0;
+            document.getElementById('kpi-guests').innerText = Number(stats.total_guests || 0).toLocaleString();
+            document.getElementById('kpi-avg-stay').innerText = stats.avg_stay || '0 nights';
 
-            // 2. Monthly Revenue Chart
+            // 2. Monthly Revenue Chart (Bar with Gradient)
             const revData = await fetchAPI('/api/monthly-revenue');
             document.getElementById('loading-rev').style.display = 'none';
             const revCanvas = document.getElementById('monthlyRevChart');
@@ -258,21 +454,29 @@ $admin = $_SESSION['admin_username'] ?? 'Admin';
                         data: revData.revenue,
                         backgroundColor: 'rgba(132, 86, 60, 0.85)',
                         hoverBackgroundColor: '#84563C',
-                        borderRadius: 6
+                        borderRadius: 6,
+                        borderSkipped: false
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => ' ₱' + Number(c.parsed.y).toLocaleString() } } },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: c => ' ₱' + Number(c.parsed.y).toLocaleString()
+                            }
+                        }
+                    },
                     scales: {
-                        x: { grid: { color: gridColor }, ticks: { color: tickColor, font: { family: 'Plus Jakarta Sans', size: 11.5 } } },
-                        y: { grid: { color: gridColor }, ticks: { color: tickColor, font: { family: 'Plus Jakarta Sans', size: 11.5 }, callback: v => '₱' + (v >= 1000 ? (v/1000).toFixed(0) + 'k' : v) }, beginAtZero: true }
+                        x: { grid: { color: gridColor }, ticks: { color: tickColor, font: { family: 'Plus Jakarta Sans', size: 11 } } },
+                        y: { grid: { color: gridColor }, ticks: { color: tickColor, font: { family: 'Plus Jakarta Sans', size: 11 }, callback: v => '₱' + (v >= 1000 ? (v/1000).toFixed(0) + 'k' : v) }, beginAtZero: true }
                     }
                 }
             });
 
-            // 3. Status Breakdown Chart
+            // 3. Status Breakdown Chart (Doughnut)
             const statusData = await fetchAPI('/api/status-breakdown');
             document.getElementById('loading-status').style.display = 'none';
             const statusCanvas = document.getElementById('statusBreakdownChart');
@@ -289,48 +493,30 @@ $admin = $_SESSION['admin_username'] ?? 'Admin';
                             statusData['Cancelled'] || 0
                         ],
                         backgroundColor: ['#10B981', '#64748B', '#F59E0B', '#EF4444'],
-                        borderWidth: 0
+                        borderWidth: 0,
+                        hoverOffset: 6
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    cutout: '70%',
-                    plugins: { legend: { position: 'bottom', labels: { color: tickColor, font: { family: 'Plus Jakarta Sans', size: 11.5, weight: '600' }, padding: 14, usePointStyle: true } } }
+                    cutout: '68%',
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: tickColor,
+                                font: { family: 'Plus Jakarta Sans', size: 11, weight: '600' },
+                                padding: 12,
+                                usePointStyle: true,
+                                pointStyle: 'circle'
+                            }
+                        }
+                    }
                 }
             });
 
-            // 4. Payment Methods Table
-            const payments = await fetchAPI('/api/payment-methods');
-            const pTbody = document.getElementById('payment-methods-tbody');
-            if (payments.length > 0) {
-                pTbody.innerHTML = payments.map(p => `
-                    <tr>
-                        <td style="font-weight:600;">${p.payment_method || 'Front Desk Cash'}</td>
-                        <td style="color:var(--text-muted);">${p.cnt} payments</td>
-                        <td style="text-align:right; font-weight:700; color:var(--text-main);">₱${Number(p.total).toLocaleString()}</td>
-                    </tr>
-                `).join('');
-            } else {
-                pTbody.innerHTML = '<tr><td colspan="3" class="loading">No payment records.</td></tr>';
-            }
-
-            // 5. Top Accommodations Table
-            const rooms = await fetchAPI('/api/top-accommodations');
-            const rTbody = document.getElementById('top-rooms-tbody');
-            if (rooms.length > 0) {
-                rTbody.innerHTML = rooms.map(r => `
-                    <tr>
-                        <td style="font-weight:600;">${r.accommodation_name}</td>
-                        <td style="color:var(--text-muted);">${r.cnt} stays</td>
-                        <td style="text-align:right; font-weight:700; color:var(--primary);">${r.guests} guests</td>
-                    </tr>
-                `).join('');
-            } else {
-                rTbody.innerHTML = '<tr><td colspan="3" class="loading">No room booking records.</td></tr>';
-            }
-
-            // 6. Country Demographics & Leaderboard
+            // 4. Guest Demographics Doughnut Chart
             const countryData = await fetchAPI('/api/country-demographics');
             const countryList = countryData.countries || [];
             document.getElementById('loading-country').style.display = 'none';
@@ -339,64 +525,89 @@ $admin = $_SESSION['admin_username'] ?? 'Admin';
             const cCanvas = document.getElementById('countryChart');
             cCanvas.style.display = 'block';
 
-            // Top 6 countries for the horizontal bar chart
-            const topCountries = countryList.slice(0, 6);
-            const countryLabels = topCountries.map(c => c.country);
-            const countryCounts = topCountries.map(c => c.bookings);
+            const top5 = countryList.slice(0, 5);
+            const otherSum = countryList.slice(5).reduce((acc, curr) => acc + curr.bookings, 0);
+            
+            const cLabels = top5.map(c => c.country);
+            const cCounts = top5.map(c => c.bookings);
+            if (otherSum > 0) {
+                cLabels.push('Other Origins');
+                cCounts.push(otherSum);
+            }
 
             new Chart(cCanvas.getContext('2d'), {
-                type: 'bar',
+                type: 'doughnut',
                 data: {
-                    labels: countryLabels,
+                    labels: cLabels,
                     datasets: [{
-                        label: 'Bookings',
-                        data: countryCounts,
+                        data: cCounts,
                         backgroundColor: [
-                            'rgba(132, 86, 60, 0.85)',
-                            'rgba(16, 185, 129, 0.85)',
-                            'rgba(59, 130, 246, 0.85)',
-                            'rgba(245, 158, 11, 0.85)',
-                            'rgba(139, 92, 246, 0.85)',
-                            'rgba(100, 116, 139, 0.85)'
+                            '#84563C',
+                            '#3B82F6',
+                            '#10B981',
+                            '#F59E0B',
+                            '#8B5CF6',
+                            '#94A3B8'
                         ],
-                        borderRadius: 6,
-                        borderSkipped: false
+                        borderWidth: 0,
+                        hoverOffset: 6
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    indexAxis: 'y',
+                    cutout: '68%',
                     plugins: {
-                        legend: { display: false },
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: tickColor,
+                                font: { family: 'Plus Jakarta Sans', size: 11, weight: '600' },
+                                padding: 10,
+                                usePointStyle: true,
+                                pointStyle: 'circle'
+                            }
+                        },
                         tooltip: {
                             callbacks: {
-                                label: ctx => ` ${ctx.parsed.x} booking${ctx.parsed.x !== 1 ? 's' : ''}`
-                            }
-                        }
-                    },
-                    scales: {
-                        x: {
-                            grid: { color: gridColor },
-                            ticks: {
-                                color: tickColor,
-                                font: { family: 'Plus Jakarta Sans', size: 11 },
-                                precision: 0
-                            },
-                            beginAtZero: true
-                        },
-                        y: {
-                            grid: { display: false },
-                            ticks: {
-                                color: tickColor,
-                                font: { family: 'Plus Jakarta Sans', size: 11.5, weight: '600' }
+                                label: ctx => ` ${ctx.label}: ${ctx.parsed} booking${ctx.parsed !== 1 ? 's' : ''}`
                             }
                         }
                     }
                 }
             });
 
-            // Populate Country Leaderboard Table with Flags
+            // 5. Payment Methods Table
+            const payments = await fetchAPI('/api/payment-methods');
+            const pTbody = document.getElementById('payment-methods-tbody');
+            if (payments.length > 0) {
+                pTbody.innerHTML = payments.map(p => `
+                    <tr>
+                        <td style="font-weight:600;">${p.payment_method || 'Front Desk Cash'}</td>
+                        <td style="color:var(--text-muted); font-weight:600;">${p.cnt} payments</td>
+                        <td style="text-align:right; font-weight:700; color:var(--text-main);">₱${Number(p.total).toLocaleString()}</td>
+                    </tr>
+                `).join('');
+            } else {
+                pTbody.innerHTML = '<tr><td colspan="3" class="loading">No payment records.</td></tr>';
+            }
+
+            // 6. Top Accommodations Table
+            const rooms = await fetchAPI('/api/top-accommodations');
+            const rTbody = document.getElementById('top-rooms-tbody');
+            if (rooms.length > 0) {
+                rTbody.innerHTML = rooms.map(r => `
+                    <tr>
+                        <td style="font-weight:600;">${r.accommodation_name}</td>
+                        <td style="color:var(--text-muted); font-weight:600;">${r.cnt} stays</td>
+                        <td style="text-align:right; font-weight:700; color:var(--primary);">${r.guests} guests</td>
+                    </tr>
+                `).join('');
+            } else {
+                rTbody.innerHTML = '<tr><td colspan="3" class="loading">No room booking records.</td></tr>';
+            }
+
+            // 7. Full Country Origin Leaderboard Table with Flags & Badges
             const flagMap = {
                 'Philippines': '🇵🇭', 'United States': '🇺🇸', 'Australia': '🇦🇺', 'United Kingdom': '🇬🇧',
                 'Japan': '🇯🇵', 'South Korea': '🇰🇷', 'China': '🇨🇳', 'Hong Kong': '🇭🇰',
@@ -411,24 +622,24 @@ $admin = $_SESSION['admin_username'] ?? 'Admin';
             if (countryList.length > 0) {
                 cTbody.innerHTML = countryList.map((c, idx) => {
                     const flag = flagMap[c.country] || '🌐';
-                    const rankBadge = idx === 0 
-                        ? `<span style="display:inline-block; width:18px; height:18px; line-height:18px; text-align:center; background:#FEF3C7; color:#B45309; border-radius:50%; font-size:10px; font-weight:800; margin-right:6px;">1</span>`
-                        : `<span style="display:inline-block; width:18px; height:18px; line-height:18px; text-align:center; background:rgba(0,0,0,0.04); color:var(--text-muted); border-radius:50%; font-size:10px; font-weight:700; margin-right:6px;">${idx + 1}</span>`;
+                    const rankClass = idx === 0 ? 'rank-1' : (idx === 1 ? 'rank-2' : (idx === 2 ? 'rank-3' : 'rank-other'));
 
                     return `
                     <tr>
                         <td style="font-weight:600; display:flex; align-items:center;">
-                            ${rankBadge}
+                            <span class="rank-pill ${rankClass}">${idx + 1}</span>
                             <span style="font-size:16px; margin-right:8px;">${flag}</span>
                             <span>${c.country}</span>
                         </td>
-                        <td style="color:var(--text-muted); font-weight:600;">${c.bookings} <span style="font-size:11px; font-weight:400;">(${c.guests} guest${c.guests !== 1 ? 's' : ''})</span></td>
+                        <td style="color:var(--text-muted); font-weight:600;">
+                            ${c.bookings} <span style="font-size:11.5px; font-weight:400;">(${c.guests} guest${c.guests !== 1 ? 's' : ''})</span>
+                        </td>
                         <td>
                             <div style="display:flex; align-items:center; gap:8px;">
-                                <div style="flex:1; max-width:60px; height:6px; background:rgba(132,86,60,0.12); border-radius:99px; overflow:hidden;">
-                                    <div style="width:${c.share_pct}%; height:100%; background:#84563C; border-radius:99px;"></div>
+                                <div class="progress-bar-bg">
+                                    <div class="progress-bar-fill" style="width:${c.share_pct}%;"></div>
                                 </div>
-                                <span style="font-size:11.5px; font-weight:600; color:var(--text-muted);">${c.share_pct}%</span>
+                                <span style="font-size:11.5px; font-weight:700; color:var(--text-muted);">${c.share_pct}%</span>
                             </div>
                         </td>
                         <td style="text-align:right; font-weight:700; color:var(--text-main);">₱${Number(c.revenue).toLocaleString()}</td>
