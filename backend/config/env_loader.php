@@ -30,10 +30,9 @@
 function load_env(string $path): void
 {
     if (!is_readable($path)) {
-        throw new RuntimeException(
-            "env_loader: Cannot read .env file at: {$path}\n" .
-            "Make sure the file exists and is readable by the web server."
-        );
+        // Silently skip — .env may not exist on all environments (e.g. production).
+        // The calling code should provide fallback values.
+        return;
     }
 
     $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
