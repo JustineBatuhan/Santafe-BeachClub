@@ -930,9 +930,9 @@ img.logo-circle {
 .metric-card {
     background: var(--card-bg);
     border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    padding: 22px 24px;
-    box-shadow: var(--shadow-sm);
+    border-radius: 16px;
+    padding: 20px 22px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
@@ -945,42 +945,43 @@ img.logo-circle {
 .stat-card:hover,
 .metric-card:hover {
     transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.06);
     border-color: rgba(132, 86, 60, 0.3);
 }
 
 .stat-card-label,
 .metric-info h3 {
-    font-size: 11px;
+    font-size: 11.5px;
     font-weight: 700;
     color: var(--text-muted);
     text-transform: uppercase;
-    letter-spacing: 0.8px;
-    margin-bottom: 8px;
+    letter-spacing: 0.75px;
+    margin-bottom: 6px;
 }
 
 .stat-card-value,
 .metric-number {
     font-family: var(--font-heading);
-    font-size: 28px;
-    font-weight: 700;
+    font-size: 26px;
+    font-weight: 800;
     color: var(--text-main);
     line-height: 1.1;
     letter-spacing: -0.5px;
 }
 
 .stat-card-sub {
-    font-size: 12px;
+    font-size: 11.5px;
     font-weight: 500;
     color: var(--text-muted);
-    margin-top: 8px;
+    margin-top: 6px;
     display: flex;
     align-items: center;
     gap: 4px;
 }
 
 .stat-card-sub.up {
-    color: var(--green);
+    color: #059669;
+    font-weight: 600;
 }
 
 .stat-card-sub.down {
@@ -991,42 +992,47 @@ img.logo-circle {
 .metric-icon-wrapper {
     width: 48px;
     height: 48px;
-    border-radius: var(--radius-md);
+    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    box-shadow: var(--shadow-xs);
+    box-shadow: none;
+    transition: transform 0.2s ease;
+}
+
+.stat-card:hover .stat-icon {
+    transform: scale(1.05);
 }
 
 .stat-icon.brown,
 .metric-icon-wrapper.brown {
-    background: var(--primary-light);
-    color: var(--primary);
+    background: #FFF3E8;
+    color: #84563C;
 }
 
 .stat-icon.green,
 .metric-icon-wrapper.green {
-    background: var(--green-bg);
-    color: var(--green);
+    background: #E6F4EA;
+    color: #0D652D;
 }
 
 .stat-icon.blue,
 .metric-icon-wrapper.blue {
-    background: var(--blue-bg);
-    color: var(--blue);
+    background: #E8F0FE;
+    color: #1A73E8;
 }
 
 .stat-icon.orange,
 .metric-icon-wrapper.orange {
-    background: var(--orange-bg);
-    color: var(--orange);
+    background: #FFF8E7;
+    color: #D97706;
 }
 
 .stat-icon.purple,
 .metric-icon-wrapper.purple {
-    background: var(--purple-bg);
-    color: var(--purple);
+    background: #F3E8FF;
+    color: #7C3AED;
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
