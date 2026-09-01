@@ -1,4 +1,8 @@
-﻿# Logs
+# Environment / Secrets — NEVER commit real credentials
+.env
+!.env.example
+
+# Logs
 backend/logs/*.log
 *.log
 

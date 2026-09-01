@@ -757,8 +757,64 @@ $full_name = trim(($_SESSION['guest_first_name'] ?? '') . ' ' . ($_SESSION['gues
                                 <label>Country <span class="req">*</span></label>
                                 <select name="country" required data-label="Country">
                                     <option value="">--Select--</option>
-                                    <option value="Philippines" <?php echo (($_SESSION['guest_country']??'')=='Philippines')?'selected':''; ?>>Philippines</option>
-                                    <option value="United States" <?php echo (($_SESSION['guest_country']??'')=='United States')?'selected':''; ?>>United States</option>
+                                    <?php
+                                    $countries = [
+                                        // ── Priority (pinned at top) ──
+                                        'Philippines',
+                                        // ── Rest of Asia ──
+                                        'Bangladesh','Bhutan','Brunei','Cambodia','China','Hong Kong',
+                                        'India','Indonesia','Japan','Kazakhstan','Kyrgyzstan','Laos',
+                                        'Macau','Malaysia','Maldives','Mongolia','Myanmar','Nepal',
+                                        'North Korea','Pakistan','Singapore','South Korea','Sri Lanka',
+                                        'Taiwan','Tajikistan','Thailand','Timor-Leste','Turkmenistan',
+                                        'Uzbekistan','Vietnam',
+                                        // ── Middle East ──
+                                        'Bahrain','Iran','Iraq','Israel','Jordan','Kuwait','Lebanon',
+                                        'Oman','Palestine','Qatar','Saudi Arabia','Syria',
+                                        'United Arab Emirates','Yemen',
+                                        // ── Europe ──
+                                        'Albania','Andorra','Armenia','Austria','Azerbaijan','Belarus',
+                                        'Belgium','Bosnia and Herzegovina','Bulgaria','Croatia','Cyprus',
+                                        'Czech Republic','Denmark','Estonia','Finland','France',
+                                        'Georgia','Germany','Greece','Hungary','Iceland','Ireland',
+                                        'Italy','Kosovo','Latvia','Liechtenstein','Lithuania',
+                                        'Luxembourg','Malta','Moldova','Monaco','Montenegro',
+                                        'Netherlands','North Macedonia','Norway','Poland','Portugal',
+                                        'Romania','Russia','San Marino','Serbia','Slovakia','Slovenia',
+                                        'Spain','Sweden','Switzerland','Turkey','Ukraine',
+                                        'United Kingdom','Vatican City',
+                                        // ── Americas ──
+                                        'Antigua and Barbuda','Argentina','Bahamas','Barbados','Belize',
+                                        'Bolivia','Brazil','Canada','Chile','Colombia','Costa Rica',
+                                        'Cuba','Dominica','Dominican Republic','Ecuador','El Salvador',
+                                        'Grenada','Guatemala','Guyana','Haiti','Honduras','Jamaica',
+                                        'Mexico','Nicaragua','Panama','Paraguay','Peru',
+                                        'Saint Kitts and Nevis','Saint Lucia',
+                                        'Saint Vincent and the Grenadines','Suriname',
+                                        'Trinidad and Tobago','United States','Uruguay','Venezuela',
+                                        // ── Africa ──
+                                        'Algeria','Angola','Benin','Botswana','Burkina Faso','Burundi',
+                                        'Cabo Verde','Cameroon','Central African Republic','Chad',
+                                        'Comoros','DR Congo','Republic of the Congo',
+                                        'Djibouti','Egypt','Equatorial Guinea','Eritrea','Eswatini',
+                                        'Ethiopia','Gabon','Gambia','Ghana','Guinea','Guinea-Bissau',
+                                        'Ivory Coast','Kenya','Lesotho','Liberia','Libya','Madagascar',
+                                        'Malawi','Mali','Mauritania','Mauritius','Morocco','Mozambique',
+                                        'Namibia','Niger','Nigeria','Rwanda','São Tomé and Príncipe',
+                                        'Senegal','Seychelles','Sierra Leone','Somalia','South Africa',
+                                        'South Sudan','Sudan','Tanzania','Togo','Tunisia','Uganda',
+                                        'Zambia','Zimbabwe',
+                                        // ── Oceania ──
+                                        'Australia','Fiji','Kiribati','Marshall Islands','Micronesia',
+                                        'Nauru','New Zealand','Palau','Papua New Guinea','Samoa',
+                                        'Solomon Islands','Tonga','Tuvalu','Vanuatu',
+                                    ];
+                                    $selected_country = $_SESSION['guest_country'] ?? '';
+                                    foreach ($countries as $country):
+                                        $sel = ($selected_country === $country) ? 'selected' : '';
+                                        echo "<option value=\"" . htmlspecialchars($country) . "\" {$sel}>" . htmlspecialchars($country) . "</option>\n";
+                                    endforeach;
+                                    ?>
                                 </select>
                             </div>
 

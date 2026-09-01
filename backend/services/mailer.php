@@ -6,7 +6,7 @@
  * SETUP REQUIRED:
  * 1. This file expects PHPMailer's source files at: libs/PHPMailer/src/
  *    (PHPMailer.php, SMTP.php, Exception.php)
- * 2. Fill in GMAIL_USER and GMAIL_APP_PASSWORD below.
+ * 2. Copy .env.example to .env at the project root and fill in your credentials.
  *    GMAIL_APP_PASSWORD must be a Gmail "App Password" (16 chars, no spaces),
  *    NOT your normal Gmail login password. Generate one at:
  *    https://myaccount.google.com/apppasswords
@@ -20,10 +20,16 @@ require_once __DIR__ . '/../libs/PHPMailer/src/SMTP.php';
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
-// ---- Gmail SMTP credentials (fill these in) ----
-define('GMAIL_USER', 'Justinebatuhan017@gmail.com');
-define('GMAIL_APP_PASSWORD', 'owxi hskd qzlq nczl'); // 16-char App Password, spaces are fine
-define('MAIL_FROM_NAME', 'Santa Fe Beach Club');
+// ---- Load Gmail credentials from .env (never hardcode secrets in source) ----
+require_once __DIR__ . '/../config/env_loader.php';
+if (!defined('_ENV_LOADED')) {
+    load_env(__DIR__ . '/../../.env');
+    define('_ENV_LOADED', true);
+}
+
+if (!defined('GMAIL_USER'))         define('GMAIL_USER',         getenv('GMAIL_USER')         ?: '');
+if (!defined('GMAIL_APP_PASSWORD')) define('GMAIL_APP_PASSWORD', getenv('GMAIL_APP_PASSWORD') ?: '');
+if (!defined('MAIL_FROM_NAME'))     define('MAIL_FROM_NAME',     getenv('MAIL_FROM_NAME')     ?: 'Santa Fe Beach Club');
 
 /**
  * Sends a booking confirmation email to the guest.
@@ -61,8 +67,8 @@ function sendBookingConfirmationEmail(
         $mail->isSMTP();
         $mail->Host       = 'smtp.gmail.com';
         $mail->SMTPAuth   = true;
-        $mail->Username   = 'Justinebatuhan017@gmail.com';
-        $mail->Password   = 'owxi hskd qzlq nczl';
+        $mail->Username   = GMAIL_USER;
+        $mail->Password   = GMAIL_APP_PASSWORD;
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port       = 587;
         $mail->Timeout    = 8; // 8 seconds max timeout so page doesn't hang forever
