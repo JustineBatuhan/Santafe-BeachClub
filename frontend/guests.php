@@ -122,243 +122,221 @@ function booking_room_type(array $booking): string {
     <link rel="icon" type="image/jpeg" href="assets/logo.jpg">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="assets/css/dashboard.css?v=4">
+    <link rel="stylesheet" href="assets/css/dashboard.css?v=5">
     <style>
-        /* ── Stat cards ──────────────────────────────────────── */
+        /* ── KPI Stat Cards ──────────────────────────────────── */
         .guest-stats-grid {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
             gap: 16px;
-            margin-bottom: 20px;
+            margin-bottom: 28px;
         }
-        @media (max-width: 1200px) {
-            .guest-stats-grid { grid-template-columns: repeat(3, 1fr); }
-        }
-        @media (max-width: 768px) {
-            .guest-stats-grid { grid-template-columns: repeat(2, 1fr); }
-        }
+        @media (max-width: 1200px) { .guest-stats-grid { grid-template-columns: repeat(3, 1fr); } }
+        @media (max-width: 768px)  { .guest-stats-grid { grid-template-columns: repeat(2, 1fr); } }
+
         .guest-stat-card {
-            background: var(--card-bg, #FFFFFF);
-            border-radius: 16px;
-            padding: 18px 20px;
+            background: var(--card-bg, #fff);
+            border-radius: 18px;
+            padding: 20px 22px;
             border: 1px solid var(--border, #E2E8F0);
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
             display: flex;
             align-items: center;
-            gap: 14px;
+            gap: 16px;
             transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
         .guest-stat-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 18px rgba(0, 0, 0, 0.06);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 24px rgba(0,0,0,0.08);
         }
         .guest-stat-icon {
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
+            width: 48px; height: 48px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
         }
-        .guest-stat-label { font-size: 11.5px; color: var(--text-muted, #888); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
-        .guest-stat-value { font-size: 24px; font-weight: 800; color: var(--text-main, #222); line-height: 1.1; font-family: var(--font-heading); }
+        .guest-stat-label { font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.7px; }
+        .guest-stat-value { font-size: 28px; font-weight: 800; color: var(--text-main); line-height: 1.1; font-family: var(--font-heading); margin-top: 2px; }
 
         /* ── Filter tabs ─────────────────────────────────────── */
-        .filter-tabs {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 4px;
-        }
+        .filter-tabs { display: flex; gap: 6px; flex-wrap: wrap; }
         .filter-tab {
-            padding: 7px 16px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 600;
+            padding: 6px 16px;
+            border-radius: 99px;
+            font-size: 12.5px; font-weight: 600;
             cursor: pointer;
-            border: 1px solid var(--border, #e5e7eb);
-            background: var(--input-bg, #FFFFFF);
-            color: var(--text-muted, #555);
-            transition: all .15s;
+            border: 1.5px solid var(--border, #E2E8F0);
+            background: var(--input-bg, #F8FAFC);
+            color: var(--text-muted);
+            transition: all .15s ease;
         }
-        .filter-tab:hover { border-color: var(--color-primary); color: var(--color-primary); }
-        .filter-tab.active { background: var(--color-primary); color: #fff; border-color: var(--color-primary); }
+        .filter-tab:hover { border-color: var(--primary, #84563C); color: var(--primary); }
+        .filter-tab.active { background: var(--primary, #84563C); color: #fff; border-color: var(--primary); box-shadow: 0 2px 8px rgba(132,86,60,0.3); }
 
-        /* ── Table ───────────────────────────────────────────── */
-        .reservations-table { width: 100%; border-collapse: collapse; }
-        .reservations-table th, .reservations-table td {
+        /* ── Guest table ─────────────────────────────────────── */
+        .guests-table { width: 100%; border-collapse: collapse; }
+        .guests-table th {
+            padding: 11px 16px; text-align: left;
+            font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px;
+            color: var(--text-muted); border-bottom: 1.5px solid var(--border);
+            background: var(--sidebar-hover, #F8FAFC);
+        }
+        .guests-table th:first-child { border-radius: 10px 0 0 0; }
+        .guests-table th:last-child  { border-radius: 0 10px 0 0; text-align: right; }
+        .guests-table td {
             padding: 14px 16px;
-            text-align: left;
-            border-bottom: 1px solid var(--border-light, #eee);
+            border-bottom: 1px solid var(--border-light, #F1F5F9);
+            color: var(--text-main); font-size: 13.5px; vertical-align: middle;
         }
-        .reservations-table tbody tr:last-child td { border-bottom: none; }
-        .reservations-table th {
-            color: var(--text-muted, #888);
-            font-weight: 700;
-            text-transform: uppercase;
-            font-size: 11px;
-            letter-spacing: .5px;
-        }
-        .reservations-table tbody tr:hover td { background: var(--sidebar-hover, #fafafa); }
-        .guest-profile-small { display: flex; align-items: center; gap: 10px; }
-        .avatar-small {
-            width: 36px; height: 36px; border-radius: 50%;
+        .guests-table tbody tr { transition: background 0.15s; }
+        .guests-table tbody tr:hover td { background: var(--primary-subtle, #FDF8F5); }
+        .guests-table tbody tr:last-child td { border-bottom: none; }
+
+        .guest-profile-cell { display: flex; align-items: center; gap: 12px; }
+        .g-avatar {
+            width: 40px; height: 40px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
-            font-weight: 700; font-size: 13px; flex-shrink: 0;
+            font-weight: 800; font-size: 14px; flex-shrink: 0;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
         }
-        .guest-name-main { font-weight: 600; font-size: 14px; color: var(--text-main, #222); }
-        .btn-view {
+        .g-name { font-weight: 700; font-size: 14px; color: var(--text-main); }
+        .g-sub  { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
+
+        .type-pill {
+            display: inline-block;
+            padding: 4px 12px; border-radius: 99px;
+            font-size: 11.5px; font-weight: 700;
+        }
+        .booking-badge {
+            display: inline-flex; align-items: center; justify-content: center;
+            min-width: 28px; height: 28px; padding: 0 8px;
+            border-radius: 99px; font-weight: 800; font-size: 13px;
+            background: var(--primary-subtle, #FDF4EC);
+            color: var(--primary, #84563C);
+            border: 1px solid rgba(132,86,60,0.18);
+        }
+
+        .btn-view-profile {
+            display: inline-flex; align-items: center; gap: 6px;
             background: transparent;
-            color: var(--color-primary);
-            border: 1px solid var(--color-primary);
-            padding: 6px 14px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 13px;
-            transition: all .15s;
+            color: var(--primary, #84563C);
+            border: 1.5px solid var(--primary, #84563C);
+            padding: 7px 16px; border-radius: 99px;
+            font-size: 12.5px; font-weight: 700; cursor: pointer;
+            transition: all .15s ease;
+            white-space: nowrap;
         }
-        .btn-view:hover { background: var(--primary-light, #FDF4EC); }
-        .booking-count-badge {
-            background: var(--input-bg, #f0f0f0);
-            border: 1px solid var(--border, #e2e8f0);
-            padding: 3px 10px;
-            border-radius: 20px;
-            font-weight: 700;
-            font-size: 13px;
-            color: var(--text-main, #333);
+        .btn-view-profile:hover {
+            background: var(--primary, #84563C); color: #fff;
+            box-shadow: 0 4px 12px rgba(132,86,60,0.3);
         }
-        .no-results { text-align: center; color: var(--text-muted, #999); padding: 40px 0; font-size: 15px; }
+
+        .no-results-state {
+            text-align: center; padding: 60px 20px; color: var(--text-muted);
+        }
+        .no-results-state svg { opacity: 0.25; margin-bottom: 12px; }
+        .no-results-state p { font-size: 15px; font-weight: 600; }
 
         /* ── Modal ───────────────────────────────────────────── */
         .modal-overlay {
-            display: none;
-            position: fixed; inset: 0;
-            background: rgba(0,0,0,.55);
-            backdrop-filter: blur(2px);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.55); backdrop-filter: blur(4px);
+            z-index: 1000; align-items: center; justify-content: center; padding: 20px;
         }
         .modal-overlay.open { display: flex; }
         .modal-box {
             background: var(--card-bg, #fff);
-            border: 1px solid var(--border, #e2e8f0);
-            border-radius: 16px;
-            width: 100%;
-            max-width: 740px;
-            max-height: 90vh;
-            overflow-y: auto;
-            box-shadow: 0 20px 60px rgba(0,0,0,.3);
-            animation: modalIn .2s ease;
+            border: 1px solid var(--border);
+            border-radius: 20px; width: 100%; max-width: 760px;
+            max-height: 90vh; overflow-y: auto;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.25);
+            animation: modalIn .2s cubic-bezier(0.16,1,0.3,1);
         }
-        @keyframes modalIn {
-            from { transform: translateY(20px); opacity: 0; }
-            to   { transform: translateY(0);    opacity: 1; }
-        }
+        @keyframes modalIn { from { transform: scale(0.96) translateY(10px); opacity: 0; } to { transform: scale(1) translateY(0); opacity: 1; } }
+
         .modal-header {
-            padding: 28px 28px 20px;
-            border-bottom: 1px solid var(--border, #eee);
-            display: flex;
-            align-items: flex-start;
-            gap: 18px;
-            position: sticky;
-            top: 0;
-            background: var(--card-bg, #fff);
-            border-radius: 16px 16px 0 0;
-            z-index: 1;
+            padding: 28px 28px 22px;
+            border-bottom: 1px solid var(--border);
+            display: flex; align-items: flex-start; gap: 18px;
+            position: sticky; top: 0;
+            background: var(--card-bg, #fff); border-radius: 20px 20px 0 0; z-index: 1;
         }
-        .modal-avatar {
-            width: 64px; height: 64px; border-radius: 50%;
+        .modal-avatar-lg {
+            width: 72px; height: 72px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
-            font-size: 22px; font-weight: 700; flex-shrink: 0;
+            font-size: 26px; font-weight: 800; flex-shrink: 0;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.12);
         }
-        .modal-guest-name { font-size: 20px; font-weight: 700; color: var(--text-main, #222); margin-bottom: 4px; }
-        .modal-guest-email { font-size: 14px; color: var(--text-muted, #888); margin-bottom: 8px; }
-        .modal-header-actions {
-            margin-left: auto;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+        .modal-guest-name { font-size: 22px; font-weight: 800; color: var(--text-main); margin-bottom: 3px; font-family: var(--font-heading); }
+        .modal-guest-email { font-size: 13.5px; color: var(--text-muted); margin-bottom: 8px; }
+        .modal-header-actions { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+
         .btn-book-again {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            text-decoration: none;
-            background: var(--color-primary);
-            color: #fff;
-            border: 1px solid var(--color-primary);
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-weight: 700;
-            font-size: 13px;
-            transition: all .15s;
-            white-space: nowrap;
+            display: inline-flex; align-items: center; gap: 6px;
+            background: var(--primary-grad, #84563C); color: #fff;
+            padding: 9px 18px; border-radius: 99px;
+            font-weight: 700; font-size: 13px; text-decoration: none;
+            transition: all .15s; box-shadow: 0 2px 8px rgba(132,86,60,0.3);
         }
-        .btn-book-again:hover {
-            background: #6d4935;
-            border-color: #6d4935;
-        }
+        .btn-book-again:hover { box-shadow: 0 6px 16px rgba(132,86,60,0.4); transform: translateY(-1px); }
+
         .modal-close {
-            background: none; border: none;
-            cursor: pointer; color: var(--text-muted, #aaa); padding: 4px;
-            border-radius: 6px; flex-shrink: 0;
+            background: var(--input-bg); border: 1px solid var(--border);
+            cursor: pointer; color: var(--text-muted);
+            width: 36px; height: 36px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            transition: all .15s;
         }
-        .modal-close:hover { color: var(--text-main, #444); background: var(--sidebar-hover, #f3f4f6); }
+        .modal-close:hover { background: var(--sidebar-hover); color: var(--text-main); }
+
         .modal-body { padding: 24px 28px; }
-        .modal-stats-row {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 14px;
-            margin-bottom: 28px;
+
+        .modal-kpi-row {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 26px;
         }
-        .modal-stat {
-            background: var(--input-bg, #f9fafb);
-            border: 1px solid var(--border, #eee);
-            border-radius: 10px;
-            padding: 14px 16px;
-            text-align: center;
+        .modal-kpi {
+            background: var(--input-bg, #F8FAFC);
+            border: 1px solid var(--border); border-radius: 14px;
+            padding: 16px; text-align: center;
         }
-        .modal-stat-val { font-size: 22px; font-weight: 700; color: var(--text-main, #222); }
-        .modal-stat-lbl { font-size: 11px; color: var(--text-muted, #888); font-weight: 600; text-transform: uppercase; margin-top: 2px; }
+        .modal-kpi-val { font-size: 24px; font-weight: 800; color: var(--text-main); font-family: var(--font-heading); }
+        .modal-kpi-lbl { font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 3px; }
+
         .modal-section-title {
-            font-size: 14px;
-            font-weight: 700;
-            color: var(--text-main, #444);
-            text-transform: uppercase;
-            letter-spacing: .5px;
-            margin-bottom: 12px;
+            font-size: 11.5px; font-weight: 700; color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: 0.7px; margin-bottom: 12px;
         }
+        .contact-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+            background: var(--input-bg); border: 1px solid var(--border);
+            border-radius: 12px; padding: 16px; margin-bottom: 22px;
+        }
+        .contact-label { font-size: 11.5px; color: var(--text-muted); font-weight: 600; margin-bottom: 3px; }
+        .contact-value { font-size: 14px; color: var(--text-main); font-weight: 600; }
+
         .booking-history-table { width: 100%; border-collapse: collapse; font-size: 13px; }
         .booking-history-table th {
             padding: 9px 12px; text-align: left;
-            background: var(--sidebar-hover, #f9fafb); color: var(--text-muted, #888); font-weight: 600;
-            text-transform: uppercase; font-size: 11px; letter-spacing: .4px;
+            background: var(--sidebar-hover); color: var(--text-muted); font-weight: 700;
+            text-transform: uppercase; font-size: 10.5px; letter-spacing: .5px;
         }
         .booking-history-table th:first-child { border-radius: 8px 0 0 8px; }
         .booking-history-table th:last-child  { border-radius: 0 8px 8px 0; }
-        .booking-history-table td { padding: 11px 12px; border-bottom: 1px solid var(--border-light, #f0f0f0); color: var(--text-main); }
+        .booking-history-table td { padding: 11px 12px; border-bottom: 1px solid var(--border-light); color: var(--text-main); }
         .booking-history-table tbody tr:last-child td { border-bottom: none; }
-        .status-pill {
-            padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;
-        }
-        .status-pill.pending    { background: rgba(245, 158, 11, 0.15); color: #F59E0B; }
-        .status-pill.checked-in { background: rgba(16, 185, 129, 0.15); color: #10B981; }
-        .status-pill.checked-out{ background: rgba(59, 130, 246, 0.15); color: #3B82F6; }
-        .status-pill.cancelled  { background: rgba(239, 68, 68, 0.15); color: #EF4444; }
-        .empty-history { text-align: center; color: var(--text-muted, #aaa); padding: 30px 0; font-size: 14px; }
+        .status-pill { padding: 3px 10px; border-radius: 99px; font-size: 11px; font-weight: 700; }
+        .status-pill.pending    { background: rgba(245,158,11,0.12); color: #F59E0B; }
+        .status-pill.checked-in { background: rgba(16,185,129,0.12); color: #10B981; }
+        .status-pill.checked-out{ background: rgba(59,130,246,0.12); color: #3B82F6; }
+        .status-pill.cancelled  { background: rgba(239,68,68,0.12);  color: #EF4444; }
+        .empty-history { text-align: center; color: var(--text-muted); padding: 30px 0; font-size: 14px; }
 
-        /* ── Card header row with filter + actions ────────────── */
-        .card-toolbar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 12px;
-            padding: 18px 20px 0;
+        .btn-export {
+            display: inline-flex; align-items: center; gap: 7px;
+            background: var(--card-bg); color: var(--text-main);
+            border: 1.5px solid var(--border); padding: 8px 16px;
+            border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer;
+            transition: all 0.15s;
         }
+        .btn-export:hover { background: var(--sidebar-hover); border-color: var(--primary); color: var(--primary); }
     </style>
 </head>
 <body>
@@ -368,23 +346,23 @@ function booking_room_type(array $booking): string {
 <main class="main-content">
 <?php
 $page_title    = 'Guest Management';
-$page_subtitle = 'Directory and history';
+$page_subtitle = 'Guest directory, profiles and booking history';
 $header_extra_html = '
-    <div class="search-wrapper">
-        <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input type="text" placeholder="Search guests..." class="search-input" id="guestSearch">
+    <div class="search-wrapper" style="position:relative;">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" placeholder="Search by name or email..." class="search-input" id="guestSearch">
     </div>
 ';
 include __DIR__ . '/partials/_page_header.php';
 ?>
 
-<section class="dashboard-grid" style="grid-template-columns:1fr;">
+<div class="admin-body">
 
-    <!-- ── Summary stat cards ─────────────────────────────────────────── -->
+    <!-- ══ KPI Stats Row ══════════════════════════════════════════ -->
     <div class="guest-stats-grid">
         <div class="guest-stat-card">
-            <div class="guest-stat-icon" style="background:rgba(59,130,246,0.12);">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            <div class="guest-stat-icon" style="background:rgba(59,130,246,0.1);">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
             </div>
             <div>
                 <div class="guest-stat-label">Total Guests</div>
@@ -392,8 +370,8 @@ include __DIR__ . '/partials/_page_header.php';
             </div>
         </div>
         <div class="guest-stat-card">
-            <div class="guest-stat-icon" style="background:rgba(132,86,60,0.12);">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#84563C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <div class="guest-stat-icon" style="background:rgba(132,86,60,0.1);">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#84563C" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
             </div>
             <div>
                 <div class="guest-stat-label">VIP Members</div>
@@ -401,8 +379,8 @@ include __DIR__ . '/partials/_page_header.php';
             </div>
         </div>
         <div class="guest-stat-card">
-            <div class="guest-stat-icon" style="background:rgba(21,101,192,0.12);">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1565C0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+            <div class="guest-stat-icon" style="background:rgba(21,101,192,0.1);">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1565C0" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
             </div>
             <div>
                 <div class="guest-stat-label">Corporate</div>
@@ -410,8 +388,8 @@ include __DIR__ . '/partials/_page_header.php';
             </div>
         </div>
         <div class="guest-stat-card">
-            <div class="guest-stat-icon" style="background:rgba(22,163,74,0.12);">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <div class="guest-stat-icon" style="background:rgba(22,163,74,0.1);">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
             </div>
             <div>
                 <div class="guest-stat-label">First Visit</div>
@@ -419,8 +397,8 @@ include __DIR__ . '/partials/_page_header.php';
             </div>
         </div>
         <div class="guest-stat-card">
-            <div class="guest-stat-icon" style="background:rgba(124,58,237,0.12);">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            <div class="guest-stat-icon" style="background:rgba(124,58,237,0.1);">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
             </div>
             <div>
                 <div class="guest-stat-label">Returning</div>
@@ -429,17 +407,17 @@ include __DIR__ . '/partials/_page_header.php';
         </div>
     </div>
 
-    <!-- ── Guest directory card ───────────────────────────────────────── -->
+    <!-- ══ Guest Directory Card ═══════════════════════════════════ -->
     <div class="card" style="padding:0; overflow:hidden;">
-        <div class="card-toolbar">
+        <!-- Card toolbar -->
+        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; padding:20px 24px 16px;">
             <div>
-                <h2 style="font-size:17px;font-weight:700;color:var(--text-main);">Guest Directory</h2>
-                <p style="font-size:13px;color:var(--text-muted);margin-top:2px;">
+                <h2 style="font-size:17px; font-weight:800; color:var(--text-main); margin:0; font-family:var(--font-heading);">Guest Directory</h2>
+                <p style="font-size:13px; color:var(--text-muted); margin-top:3px;">
                     <span id="visibleCount"><?= $total_guests ?></span> guest<?= $total_guests !== 1 ? 's' : '' ?> total
                 </p>
             </div>
-            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-                <!-- Filter tabs -->
+            <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
                 <div class="filter-tabs">
                     <button class="filter-tab active" data-filter="all">All</button>
                     <button class="filter-tab" data-filter="VIP Member">VIP</button>
@@ -447,29 +425,35 @@ include __DIR__ . '/partials/_page_header.php';
                     <button class="filter-tab" data-filter="Corporate">Corporate</button>
                     <button class="filter-tab" data-filter="First Visit">First Visit</button>
                 </div>
-                <button id="exportCsvBtn" class="btn-new-res-top" style="padding:8px 16px;font-size:13px;margin:0;">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:5px;vertical-align:middle;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                <button id="exportCsvBtn" class="btn-export">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                     Export CSV
                 </button>
             </div>
         </div>
 
-        <div style="padding:16px 20px 0;">
-            <table class="reservations-table" id="guestTable">
+        <!-- Table -->
+        <div style="overflow-x:auto; padding: 0 8px 16px;">
+            <table class="guests-table" id="guestTable">
                 <thead>
                     <tr>
-                        <th>Guest Profile</th>
+                        <th style="padding-left:24px;">Guest Profile</th>
                         <th>Email</th>
-                        <th>Type</th>
-                        <th>Total Bookings</th>
+                        <th>Tier</th>
+                        <th>Bookings</th>
                         <th>Last Visit</th>
-                        <th>Action</th>
+                        <th style="text-align:right; padding-right:24px;">Action</th>
                     </tr>
                 </thead>
                 <tbody id="guestTableBody">
                     <?php if (empty($guests)): ?>
                     <tr class="guest-row">
-                        <td colspan="6" class="no-results">No guests found in the directory.</td>
+                        <td colspan="6">
+                            <div class="no-results-state">
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                                <p>No guests found in the directory.</p>
+                            </div>
+                        </td>
                     </tr>
                     <?php else: ?>
                     <?php foreach ($guests as $row):
@@ -482,11 +466,9 @@ include __DIR__ . '/partials/_page_header.php';
                         $initials   = get_initials($name);
                         [$avatarBg, $avatarText] = avatar_colors($type);
 
-                        // Build booking history for this guest
                         $key      = strtolower(trim($email !== '' ? $email : $name));
                         $bookings = $bookings_by_email[$key] ?? [];
 
-                        // Compute total spend
                         $total_spend = 0;
                         foreach ($bookings as $bk) {
                             if ($bk['status'] !== 'Cancelled' && $bk['price_per_night']) {
@@ -495,7 +477,6 @@ include __DIR__ . '/partials/_page_header.php';
                             }
                         }
 
-                        // Extract guest contact info from the first (most recent) booking
                         $guest_phone = '';
                         $guest_country = '';
                         $guest_special_requests = '';
@@ -513,11 +494,6 @@ include __DIR__ . '/partials/_page_header.php';
                         $rebook_checkin = date('Y-m-d');
                         $rebook_checkout = date('Y-m-d', strtotime('+' . $recent_nights . ' day'));
                         $book_again_url = 'book?' . http_build_query([
-                            'rebook' => 1,
-                            'step' => 2,
-                            'checkin' => $rebook_checkin,
-                            'checkout' => $rebook_checkout,
-                            'guests' => $recent_guests,
                             'room_type' => $recent_room_type,
                             'first_name' => $guest_first_name,
                             'last_name' => $guest_last_name,
@@ -589,69 +565,74 @@ include __DIR__ . '/partials/_page_header.php';
         <div style="height:8px;"></div>
     </div>
 
-</section>
+</div>
 </main>
 
 <!-- ═══════════════════ Guest Profile Modal ═══════════════════ -->
 <div class="modal-overlay" id="guestModal" onclick="if(event.target===this)closeModal()">
     <div class="modal-box">
         <div class="modal-header">
-            <div class="modal-avatar" id="modalAvatar"></div>
-            <div style="flex:1;min-width:0;">
+            <div class="modal-avatar-lg" id="modalAvatar"></div>
+            <div style="flex:1; min-width:0;">
                 <div class="modal-guest-name" id="modalName"></div>
                 <div class="modal-guest-email" id="modalEmail"></div>
                 <div id="modalTypeBadge"></div>
             </div>
             <div class="modal-header-actions">
-                <a id="modalBookAgainBtn" class="btn-book-again" href="book?step=2">Book Again</a>
+                <a id="modalBookAgainBtn" class="btn-book-again" href="book?step=2">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
+                    Book Again
+                </a>
                 <button class="modal-close" onclick="closeModal()" title="Close">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                 </button>
             </div>
         </div>
         <div class="modal-body">
-            <div class="modal-stats-row">
-                <div class="modal-stat">
-                    <div class="modal-stat-val" id="modalTotalBookings">—</div>
-                    <div class="modal-stat-lbl">Total Bookings</div>
+            <!-- KPI row -->
+            <div class="modal-kpi-row">
+                <div class="modal-kpi">
+                    <div class="modal-kpi-val" id="modalTotalBookings">—</div>
+                    <div class="modal-kpi-lbl">Total Bookings</div>
                 </div>
-                <div class="modal-stat">
-                    <div class="modal-stat-val" id="modalFirstVisit">—</div>
-                    <div class="modal-stat-lbl">First Visit</div>
+                <div class="modal-kpi">
+                    <div class="modal-kpi-val" id="modalFirstVisit">—</div>
+                    <div class="modal-kpi-lbl">First Visit</div>
                 </div>
-                <div class="modal-stat">
-                    <div class="modal-stat-val" id="modalTotalSpend">—</div>
-                    <div class="modal-stat-lbl">Est. Total Spend</div>
+                <div class="modal-kpi">
+                    <div class="modal-kpi-val" id="modalTotalSpend">—</div>
+                    <div class="modal-kpi-lbl">Est. Total Spend</div>
                 </div>
             </div>
 
-           <!-- Contact Information Section -->
-           <div class="modal-section-title">Contact Information</div>
-           <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;padding:12px;background:#f9fafb;border-radius:8px;border:1px solid #e5e7eb;">
-               <div>
-                   <div style="font-size:12px;color:#6b7280;font-weight:500;margin-bottom:4px;">Phone</div>
-                   <div style="font-size:14px;color:#222;" id="modalPhone">—</div>
-               </div>
-               <div>
-                   <div style="font-size:12px;color:#6b7280;font-weight:500;margin-bottom:4px;">Country</div>
-                   <div style="font-size:14px;color:#222;" id="modalCountry">—</div>
-               </div>
-           </div>
+            <!-- Contact Information -->
+            <div class="modal-section-title">Contact Information</div>
+            <div class="contact-grid">
+                <div>
+                    <div class="contact-label">Phone</div>
+                    <div class="contact-value" id="modalPhone">—</div>
+                </div>
+                <div>
+                    <div class="contact-label">Country</div>
+                    <div class="contact-value" id="modalCountry">—</div>
+                </div>
+            </div>
 
-           <!-- Special Requests Section -->
-           <div id="modalSpecialRequestsSection" style="display:none;margin-bottom:20px;">
-               <div class="modal-section-title">Special Requests / Notes</div>
-               <div style="padding:12px;background:#fef3c7;border-radius:8px;border:1px solid #fcd34d;font-size:13px;color:#92400e;line-height:1.5;" id="modalSpecialRequests"></div>
-           </div>
+            <!-- Special Requests -->
+            <div id="modalSpecialRequestsSection" style="display:none; margin-bottom:22px;">
+                <div class="modal-section-title">Special Requests / Notes</div>
+                <div style="padding:14px 16px; background:rgba(245,158,11,0.08); border:1px solid rgba(245,158,11,0.25); border-radius:10px; font-size:13.5px; color:var(--text-main); line-height:1.6;" id="modalSpecialRequests"></div>
+            </div>
 
-           <div class="modal-section-title">Booking History</div>
-           <div id="modalBookingHistory"></div>
+            <!-- Booking History -->
+            <div class="modal-section-title">Booking History</div>
+            <div id="modalBookingHistory" style="overflow-x:auto; border-radius:10px; border:1px solid var(--border);"></div>
         </div>
     </div>
 </div>
 
 <script>
-// ── Embed all guest data ──────────────────────────────────────────────────────
+// ── Guest data rows ──────────────────────────────────────────────────────────
 const ALL_ROWS = Array.from(document.querySelectorAll('#guestTableBody .guest-row[data-name]'));
 let activeFilter = 'all';
 
@@ -673,7 +654,7 @@ document.querySelectorAll('.filter-tab').forEach(btn => {
 function applyFilters(searchTerm) {
     let visible = 0;
     ALL_ROWS.forEach(row => {
-        const typeMatch  = activeFilter === 'all' || row.dataset.type === activeFilter;
+        const typeMatch   = activeFilter === 'all' || row.dataset.type === activeFilter;
         const searchMatch = searchTerm === '' ||
             row.dataset.name.includes(searchTerm) ||
             row.dataset.email.includes(searchTerm);
@@ -690,12 +671,12 @@ document.getElementById('exportCsvBtn').addEventListener('click', function () {
     const visibleRows = ALL_ROWS.filter(r => r.style.display !== 'none');
     if (!visibleRows.length) { alert('No guests to export.'); return; }
 
-    const headers = ['Guest Name', 'Email', 'Type', 'Total Bookings', 'Last Visit'];
+    const headers = ['Guest Name', 'Email', 'Tier', 'Total Bookings', 'Last Visit'];
     const lines   = [headers.join(',')];
 
     visibleRows.forEach(row => {
         const cells = row.querySelectorAll('td');
-        const name      = cells[0].querySelector('.guest-name-main')?.textContent.trim() ?? '';
+        const name      = cells[0].querySelector('.g-name')?.textContent.trim() ?? '';
         const email     = cells[1].textContent.trim();
         const type      = cells[2].textContent.trim();
         const bookings  = cells[3].textContent.trim();
@@ -716,9 +697,11 @@ document.getElementById('exportCsvBtn').addEventListener('click', function () {
 
 // ── Profile Modal ─────────────────────────────────────────────────────────────
 function openGuestProfile(data) {
-    document.getElementById('modalAvatar').textContent        = data.initials;
-    document.getElementById('modalAvatar').style.background  = data.avatarBg;
-    document.getElementById('modalAvatar').style.color       = data.avatarText;
+    const av = document.getElementById('modalAvatar');
+    av.textContent       = data.initials;
+    av.style.background  = data.avatarBg;
+    av.style.color       = data.avatarText;
+
     document.getElementById('modalName').textContent          = data.name;
     document.getElementById('modalEmail').textContent         = data.email || '—';
     document.getElementById('modalBookAgainBtn').href         = data.book_again_url || 'book?step=2';
@@ -728,13 +711,11 @@ function openGuestProfile(data) {
         ? '₱' + Number(data.spend).toLocaleString('en-PH', {minimumFractionDigits:0})
         : '—';
 
-    // Contact information
-    document.getElementById('modalPhone').textContent         = data.phone || '—';
-    document.getElementById('modalCountry').textContent       = data.country || '—';
+    document.getElementById('modalPhone').textContent   = data.phone   || '—';
+    document.getElementById('modalCountry').textContent = data.country || '—';
 
-    // Special requests section
     const specialRequestsSection = document.getElementById('modalSpecialRequestsSection');
-    const specialRequestsDiv = document.getElementById('modalSpecialRequests');
+    const specialRequestsDiv     = document.getElementById('modalSpecialRequests');
     if (data.special_requests && data.special_requests.trim()) {
         specialRequestsDiv.textContent = data.special_requests;
         specialRequestsSection.style.display = 'block';
@@ -742,17 +723,15 @@ function openGuestProfile(data) {
         specialRequestsSection.style.display = 'none';
     }
 
-    // Type badge
     const badgeStyles = {
-        'VIP Member':      'background:#FDF4EC;color:#7C533C;border:1px solid #e8d5c0;',
-        'Corporate':       'background:#E3F2FD;color:#1565C0;border:1px solid #bbdefb;',
-        'Returning Guest': 'background:#F3E8FF;color:#7C3AED;border:1px solid #ddd6fe;',
+        'VIP Member':      'background:rgba(132,86,60,0.1);color:#7C533C;border:1px solid rgba(132,86,60,0.25);',
+        'Corporate':       'background:rgba(59,130,246,0.1);color:#1565C0;border:1px solid rgba(59,130,246,0.25);',
+        'Returning Guest': 'background:rgba(124,58,237,0.1);color:#7C3AED;border:1px solid rgba(124,58,237,0.25);',
     };
-    const bs = badgeStyles[data.type] || 'background:#F3F4F6;color:#4B5563;border:1px solid #e5e7eb;';
+    const bs = badgeStyles[data.type] || 'background:rgba(16,185,129,0.1);color:#059669;border:1px solid rgba(16,185,129,0.25);';
     document.getElementById('modalTypeBadge').innerHTML =
-        `<span style="${bs}padding:3px 12px;border-radius:20px;font-size:12px;font-weight:600;">${data.type}</span>`;
+        `<span style="${bs}padding:4px 14px;border-radius:99px;font-size:12px;font-weight:700;display:inline-block;">${data.type}</span>`;
 
-    // Booking history table
     const hist = document.getElementById('modalBookingHistory');
     if (!data.bookings || data.bookings.length === 0) {
         hist.innerHTML = '<div class="empty-history">No booking records found.</div>';
@@ -772,19 +751,16 @@ function openGuestProfile(data) {
                 <td>${b.check_out}</td>
                 <td>${b.nights} night${b.nights !== 1 ? 's' : ''}</td>
                 <td><span class="status-pill ${statusClass(b.status)}">${b.status}</span></td>
-                <td>${amount}</td>
+                <td><strong>${amount}</strong></td>
             </tr>`;
         });
-        hist.innerHTML = `
-        <div style="overflow-x:auto;">
-            <table class="booking-history-table">
-                <thead><tr>
-                    <th>#ID</th><th>Room</th><th>Check-in</th><th>Check-out</th>
-                    <th>Nights</th><th>Status</th><th>Amount</th>
-                </tr></thead>
-                <tbody>${rows}</tbody>
-            </table>
-        </div>`;
+        hist.innerHTML = `<table class="booking-history-table">
+            <thead><tr>
+                <th>#ID</th><th>Room</th><th>Check-in</th><th>Check-out</th>
+                <th>Nights</th><th>Status</th><th>Amount</th>
+            </tr></thead>
+            <tbody>${rows}</tbody>
+        </table>`;
     }
 
     document.getElementById('guestModal').classList.add('open');
@@ -802,3 +778,4 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal()
 <script src="assets/js/sidebar-toggle.js"></script>
 </body>
 </html>
+
