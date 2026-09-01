@@ -129,32 +129,61 @@ function booking_room_type(array $booking): string {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
             gap: 16px;
-            margin-bottom: 28px;
+            margin-bottom: 24px;
         }
         @media (max-width: 1200px) { .guest-stats-grid { grid-template-columns: repeat(3, 1fr); } }
         @media (max-width: 768px)  { .guest-stats-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 480px)  { .guest-stats-grid { grid-template-columns: 1fr; } }
 
         .guest-stat-card {
             background: var(--card-bg, #fff);
-            border-radius: 18px;
-            padding: 20px 22px;
+            border-radius: 16px;
+            padding: 18px 20px;
             border: 1px solid var(--border, #E2E8F0);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
             display: flex;
             align-items: center;
-            gap: 16px;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            justify-content: space-between;
+            gap: 12px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
         }
         .guest-stat-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 24px rgba(0,0,0,0.08);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 18px rgba(0, 0, 0, 0.06);
+            border-color: rgba(132, 86, 60, 0.3);
+        }
+        .guest-stat-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .guest-stat-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.7px;
+        }
+        .guest-stat-value {
+            font-size: 26px;
+            font-weight: 800;
+            color: var(--text-main);
+            line-height: 1.1;
+            font-family: var(--font-heading);
         }
         .guest-stat-icon {
-            width: 48px; height: 48px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: transform 0.2s ease;
         }
-        .guest-stat-label { font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.7px; }
-        .guest-stat-value { font-size: 28px; font-weight: 800; color: var(--text-main); line-height: 1.1; font-family: var(--font-heading); margin-top: 2px; }
+        .guest-stat-card:hover .guest-stat-icon {
+            transform: scale(1.06);
+        }
 
         /* ── Filter tabs ─────────────────────────────────────── */
         .filter-tabs { display: flex; gap: 6px; flex-wrap: wrap; }
@@ -361,48 +390,52 @@ include __DIR__ . '/partials/_page_header.php';
     <!-- ══ KPI Stats Row ══════════════════════════════════════════ -->
     <div class="guest-stats-grid">
         <div class="guest-stat-card">
-            <div class="guest-stat-icon" style="background:rgba(59,130,246,0.1);">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-            </div>
-            <div>
+            <div class="guest-stat-info">
                 <div class="guest-stat-label">Total Guests</div>
                 <div class="guest-stat-value"><?= $total_guests ?></div>
             </div>
-        </div>
-        <div class="guest-stat-card">
-            <div class="guest-stat-icon" style="background:rgba(132,86,60,0.1);">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#84563C" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <div class="guest-stat-icon" style="background:#E8F0FE; color:#1A73E8;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
             </div>
-            <div>
+        </div>
+
+        <div class="guest-stat-card">
+            <div class="guest-stat-info">
                 <div class="guest-stat-label">VIP Members</div>
                 <div class="guest-stat-value"><?= $vip_count ?></div>
             </div>
-        </div>
-        <div class="guest-stat-card">
-            <div class="guest-stat-icon" style="background:rgba(21,101,192,0.1);">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1565C0" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+            <div class="guest-stat-icon" style="background:#FFF3E8; color:#84563C;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
             </div>
-            <div>
+        </div>
+
+        <div class="guest-stat-card">
+            <div class="guest-stat-info">
                 <div class="guest-stat-label">Corporate</div>
                 <div class="guest-stat-value"><?= $corporate_count ?></div>
             </div>
-        </div>
-        <div class="guest-stat-card">
-            <div class="guest-stat-icon" style="background:rgba(22,163,74,0.1);">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <div class="guest-stat-icon" style="background:#E3F2FD; color:#1565C0;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
             </div>
-            <div>
+        </div>
+
+        <div class="guest-stat-card">
+            <div class="guest-stat-info">
                 <div class="guest-stat-label">First Visit</div>
                 <div class="guest-stat-value"><?= $first_visit_count ?></div>
             </div>
-        </div>
-        <div class="guest-stat-card">
-            <div class="guest-stat-icon" style="background:rgba(124,58,237,0.1);">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            <div class="guest-stat-icon" style="background:#E6F4EA; color:#0D652D;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
             </div>
-            <div>
+        </div>
+
+        <div class="guest-stat-card">
+            <div class="guest-stat-info">
                 <div class="guest-stat-label">Returning</div>
                 <div class="guest-stat-value"><?= $returning_count ?></div>
+            </div>
+            <div class="guest-stat-icon" style="background:#F3E8FF; color:#7C3AED;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
             </div>
         </div>
     </div>
